@@ -52,19 +52,23 @@ private class TriggerActionService_Test {
 		System.assert(classes != null, 'Classes list should not be null');
 	}
 
+	public class DummyAction implements TriggerAction.AfterInsert {
+		public void afterInsert(List<SObject> newList) {}
+	}
+
 	/**
 	 * Test that getImplementedContexts returns correct contexts for a known class
 	 */
 	@isTest
 	static void testGetImplementedContextsValid() {
 		Test.startTest();
-		String result = TriggerActionService.getImplementedContexts('ExampleAccountAction');
+		String result = TriggerActionService.getImplementedContexts('TriggerActionService_Test.DummyAction');
 		Test.stopTest();
 
 		System.assert(result != null, 'Result should not be null');
 		Map<String, Object> contexts = (Map<String, Object>) JSON.deserializeUntyped(result);
-		System.assertEquals(true, contexts.get('After_Insert__c'), 'ExampleAccountAction implements AfterInsert');
-		System.assertEquals(false, contexts.get('Before_Insert__c'), 'ExampleAccountAction does not implement BeforeInsert');
+		System.assertEquals(true, contexts.get('After_Insert__c'), 'DummyAction implements AfterInsert');
+		System.assertEquals(false, contexts.get('Before_Insert__c'), 'DummyAction does not implement BeforeInsert');
 	}
 
 	/**
