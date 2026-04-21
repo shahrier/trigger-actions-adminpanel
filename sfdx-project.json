@@ -13,8 +13,19 @@
       ]
     },
     {
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
       "path": "examples/force-app",
-      "default": false
+      "default": false,
+      "package": "Trigger Actions Admin Panel Examples",
+      "dependencies": [
+        {
+          "package": "04tKY000000R0yHYAS"
+        },
+        {
+          "package": "04tgL000000E3PRQA0"
+        }
+      ]
     }
   ],
   "name": "trigger-actions-adminpanel",
@@ -25,6 +36,7 @@
     "Trigger Actions Framework": "04tKY000000R0yHYAS",
     "Trigger Actions Admin Panel": "0HogL0000002AjFSAU",
     "Trigger Actions Admin Panel@0.1.0-1": "04tgL000000E1DxQAK",
-    "Trigger Actions Admin Panel@0.1.0-2": "04tgL000000E3PRQA0"
+    "Trigger Actions Admin Panel@0.1.0-2": "04tgL000000E3PRQA0",
+    "Trigger Actions Admin Panel Examples": "0HogL0000002B2bSAE"
   }
 }

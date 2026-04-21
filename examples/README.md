@@ -4,15 +4,6 @@ This folder contains a hit-the-ground-running example to help you learn how the 
 
 It installs a ready-to-use **Account Trigger** accompanied by a sample Apex Action (`SampleAccountAction`) and all necessary metadata to make it visible in the Admin Panel immediately!
 
-## Quick Deploy to Sandbox / Dev Org
-
-<a href="https://githubsfdeploy.herokuapp.com?owner=shahrier&repo=trigger-actions-adminpanel&ref=main">
-  <img alt="Deploy to Salesforce"
-       src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
-</a>
-
-> **Warning:** Using the button above will deploy both the Admin Panel and the Examples to your org. Only do this if you are in a scratch org or a sandbox! The `AccountTrigger.trigger` included here may conflict with an existing AccountTrigger in a mature org.
-
 ## Deploy via Salesforce CLI
 
 If you have already installed the core packages and just want to push these specific examples to your scratch org or sandbox, run:
