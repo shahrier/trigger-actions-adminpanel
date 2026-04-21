@@ -1,0 +1,61 @@
+<template>
+	<section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+		<div class="slds-modal__container">
+			<header class="slds-modal__header">
+				<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCancel}>
+					<lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+					<span class="slds-assistive-text">Close</span>
+				</button>
+				<h2 class="slds-text-heading_medium slds-hyphenate">Add SObject to Trigger Framework</h2>
+			</header>
+			
+			<div class="slds-modal__content slds-p-around_medium form-content">
+				<template if:true={isLoading}>
+					<lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+				</template>
+				
+				<form class="slds-form slds-form_stacked">
+					<lightning-combobox
+						name="objectName"
+						label="SObject API Name"
+						value={objectName}
+						options={objectOptions}
+						onchange={handleChange}
+						required
+						message-when-value-missing="Please select an SObject.">
+					</lightning-combobox>
+
+					<div class="slds-var-m-top_medium">
+						<p class="slds-text-body_small slds-text-color_weak slds-var-m-bottom_small">
+							The permissions below are optional. If supplied, they allow granular bypass or require specific permissions to execute triggers for this object.
+						</p>
+					</div>
+
+					<lightning-input 
+						type="text" 
+						label="Bypass Permission (Custom Permission API Name)" 
+						name="bypassPermission"
+						value={bypassPermission}
+						onchange={handleChange}
+						class="slds-var-m-top_small">
+					</lightning-input>
+
+					<lightning-input 
+						type="text" 
+						label="Required Permission (Custom Permission API Name)" 
+						name="requiredPermission"
+						value={requiredPermission}
+						onchange={handleChange}
+						class="slds-var-m-top_small">
+					</lightning-input>
+				</form>
+			</div>
+
+			<footer class="slds-modal__footer">
+				<lightning-button label="Cancel" onclick={handleCancel} class="slds-var-m-right_x-small"></lightning-button>
+				<lightning-button label="Save" variant="brand" onclick={handleSave} disabled={isLoading}></lightning-button>
+			</footer>
+		</div>
+	</section>
+	<div class="slds-backdrop slds-backdrop_open"></div>
+</template>

@@ -235,8 +235,77 @@ public with sharing class TriggerActionService {
 		return jobId;
 	}
 
+	/**
+	 * @description Gets all triggerable SObjects in the org for the picklist
+	 * @return List<Map<String, String>> List of triggerable SObjects
+	 */
+	@AuraEnabled(cacheable=true)
+	public static List<Map<String, String>> getAllOrgSObjects() {
+		List<Map<String, String>> result = new List<Map<String, String>>();
+		List<EntityDefinition> eds = [SELECT QualifiedApiName, Label FROM EntityDefinition WHERE IsTriggerable = true ORDER BY Label ASC LIMIT 1000];
+		for (EntityDefinition ed : eds) {
+			Map<String, String> obj = new Map<String, String>();
+			obj.put('label', ed.Label + ' (' + ed.QualifiedApiName + ')');
+			obj.put('value', ed.QualifiedApiName);
+			result.add(obj);
+		}
+		return result;
+	}
 
+	/**
+	 * @description Creates a new sObject Trigger Setting via Metadata API
+	 * @param objectName The API name of the target SObject
+	 * @param bypassPermission Optional permission to bypass execution
+	 * @param requiredPermission Optional permission required to execute
+	 * @return String The deployment job ID
+	 */
+	@AuraEnabled
+	public static String createTriggerSetting(
+		String objectName,
+		String bypassPermission,
+		String requiredPermission
+	) {
+		if (String.isBlank(objectName)) {
+			String msg = 'Object Name is required.';
+			AuraHandledException ahe = new AuraHandledException(msg);
+			ahe.setMessage(msg);
+			throw ahe;
+		}
 
+		String devName = objectName.replace('__c', '').replace('__', '_');
+		devName = devName.replaceAll('[^a-zA-Z0-9_]', '');
+		if (devName.endsWith('_')) devName = devName.substring(0, devName.length() - 1);
+		if (devName.length() > 37) devName = devName.substring(0, 37);
+
+		List<sObject_Trigger_Setting__mdt> existing = [
+			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE DeveloperName = :devName OR Object_API_Name__c = :objectName
+		];
+		if (!existing.isEmpty()) {
+			String msg = 'A Trigger Setting for this SObject already exists.';
+			AuraHandledException ahe = new AuraHandledException(msg);
+			ahe.setMessage(msg);
+			throw ahe;
+		}
+
+		Metadata.CustomMetadata record = new Metadata.CustomMetadata();
+		record.fullName = 'sObject_Trigger_Setting__mdt.' + devName;
+		record.label = devName;
+
+		addMetadataValue(record, 'Object_API_Name__c', objectName);
+		addMetadataValue(record, 'Bypass_Execution__c', false);
+		
+		if (String.isNotBlank(bypassPermission)) {
+			addMetadataValue(record, 'Bypass_Permission__c', bypassPermission);
+		}
+		if (String.isNotBlank(requiredPermission)) {
+			addMetadataValue(record, 'Required_Permission__c', requiredPermission);
+		}
+
+		Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+		mdContainer.addMetadata(record);
+
+		return Metadata.Operations.enqueueDeployment(mdContainer, new CustomMetadataCallback());
+	}
 	/**
 	 * @description Gets all available SObjects for filtering and selection
 	 * @return List<Map<String, String>> List of available SObjects with API names and labels

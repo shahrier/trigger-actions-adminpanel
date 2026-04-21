@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 <lightning-card title="Trigger Actions Framework" icon-name="standard:config">
 <div class="slds-m-around_medium slds-is-relative">
 <template if:true={isLoading}>
@@ -10,6 +10,16 @@
 <div class="object-panel">
 <div class="panel-header">
 <h3 class="slds-text-heading_small">SObjects</h3>
+<div class="slds-grid slds-grid_vertical-align-center">
+<lightning-button-icon
+icon-name="utility:add"
+alternative-text="Add SObject"
+onclick={handleAddSObject}
+size="small"
+variant="bare"
+class="slds-var-m-right_x-small"
+>
+</lightning-button-icon>
 <lightning-button-icon
 icon-name="utility:refresh"
 alternative-text="Refresh"
@@ -18,6 +28,7 @@ size="small"
 variant="border-filled"
 >
 </lightning-button-icon>
+</div>
 </div>
 <div class="object-list">
 <template for:each={objectList} for:item="obj">
@@ -255,5 +266,14 @@ onclick={handleDeleteConfirm}
 </div>
 </section>
 <div class="slds-backdrop slds-backdrop_open"></div>
+</template>
+
+<!-- Add SObject Form Modal -->
+<template if:true={showSettingFormModal}>
+<c-trigger-setting-form
+onclose={handleSettingFormClose}
+onsavesuccess={handleSettingSaveSuccess}
+>
+</c-trigger-setting-form>
 </template>
 </template>

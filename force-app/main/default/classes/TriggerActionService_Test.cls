@@ -40,6 +40,28 @@ private class TriggerActionService_Test {
 		System.assert(sObjects != null, 'SObjects list should not be null');
 	}
 
+	@isTest
+	static void testGetAllOrgSObjects() {
+		Test.startTest();
+		List<Map<String, String>> sObjects = TriggerActionService.getAllOrgSObjects();
+		Test.stopTest();
+
+		System.assert(sObjects != null, 'Org SObjects list should not be null');
+		System.assert(sObjects.size() > 0, 'Org SObjects list should not be empty');
+	}
+
+	@isTest
+	static void testCreateTriggerSettingEmptyName() {
+		Test.startTest();
+		try {
+			TriggerActionService.createTriggerSetting('', null, null);
+			System.assert(false, 'Should throw exception for empty object name');
+		} catch (AuraHandledException e) {
+			// Expected
+		}
+		Test.stopTest();
+	}
+
 	/**
 	 * Test that getAvailableApexClasses returns a list
 	 */

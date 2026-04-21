@@ -1,4 +1,4 @@
-﻿import { LightningElement, api, wire } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
 import getAllTriggerActions from '@salesforce/apex/TriggerActionService.getAllTriggerActions';
@@ -23,6 +23,7 @@ selectedAction = null;
 selectedObjectName = '';
 isLoading = false;
 showFormModal = false;
+showSettingFormModal = false;
 showDeleteConfirm = false;
 isCreating = false;
 availableSObjects = [];
@@ -204,6 +205,22 @@ handleSaveSuccess() {
 this.showFormModal = false;
 this.selectedAction = null;
 this.showSuccess('Trigger Action deployment started. The list will refresh shortly.');
+setTimeout(() => {
+this.refreshList().catch(() => {});
+}, 8000);
+}
+
+handleAddSObject() {
+this.showSettingFormModal = true;
+}
+
+handleSettingFormClose() {
+this.showSettingFormModal = false;
+}
+
+handleSettingSaveSuccess() {
+this.showSettingFormModal = false;
+this.showSuccess('Trigger Setting deployment started. The SObject list will refresh shortly.');
 setTimeout(() => {
 this.refreshList().catch(() => {});
 }, 8000);
