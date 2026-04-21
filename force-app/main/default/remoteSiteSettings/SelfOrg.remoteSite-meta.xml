@@ -3,5 +3,5 @@
     <disableProtocolSecurity>false</disableProtocolSecurity>
     <isActive>true</isActive>
     <url>https://placeholder.my.salesforce.com</url>
-    <description>Required for custom metadata deletion via the Metadata SOAP API. IMPORTANT: After installation, update this URL to match your org domain. Go to Setup → Remote Site Settings → SelfOrg → Edit, and replace the URL with your org's My Domain URL (e.g., https://yourcompany.my.salesforce.com).</description>
+    <description>Required for custom metadata deletion. After installation, update this URL to match your org domain. Go to Setup → Remote Site Settings → Edit SelfOrg, and replace the URL with your org's My Domain URL to enable delete.</description>
 </RemoteSiteSetting>

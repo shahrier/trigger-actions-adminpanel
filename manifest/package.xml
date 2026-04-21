@@ -26,6 +26,14 @@
     </types>
     <types>
         <members>*</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>*</members>
         <name>CustomApplication</name>
     </types>
     <types>
