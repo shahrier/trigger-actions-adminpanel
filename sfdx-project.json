@@ -11,6 +11,10 @@
           "package": "Trigger Actions Framework"
         }
       ]
+    },
+    {
+      "path": "examples/force-app",
+      "default": false
     }
   ],
   "name": "trigger-actions-adminpanel",
