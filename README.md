@@ -12,8 +12,8 @@
 To deploy **Trigger Actions Admin Panel** to your environment, follow the steps matching your preferred installation method:
 
 **Unlocked Package (Recommended)**
-*   [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E1DxQAK)
-*   [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E1DxQAK)
+*   [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E3PRQA0)
+*   [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E3PRQA0)
 
 > **Note:** This requires the core `Trigger Actions Framework` (`04tKY000000R0yHYAS`) to be installed first.
 
