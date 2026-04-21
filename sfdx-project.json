@@ -19,6 +19,7 @@
   "sourceApiVersion": "66.0",
   "packageAliases": {
     "Trigger Actions Framework": "04tKY000000R0yHYAS",
-    "Trigger Actions Admin Panel": "0HogL0000002AjFSAU"
+    "Trigger Actions Admin Panel": "0HogL0000002AjFSAU",
+    "Trigger Actions Admin Panel@0.1.0-1": "04tgL000000E1DxQAK"
   }
 }

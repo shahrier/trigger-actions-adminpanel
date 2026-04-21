@@ -9,12 +9,15 @@
 
 ### Option 1: Unlocked Package Installation (Recommended)
 
-> **Note:** Package links will be available once the first version is published. Check the [Releases](https://github.com/shahrier/trigger-actions-adminpanel/releases) page for the latest install URLs.
+To deploy **Trigger Actions Admin Panel** to your environment, follow the steps matching your preferred installation method:
 
-<!--
-#### [Install in Production](https://login.salesforce.com/packaging/installPackage.apexp?p0=PACKAGE_VERSION_ID)
-#### [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=PACKAGE_VERSION_ID)
--->
+**Unlocked Package (Recommended)**
+*   [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E1DxQAK)
+*   [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E1DxQAK)
+
+> **Note:** This requires the core `Trigger Actions Framework` (`04tKY000000R0yHYAS`) to be installed first.
+
+---
 
 ### Option 2: Deploy from Source (GitHub)
 
