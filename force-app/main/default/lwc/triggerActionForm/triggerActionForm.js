@@ -13,7 +13,8 @@ export default class TriggerActionForm extends LightningElement {
 	formData = {};
 	isLoading = false;
 	apexClassOptions = [];
-	selectedContexts = {};
+	implementedContexts = {};
+	selectedContext__c = '';
 
 	async connectedCallback() {
 		try {
@@ -34,7 +35,8 @@ export default class TriggerActionForm extends LightningElement {
 				bypassExecution: false,
 				allowFlowRecursion: false
 			};
-			this.selectedContexts = this.initializeContexts();
+			this.implementedContexts = this.initializeContexts();
+			this.selectedContext__c = '';
 		} else if (this.action) {
 			this.formData = {
 				objectName: this.action.Object_API_Name__c || '',
@@ -47,7 +49,7 @@ export default class TriggerActionForm extends LightningElement {
 				bypassExecution: this.action.Bypass_Execution__c || false,
 				allowFlowRecursion: this.action.Allow_Flow_Recursion__c || false
 			};
-			this.selectedContexts = {
+			this.implementedContexts = {
 				Before_Insert__c: !!this.action.Before_Insert__c,
 				After_Insert__c: !!this.action.After_Insert__c,
 				Before_Update__c: !!this.action.Before_Update__c,
@@ -56,6 +58,8 @@ export default class TriggerActionForm extends LightningElement {
 				After_Delete__c: !!this.action.After_Delete__c,
 				After_Undelete__c: !!this.action.After_Undelete__c
 			};
+			// Find the first true context
+			this.selectedContext__c = Object.keys(this.implementedContexts).find(key => this.implementedContexts[key]) || '';
 		}
 	}
 
@@ -86,7 +90,7 @@ export default class TriggerActionForm extends LightningElement {
 		}));
 	}
 
-	get detectedContextLabels() {
+	get contextOptions() {
 		const labelMap = {
 			'Before_Insert__c': 'Before Insert',
 			'After_Insert__c': 'After Insert',
@@ -96,13 +100,16 @@ export default class TriggerActionForm extends LightningElement {
 			'After_Delete__c': 'After Delete',
 			'After_Undelete__c': 'After Undelete'
 		};
-		return Object.keys(this.selectedContexts)
-			.filter(key => this.selectedContexts[key])
-			.map(key => labelMap[key] || key);
+		return Object.keys(this.implementedContexts)
+			.filter(key => this.implementedContexts[key])
+			.map(key => ({
+				label: labelMap[key] || key,
+				value: key
+			}));
 	}
 
-	get hasDetectedContexts() {
-		return this.detectedContextLabels.length > 0;
+	get hasContextOptions() {
+		return this.contextOptions.length > 0;
 	}
 
 	handleInputChange(event) {
@@ -130,15 +137,21 @@ export default class TriggerActionForm extends LightningElement {
 			try {
 				this.isLoading = true;
 				const result = await getImplementedContexts({ apexClassName: className });
-				this.selectedContexts = JSON.parse(result);
+				this.implementedContexts = JSON.parse(result);
+				// Automatically select the first implemented context
+				const firstContext = Object.keys(this.implementedContexts).find(key => this.implementedContexts[key]);
+				this.selectedContext__c = firstContext || '';
 				this.showInfo('Success', `Auto-detected contexts for ${className}`);
 			} catch (error) {
 				this.showError('Error', 'Failed to detect contexts: ' + error.body?.message || error.message);
-				// Don't override contexts on error, let user set manually
 			} finally {
 				this.isLoading = false;
 			}
 		}
+	}
+
+	handleContextChange(event) {
+		this.selectedContext__c = event.detail.value;
 	}
 
 	async handleSave() {
@@ -164,11 +177,10 @@ export default class TriggerActionForm extends LightningElement {
 			return;
 		}
 
-		// Check if at least one context was detected from the class
-		const hasContext = Object.values(this.selectedContexts).some(val => val);
-		if (!hasContext) {
-			this.showError('Validation Error', 'The selected Apex class must implement at least one TriggerAction interface');
-			return;
+		// Construct the contexts map for Apex (only one true value)
+		const contextsMap = this.initializeContexts();
+		if (this.selectedContext__c) {
+			contextsMap[this.selectedContext__c] = true;
 		}
 
 		this.isLoading = true;
@@ -180,7 +192,7 @@ export default class TriggerActionForm extends LightningElement {
 					apexClassName: this.formData.apexClassName,
 					flowName: this.formData.flowName || null,
 					order: this.formData.order,
-					contexts: this.selectedContexts,
+					contexts: contextsMap,
 					entryCriteria: this.formData.entryCriteria || null,
 					description: this.formData.description || null
 				});
@@ -190,7 +202,7 @@ export default class TriggerActionForm extends LightningElement {
 					apexClassName: this.formData.apexClassName,
 					flowName: this.formData.flowName || null,
 					order: this.formData.order,
-					contexts: this.selectedContexts,
+					contexts: contextsMap,
 					entryCriteria: this.formData.entryCriteria || null,
 					description: this.formData.description || null,
 					bypassExecution: this.formData.bypassExecution || false,

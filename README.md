@@ -15,7 +15,7 @@ To deploy **Trigger Actions Admin Panel** to your environment, follow the steps 
 *   [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E3PRQA0)
 *   [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000E3PRQA0)
 
-> **Note:** This requires the core `Trigger Actions Framework` (`04tKY000000R0yHYAS`) to be installed first.
+> **Note:** This requires the core [Trigger Actions Framework](https://github.com/mitchspano/trigger-actions-framework) to be installed first.
 
 ---
 
@@ -25,39 +25,18 @@ To deploy **Trigger Actions Admin Panel** to your environment, follow the steps 
   <img alt="Deploy to Salesforce" src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
 </a>
 
-### Option 3: Deploy via Salesforce CLI
-
-```bash
-sf project deploy start --source-dir force-app --target-org YOUR_ORG_ALIAS
-```
-
 ---
 
-## Post-Installation Setup
-
-After installing, complete these two required steps:
-
-### Step 1: Update Remote Site Setting
-
-The package includes a Remote Site Setting called **SelfOrg** that must be updated to match your org's domain:
-
-1. Go to **Setup → Security → Remote Site Settings**
-2. Click **Edit** next to **SelfOrg**
-3. Replace the placeholder URL with your org's My Domain URL
-   - Example: `https://yourcompany.my.salesforce.com`
-   - You can find this under **Setup → My Domain**
-4. Click **Save**
-
-> [!WARNING]
-> The **Delete** functionality for Trigger Actions will not work until this step is completed. Creating and editing actions will work without it.
-
-### Step 2: Assign Permission Set
+### Step 1: Assign Permission Set
 
 1. Go to **Setup → Users → Permission Sets**
 2. Click **Trigger Actions Framework Admin**
 3. Click **Manage Assignments → Add Assignments**
 4. Select the users who should manage trigger actions
 5. Click **Assign** then **Done**
+
+> [!NOTE]
+> **Deletion Restriction:** For security and simplicity, this Admin Panel does not support deleting custom metadata records. Deletions must be performed via Salesforce Setup (Custom Metadata Types) or development tools like VS Code or Salesforce CLI.
 
 ---
 
@@ -142,13 +121,6 @@ When you select a Trigger Setting, the **Detail View** (right side) displays:
 - A **Related Trigger Actions** section showing all actions configured for this SObject
 - Each action's Developer Name, Apex Class, and execution Order
 
-### Deleting a Trigger Setting
-
-1. Select the setting from the list
-2. Click the **Delete** button
-3. Confirm the deletion
-4. The setting will be removed (this does NOT delete related trigger actions)
-
 ---
 
 ## Managing Trigger Actions
@@ -205,12 +177,6 @@ By default, the Trigger Actions tab shows a **Hierarchical View**:
 2. Click the **Edit** button
 3. Modify fields (except Developer Name, which is read-only for edits)
 4. Click **Save**
-
-### Deleting a Trigger Action
-
-1. Select an action
-2. Click the **Delete** button
-3. Confirm the deletion
 
 ---
 
@@ -421,16 +387,6 @@ IF(CHANGE(Status__c), Status__c IN ("Active", "Closed"), FALSE)
 4. Check if user has Required Permission (if set)
 5. Verify Apex class is implemented correctly (extends `TriggerAction` interface)
 6. Review Salesforce logs for Apex errors
-
-### Issue: Delete Not Working (Remote Site Setting)
-
-**Cause:** Remote Site Setting not configured for your org
-
-**Solution:**
-1. Go to **Setup → Security → Remote Site Settings**
-2. Click **Edit** next to **SelfOrg**
-3. Update the URL to your org's My Domain URL (e.g., `https://yourcompany.my.salesforce.com`)
-4. Click **Save**
 
 ### Issue: Changes Not Visible Immediately
 

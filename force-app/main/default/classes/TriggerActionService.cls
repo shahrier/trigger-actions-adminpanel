@@ -23,8 +23,6 @@ public with sharing class TriggerActionService {
 				Allow_Flow_Recursion__c,
 				Entry_Criteria__c,
 				Bypass_Execution__c,
-				Bypass_Permission__c,
-				Required_Permission__c,
 				Description__c,
 				Before_Insert__c,
 				After_Insert__c,
@@ -56,8 +54,6 @@ public with sharing class TriggerActionService {
 				Allow_Flow_Recursion__c,
 				Entry_Criteria__c,
 				Bypass_Execution__c,
-				Bypass_Permission__c,
-				Required_Permission__c,
 				Description__c,
 				Before_Insert__c,
 				After_Insert__c,
@@ -186,31 +182,63 @@ public with sharing class TriggerActionService {
 		TriggerActionValidator.validateTriggerContexts(contexts);
 
 		Trigger_Action__mdt existing = [
-			SELECT Object_API_Name__c
+			SELECT 
+				Object_API_Name__c,
+				Before_Insert__c,
+				After_Insert__c,
+				Before_Update__c,
+				After_Update__c,
+				Before_Delete__c,
+				After_Delete__c,
+				After_Undelete__c
 			FROM Trigger_Action__mdt
 			WHERE DeveloperName = :devName
 		];
 
 		// Look up the sObject Trigger Setting DeveloperName for this object
-		List<sObject_Trigger_Setting__mdt> settings = [
-			SELECT DeveloperName
-			FROM sObject_Trigger_Setting__mdt
-			WHERE Object_API_Name__c = :existing.Object_API_Name__c
-			LIMIT 1
-		];
-		if (settings.isEmpty()) {
-			String msg = 'No Trigger Setting found for SObject "' + existing.Object_API_Name__c + '".';
+		// Use Object_API_Name__c if available, otherwise find via context relationships
+		List<sObject_Trigger_Setting__mdt> settings;
+		if (String.isNotBlank(existing.Object_API_Name__c)) {
+			settings = [
+				SELECT DeveloperName
+				FROM sObject_Trigger_Setting__mdt
+				WHERE Object_API_Name__c = :existing.Object_API_Name__c
+				LIMIT 1
+			];
+		} else {
+			// Fallback: finding setting by related context record
+			Id settingId = existing.Before_Insert__c != null ? existing.Before_Insert__c :
+						  existing.After_Insert__c != null ? existing.After_Insert__c :
+						  existing.Before_Update__c != null ? existing.Before_Update__c :
+						  existing.After_Update__c != null ? existing.After_Update__c :
+						  existing.Before_Delete__c != null ? existing.Before_Delete__c :
+						  existing.After_Delete__c != null ? existing.After_Delete__c :
+						  existing.After_Undelete__c;
+			
+			if (settingId != null) {
+				settings = [
+					SELECT DeveloperName, Object_API_Name__c
+					FROM sObject_Trigger_Setting__mdt
+					WHERE Id = :settingId
+					LIMIT 1
+				];
+			}
+		}
+
+		if (settings == null || settings.isEmpty()) {
+			String msg = 'No Trigger Setting found for Trigger Action "' + devName + '".';
 			AuraHandledException ahe = new AuraHandledException(msg);
 			ahe.setMessage(msg);
 			throw ahe;
 		}
 		String settingDevName = settings[0].DeveloperName;
+		String objectName = settings[0].Object_API_Name__c;
 
 		Metadata.CustomMetadata record = new Metadata.CustomMetadata();
 		record.fullName = METADATA_API_NAME + '.' + devName;
 		record.label = devName;
 
-		addMetadataValue(record, 'Object_API_Name__c', existing.Object_API_Name__c);
+		addMetadataValue(record, 'Object_API_Name__c', objectName);
 		addMetadataValue(record, 'Apex_Class_Name__c', apexClassName);
 		addMetadataValue(record, 'Flow_Name__c', String.isNotBlank(flowName) ? flowName : null);
 		addMetadataValue(record, 'Order__c', order);
@@ -348,13 +376,8 @@ public with sharing class TriggerActionService {
 	 */
 	@AuraEnabled
 	public static String deleteTriggerAction(String devName) {
-		if (String.isBlank(devName)) {
-			String msg = 'Developer Name is required for deletion.';
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
-		}
-		return CustomMetadataDelete.deleteRecord('Trigger_Action', devName);
+		// Deprecated in favor of Visualforce-based deletion in the LWC
+		return 'Deletion of ' + devName + ' is now handled by the UI.';
 	}
 
 	/**

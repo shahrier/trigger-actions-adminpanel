@@ -57,19 +57,27 @@
 				<em>Trigger contexts will auto-populate based on the selected class</em>
 			</p>
 
-			<!-- Trigger Contexts (read-only, auto-detected) -->
+			<!-- Trigger Context Selection -->
 			<div class="slds-form-element slds-var-m-bottom_small">
-				<label class="slds-form-element__label">Trigger Contexts</label>
-				<div class="slds-form-element__control">
-					<template if:true={hasDetectedContexts}>
-						<template for:each={detectedContextLabels} for:item="ctx">
-							<lightning-badge key={ctx} label={ctx} class="slds-var-m-right_xx-small slds-var-m-bottom_xx-small"></lightning-badge>
-						</template>
-					</template>
-					<template if:false={hasDetectedContexts}>
-						<p class="slds-text-body_small slds-text-color_weak">Select an Apex class to detect contexts</p>
-					</template>
-				</div>
+				<template if:true={hasContextOptions}>
+					<lightning-radio-group
+						name="triggerContext"
+						label="Trigger Context"
+						options={contextOptions}
+						value={selectedContext__c}
+						onchange={handleContextChange}
+						type="radio"
+						required
+					>
+					</lightning-radio-group>
+					<p class="slds-text-body_x-small slds-text-color_weak slds-var-m-top_xx-small">
+						Select the context in which this action should execute. A single trigger action record can only support one context.
+					</p>
+				</template>
+				<template if:false={hasContextOptions}>
+					<label class="slds-form-element__label">Trigger Context</label>
+					<p class="slds-text-body_small slds-text-color_weak">Select an Apex class to detect supported contexts</p>
+				</template>
 			</div>
 
 			<!-- Order -->

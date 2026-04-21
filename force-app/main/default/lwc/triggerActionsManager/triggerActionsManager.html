@@ -1,279 +1,241 @@
 <template>
-<lightning-card title="Trigger Actions Framework" icon-name="standard:config">
-<div class="slds-m-around_medium slds-is-relative">
-<template if:true={isLoading}>
-<lightning-spinner alternative-text="Loading" size="medium" class="slds-spinner_container"></lightning-spinner>
-</template>
-<div class="slds-grid slds-gutters_medium">
-<!-- Left: SObject List -->
-<div class="slds-col slds-size_3-of-12">
-<div class="object-panel">
-<div class="panel-header">
-<h3 class="slds-text-heading_small">SObjects</h3>
-<div class="slds-grid slds-grid_vertical-align-center">
-<lightning-button-icon
-icon-name="utility:add"
-alternative-text="Add SObject"
-onclick={handleAddSObject}
-size="small"
-variant="bare"
-class="slds-var-m-right_x-small"
->
-</lightning-button-icon>
-<lightning-button-icon
-icon-name="utility:refresh"
-alternative-text="Refresh"
-onclick={handleRefresh}
-size="small"
-variant="border-filled"
->
-</lightning-button-icon>
-</div>
-</div>
-<div class="object-list">
-<template for:each={objectList} for:item="obj">
-<div
-key={obj.name}
-class={obj.cssClass}
-data-object-name={obj.name}
-onclick={handleObjectClick}
->
-<div class="object-name">{obj.name}</div>
-<div class="object-count">{obj.actionCount}</div>
-</div>
-</template>
-<template if:false={objectList.length}>
-<div class="slds-p-around_medium slds-text-align_center">
-<p class="slds-text-body_small slds-text-color_weak">No trigger settings configured</p>
-</div>
-</template>
-</div>
-</div>
-</div>
+	<lightning-card title="Trigger Actions Framework" icon-name="standard:config">
+		<div class="slds-m-around_medium slds-is-relative">
+			<template if:true={isLoading}>
+				<lightning-spinner alternative-text="Loading" size="medium" class="slds-spinner_container"></lightning-spinner>
+			</template>
+			<div class="slds-grid slds-gutters_medium">
+				<!-- Left: SObject List -->
+				<div class="slds-col slds-size_3-of-12">
+					<div class="object-panel">
+						<div class="panel-header">
+							<h3 class="slds-text-heading_small">SObjects</h3>
+							<div class="slds-grid slds-grid_vertical-align-center">
+								<lightning-button-icon
+									icon-name="utility:add"
+									alternative-text="Add SObject"
+									onclick={handleAddSObject}
+									size="small"
+									variant="bare"
+									class="slds-var-m-right_x-small"
+								>
+								</lightning-button-icon>
+								<lightning-button-icon
+									icon-name="utility:refresh"
+									alternative-text="Refresh"
+									onclick={handleRefresh}
+									size="small"
+									variant="border-filled"
+								>
+								</lightning-button-icon>
+							</div>
+						</div>
+						<div class="object-list">
+							<template for:each={objectList} for:item="obj">
+								<div
+									key={obj.name}
+									class={obj.cssClass}
+									data-object-name={obj.name}
+									onclick={handleObjectClick}
+								>
+									<div class="object-name">{obj.name}</div>
+									<div class="object-count">{obj.actionCount}</div>
+								</div>
+							</template>
+							<template if:false={objectList.length}>
+								<div class="slds-p-around_medium slds-text-align_center">
+									<p class="slds-text-body_small slds-text-color_weak">No trigger settings configured</p>
+								</div>
+							</template>
+						</div>
+					</div>
+				</div>
 
-<!-- Right: Actions for selected object -->
-<div class="slds-col slds-size_9-of-12">
-<template if:true={selectedObjectName}>
-<!-- Actions toolbar -->
-<div class="actions-toolbar slds-var-m-bottom_small">
-<h3 class="slds-text-heading_small toolbar-title">{selectedObjectName} Actions</h3>
-<lightning-button-group>
-<lightning-button
-label="Create"
-icon-name="utility:add"
-variant="brand"
-onclick={handleCreateNew}
->
-</lightning-button>
-<lightning-button
-label="Edit"
-icon-name="utility:edit"
-variant="neutral"
-onclick={handleEdit}
-disabled={noActionSelected}
->
-</lightning-button>
-<lightning-button
-label="Delete"
-icon-name="utility:delete"
-variant="destructive"
-onclick={handleDelete}
-disabled={noActionSelected}
->
-</lightning-button>
-</lightning-button-group>
-</div>
+				<!-- Right: Actions for selected object -->
+				<div class="slds-col slds-size_9-of-12">
+					<template if:true={selectedObjectName}>
+						<!-- Actions toolbar -->
+						<div class="actions-toolbar slds-var-m-bottom_small">
+							<h3 class="slds-text-heading_small toolbar-title">{selectedObjectName} Actions</h3>
+							<lightning-button-group>
+								<lightning-button
+									label="Create"
+									icon-name="utility:add"
+									variant="brand"
+									onclick={handleCreateNew}
+								>
+								</lightning-button>
+								<lightning-button
+									label="Edit"
+									icon-name="utility:edit"
+									variant="neutral"
+									onclick={handleEdit}
+									disabled={noActionSelected}
+								>
+								</lightning-button>
+							</lightning-button-group>
+						</div>
 
-<!-- Actions list -->
-<div class="actions-list">
-<template if:true={hasObjectActions}>
-<template for:each={objectActions} for:item="section">
-<div key={section.key} class="context-section">
-<div class="context-header">
-<span class="context-header-label">{section.label}</span>
-<span class="context-header-count">{section.actions.length}</span>
-</div>
-<template for:each={section.actions} for:item="action">
-<div
-key={action.Id}
-class={action.cssClass}
-data-action-id={action.Id}
-onclick={handleActionClick}
->
-<div class="action-order">#{action.Order__c}</div>
-<div class="action-details">
-<div class="action-name">{action.DeveloperName}</div>
-<div class="action-class"><span class="field-label">Class:</span> {action.Apex_Class_Name__c}</div>
-<template if:true={action.Description__c}>
-<div class="action-description"><span class="field-label">Description:</span> {action.Description__c}</div>
-</template>
-</div>
-<div class="action-status">
-<template if:true={action.Bypass_Execution__c}>
-<lightning-badge label="Bypassed" class="bypass-badge"></lightning-badge>
-</template>
-</div>
-</div>
-</template>
-</div>
-</template>
-</template>
-<template if:false={hasObjectActions}>
-<div class="slds-p-around_large slds-text-align_center">
-<p class="slds-text-body_small slds-text-color_weak">No trigger actions for this SObject</p>
-<lightning-button
-label="Create First Action"
-icon-name="utility:add"
-variant="brand"
-onclick={handleCreateNew}
-class="slds-var-m-top_small"
->
-</lightning-button>
-</div>
-</template>
-</div>
+						<!-- Actions list -->
+						<div class="actions-list">
+							<template if:true={hasObjectActions}>
+								<template for:each={objectActions} for:item="section">
+									<div key={section.key} class="context-section">
+										<div class="context-header">
+											<span class="context-header-label">{section.label}</span>
+											<span class="context-header-count">{section.actions.length}</span>
+										</div>
+										<template for:each={section.actions} for:item="action">
+											<div
+												key={action.Id}
+												class={action.cssClass}
+												data-action-id={action.Id}
+												onclick={handleActionClick}
+											>
+												<div class="action-order">#{action.Order__c}</div>
+												<div class="action-details">
+													<div class="action-name">{action.DeveloperName}</div>
+													<div class="action-class"><span class="field-label">Class:</span> {action.Apex_Class_Name__c}</div>
+													<template if:true={action.Description__c}>
+														<div class="action-description"><span class="field-label">Description:</span> {action.Description__c}</div>
+													</template>
+												</div>
+												<div class="action-status">
+													<template if:true={action.Bypass_Execution__c}>
+														<lightning-badge label="Bypassed" class="bypass-badge"></lightning-badge>
+													</template>
+												</div>
+											</div>
+										</template>
+									</div>
+								</template>
+							</template>
+							<template if:false={hasObjectActions}>
+								<div class="slds-p-around_large slds-text-align_center">
+									<p class="slds-text-body_small slds-text-color_weak">No trigger actions for this SObject</p>
+									<lightning-button
+										label="Create First Action"
+										icon-name="utility:add"
+										variant="brand"
+										onclick={handleCreateNew}
+										class="slds-var-m-top_small"
+									>
+									</lightning-button>
+								</div>
+							</template>
+						</div>
 
-<!-- Detail panel for selected action -->
-<template if:true={selectedAction}>
-<div class="detail-panel slds-var-m-top_medium">
-<lightning-card title="Action Details" icon-name="standard:record">
-<div class="slds-m-around_medium">
-<div class="slds-grid slds-wrap">
-<div class="slds-col slds-size_1-of-2 detail-row">
-<div class="detail-label">Developer Name</div>
-<div class="detail-value">{selectedAction.DeveloperName}</div>
-</div>
-<div class="slds-col slds-size_1-of-2 detail-row">
-<div class="detail-label">Apex Class</div>
-<div class="detail-value">{selectedAction.Apex_Class_Name__c}</div>
-</div>
-<div class="slds-col slds-size_1-of-2 detail-row">
-<div class="detail-label">Order</div>
-<div class="detail-value">{selectedAction.Order__c}</div>
-</div>
-<template if:true={selectedAction.Flow_Name__c}>
-<div class="slds-col slds-size_1-of-2 detail-row">
-<div class="detail-label">Flow Name</div>
-<div class="detail-value">{selectedAction.Flow_Name__c}</div>
-</div>
-</template>
-<div class="slds-col slds-size_1-of-1 detail-row">
-<div class="detail-label">Contexts</div>
-<div class="detail-value">
-<template for:each={activeContextLabels} for:item="ctx">
-<lightning-badge
-key={ctx.key}
-label={ctx.label}
-class="slds-var-m-right_xx-small"
->
-</lightning-badge>
-</template>
-</div>
-</div>
-<template if:true={selectedAction.Entry_Criteria__c}>
-<div class="slds-col slds-size_1-of-1 detail-row">
-<div class="detail-label">Entry Criteria</div>
-<div class="detail-value criteria-text">{selectedAction.Entry_Criteria__c}</div>
-</div>
-</template>
-<template if:true={selectedAction.Description__c}>
-<div class="slds-col slds-size_1-of-1 detail-row">
-<div class="detail-label">Description</div>
-<div class="detail-value">{selectedAction.Description__c}</div>
-</div>
-</template>
-<div class="slds-col slds-size_1-of-2 detail-row">
-<div class="detail-label">Bypass Execution</div>
-<div class="detail-value">
-<lightning-icon
-icon-name={bypassIcon}
-size="x-small"
-class="slds-var-m-right_xx-small"
-></lightning-icon>
-{bypassLabel}
-</div>
-</div>
-<div class="slds-col slds-size_1-of-2 detail-row">
-<div class="detail-label">Allow Flow Recursion</div>
-<div class="detail-value">
-<lightning-icon
-icon-name={flowRecursionIcon}
-size="x-small"
-class="slds-var-m-right_xx-small"
-></lightning-icon>
-{flowRecursionLabel}
-</div>
-</div>
-</div>
-</div>
-</lightning-card>
-</div>
-</template>
-</template>
+						<!-- Detail panel for selected action -->
+						<template if:true={selectedAction}>
+							<div class="detail-panel slds-var-m-top_medium">
+								<lightning-card title="Action Details" icon-name="standard:record">
+									<div class="slds-m-around_medium">
+										<div class="slds-grid slds-wrap">
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Developer Name</div>
+												<div class="detail-value">{selectedAction.DeveloperName}</div>
+											</div>
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Apex Class</div>
+												<div class="detail-value">{selectedAction.Apex_Class_Name__c}</div>
+											</div>
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Order</div>
+												<div class="detail-value">{selectedAction.Order__c}</div>
+											</div>
+											<template if:true={selectedAction.Flow_Name__c}>
+												<div class="slds-col slds-size_1-of-2 detail-row">
+													<div class="detail-label">Flow Name</div>
+													<div class="detail-value">{selectedAction.Flow_Name__c}</div>
+												</div>
+											</template>
+											<div class="slds-col slds-size_1-of-1 detail-row">
+												<div class="detail-label">Contexts</div>
+												<div class="detail-value">
+													<template for:each={activeContextLabels} for:item="ctx">
+														<lightning-badge
+															key={ctx.key}
+															label={ctx.label}
+															class="slds-var-m-right_xx-small"
+														>
+														</lightning-badge>
+													</template>
+												</div>
+											</div>
+											<template if:true={selectedAction.Entry_Criteria__c}>
+												<div class="slds-col slds-size_1-of-1 detail-row">
+													<div class="detail-label">Entry Criteria</div>
+													<div class="detail-value criteria-text">{selectedAction.Entry_Criteria__c}</div>
+												</div>
+											</template>
+											<template if:true={selectedAction.Description__c}>
+												<div class="slds-col slds-size_1-of-1 detail-row">
+													<div class="detail-label">Description</div>
+													<div class="detail-value">{selectedAction.Description__c}</div>
+												</div>
+											</template>
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Bypass Execution</div>
+												<div class="detail-value">
+													<lightning-icon
+														icon-name={bypassIcon}
+														size="x-small"
+														class="slds-var-m-right_xx-small"
+													></lightning-icon>
+													{bypassLabel}
+												</div>
+											</div>
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Allow Flow Recursion</div>
+												<div class="detail-value">
+													<lightning-icon
+														icon-name={flowRecursionIcon}
+														size="x-small"
+														class="slds-var-m-right_xx-small"
+													></lightning-icon>
+													{flowRecursionLabel}
+												</div>
+											</div>
+										</div>
+									</div>
+								</lightning-card>
+							</div>
+						</template>
+					</template>
 
-<!-- No object selected -->
-<template if:false={selectedObjectName}>
-<div class="empty-state slds-text-align_center">
-<lightning-icon icon-name="standard:config" size="large" class="slds-var-m-bottom_medium"></lightning-icon>
-<h3 class="slds-text-heading_small slds-var-m-bottom_small">Select an SObject</h3>
-<p class="slds-text-body_small slds-text-color_weak">
-Choose an SObject from the left panel to view and manage its trigger actions.
-</p>
-</div>
-</template>
-</div>
-</div>
-</div>
-</lightning-card>
+					<!-- No object selected -->
+					<template if:false={selectedObjectName}>
+						<div class="empty-state slds-text-align_center">
+							<lightning-icon icon-name="standard:config" size="large" class="slds-var-m-bottom_medium"></lightning-icon>
+							<h3 class="slds-text-heading_small slds-var-m-bottom_small">Select an SObject</h3>
+							<p class="slds-text-body_small slds-text-color_weak">
+								Choose an SObject from the left panel to view and manage its trigger actions.
+							</p>
+						</div>
+					</template>
+				</div>
+			</div>
+		</div>
+	</lightning-card>
 
-<!-- Create/Edit Form Modal -->
-<template if:true={showFormModal}>
-<c-trigger-action-form
-action={selectedAction}
-is-creating={isCreating}
-available-s-objects={availableSObjects}
-onclose={handleFormClose}
-onsavesuccess={handleSaveSuccess}
->
-</c-trigger-action-form>
-</template>
+	<!-- Create/Edit Form Modal -->
+	<template if:true={showFormModal}>
+		<c-trigger-action-form
+			action={selectedAction}
+			is-creating={isCreating}
+			available-s-objects={availableSObjects}
+			onclose={handleFormClose}
+			onsavesuccess={handleSaveSuccess}
+		>
+		</c-trigger-action-form>
+	</template>
 
-<!-- Delete Confirmation Modal -->
-<template if:true={showDeleteConfirm}>
-<section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
-<div class="slds-modal__container">
-<div class="slds-modal__header">
-<h2 class="slds-text-heading_medium">Confirm Deletion</h2>
-</div>
-<div class="slds-modal__content slds-p-around_medium">
-<p>Are you sure you want to delete the trigger action <strong>{deleteActionName}</strong>?</p>
-<p class="slds-var-m-top_small slds-text-color_error">This action cannot be undone.</p>
-</div>
-<div class="slds-modal__footer">
-<lightning-button
-label="Cancel"
-onclick={handleDeleteCancel}
-class="slds-var-m-right_x-small"
->
-</lightning-button>
-<lightning-button
-label="Delete"
-variant="destructive"
-onclick={handleDeleteConfirm}
->
-</lightning-button>
-</div>
-</div>
-</section>
-<div class="slds-backdrop slds-backdrop_open"></div>
-</template>
-
-<!-- Add SObject Form Modal -->
-<template if:true={showSettingFormModal}>
-<c-trigger-setting-form
-onclose={handleSettingFormClose}
-onsavesuccess={handleSettingSaveSuccess}
->
-</c-trigger-setting-form>
-</template>
+	<!-- Add SObject Form Modal -->
+	<template if:true={showSettingFormModal}>
+		<c-trigger-setting-form
+			onclose={handleSettingFormClose}
+			onsavesuccess={handleSettingSaveSuccess}
+		>
+		</c-trigger-setting-form>
+	</template>
 </template>

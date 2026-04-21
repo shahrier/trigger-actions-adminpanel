@@ -3,6 +3,10 @@
     <label>Sample Account Action Before Update</label>
     <protected>false</protected>
     <values>
+        <field>Object_API_Name__c</field>
+        <value xsi:type="xsd:string">Account</value>
+    </values>
+    <values>
         <field>Allow_Flow_Recursion__c</field>
         <value xsi:type="xsd:boolean">false</value>
     </values>
