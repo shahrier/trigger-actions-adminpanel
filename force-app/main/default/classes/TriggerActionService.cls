@@ -242,12 +242,22 @@ public with sharing class TriggerActionService {
 	@AuraEnabled(cacheable=true)
 	public static List<Map<String, String>> getAllOrgSObjects() {
 		List<Map<String, String>> result = new List<Map<String, String>>();
-		List<EntityDefinition> eds = [SELECT QualifiedApiName, Label FROM EntityDefinition WHERE IsTriggerable = true ORDER BY Label ASC LIMIT 1000];
-		for (EntityDefinition ed : eds) {
-			Map<String, String> obj = new Map<String, String>();
-			obj.put('label', ed.Label + ' (' + ed.QualifiedApiName + ')');
-			obj.put('value', ed.QualifiedApiName);
-			result.add(obj);
+		for (Schema.SObjectType sot : Schema.getGlobalDescribe().values()) {
+			Schema.DescribeSObjectResult d = sot.getDescribe();
+			String name = d.getName();
+			if (
+				!d.isCustomSetting() &&
+				!name.endsWith('__Share') &&
+				!name.endsWith('__History') &&
+				!name.endsWith('__Feed') &&
+				!name.endsWith('__ChangeEvent') &&
+				d.isCreateable()
+			) {
+				Map<String, String> obj = new Map<String, String>();
+				obj.put('label', d.getLabel() + ' (' + name + ')');
+				obj.put('value', name);
+				result.add(obj);
+			}
 		}
 		return result;
 	}
@@ -277,10 +287,14 @@ public with sharing class TriggerActionService {
 		if (devName.endsWith('_')) devName = devName.substring(0, devName.length() - 1);
 		if (devName.length() > 37) devName = devName.substring(0, 37);
 
-		List<sObject_Trigger_Setting__mdt> existing = [
-			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE DeveloperName = :devName OR Object_API_Name__c = :objectName
+		List<sObject_Trigger_Setting__mdt> existingByName = [
+			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE DeveloperName = :devName
 		];
-		if (!existing.isEmpty()) {
+		List<sObject_Trigger_Setting__mdt> existingByObject = [
+			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE Object_API_Name__c = :objectName
+		];
+
+		if (!existingByName.isEmpty() || !existingByObject.isEmpty()) {
 			String msg = 'A Trigger Setting for this SObject already exists.';
 			AuraHandledException ahe = new AuraHandledException(msg);
 			ahe.setMessage(msg);
