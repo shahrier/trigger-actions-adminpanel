@@ -1,0 +1,23 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "Trigger Actions Admin Panel",
+      "versionName": "ver 1.0",
+      "versionNumber": "1.0.0.NEXT",
+      "dependencies": [
+        {
+          "package": "Trigger Actions Framework"
+        }
+      ]
+    }
+  ],
+  "name": "trigger-actions-adminpanel",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "66.0",
+  "packageAliases": {
+    "Trigger Actions Framework": "04tKY000000R0yHYAS"
+  }
+}

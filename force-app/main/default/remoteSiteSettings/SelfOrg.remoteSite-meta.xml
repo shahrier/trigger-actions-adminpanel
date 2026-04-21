@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
+    <disableProtocolSecurity>false</disableProtocolSecurity>
+    <isActive>true</isActive>
+    <url>https://placeholder.my.salesforce.com</url>
+    <description>Required for custom metadata deletion via the Metadata SOAP API. IMPORTANT: After installation, update this URL to match your org domain. Go to Setup → Remote Site Settings → SelfOrg → Edit, and replace the URL with your org's My Domain URL (e.g., https://yourcompany.my.salesforce.com).</description>
+</RemoteSiteSetting>

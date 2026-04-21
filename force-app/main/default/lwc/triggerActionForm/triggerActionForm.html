@@ -1,0 +1,176 @@
+<template>
+	<section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+		<div class="slds-modal__container">
+			<header class="slds-modal__header">
+				<h2 class="slds-modal__title slds-hyphenate">{formTitle}</h2>
+			</header>
+			<div class="slds-modal__content slds-p-around_medium">
+			<!-- Instructions at the top -->
+			<div class="slds-box slds-theme_info slds-var-m-bottom_medium">
+				<h3 class="slds-text-heading_small">Instructions</h3>
+				<p class="slds-text-body_small">
+					Select the SObject, provide a unique Developer Name, select the Apex class implementing the trigger action, and add a description. Trigger contexts are auto-detected from the class. Optionally add entry criteria for conditional execution.
+				</p>
+			</div>
+			<!-- SObject Selection -->
+			<lightning-combobox
+				name="objectName"
+				label="SObject API Name"
+				value={formData.objectName}
+				options={sObjectOptions}
+				onchange={handleInputChange}
+				data-field="objectName"
+				placeholder="Select an SObject"
+				required
+				class="slds-var-m-bottom_small"
+			>
+			</lightning-combobox>
+
+			<!-- Developer Name -->
+			<lightning-input
+				type="text"
+				label="Developer Name"
+				data-field="devName"
+				value={formData.devName}
+				onchange={handleInputChange}
+				placeholder="e.g., Account_ValidateName"
+				required
+				disabled={devNameDisabled}
+				class="slds-var-m-bottom_small"
+			>
+			</lightning-input>
+
+			<!-- Apex Class Name -->
+			<lightning-combobox
+				name="apexClassName"
+				label="Apex Class Name"
+				value={formData.apexClassName}
+				options={apexClassOptions}
+				onchange={handleApexClassChange}
+				data-field="apexClassName"
+				placeholder="Select an Apex class"
+				required
+				class="slds-var-m-bottom_small"
+			>
+			</lightning-combobox>
+			<p class="slds-text-body_small slds-var-m-top_xx-small">
+				<em>Trigger contexts will auto-populate based on the selected class</em>
+			</p>
+
+			<!-- Trigger Contexts (read-only, auto-detected) -->
+			<div class="slds-form-element slds-var-m-bottom_small">
+				<label class="slds-form-element__label">Trigger Contexts</label>
+				<div class="slds-form-element__control">
+					<template if:true={hasDetectedContexts}>
+						<template for:each={detectedContextLabels} for:item="ctx">
+							<lightning-badge key={ctx} label={ctx} class="slds-var-m-right_xx-small slds-var-m-bottom_xx-small"></lightning-badge>
+						</template>
+					</template>
+					<template if:false={hasDetectedContexts}>
+						<p class="slds-text-body_small slds-text-color_weak">Select an Apex class to detect contexts</p>
+					</template>
+				</div>
+			</div>
+
+			<!-- Order -->
+			<lightning-input
+				type="number"
+				label="Execution Order"
+				data-field="order"
+				value={formData.order}
+				onchange={handleNumberChange}
+				min="1"
+				required
+				class="slds-var-m-bottom_small"
+			>
+			</lightning-input>
+
+			<!-- Flow Name (Optional) -->
+			<lightning-input
+				type="text"
+				label="Flow API Name"
+				data-field="flowName"
+				value={formData.flowName}
+				onchange={handleInputChange}
+				placeholder="Optional: MyFlow"
+				class="slds-var-m-bottom_small"
+			>
+			</lightning-input>
+
+			<!-- Allow Flow Recursion -->
+			<div class="slds-form-element slds-var-m-bottom_small">
+				<label class="slds-checkbox">
+					<input
+						type="checkbox"
+						data-field="allowFlowRecursion"
+						checked={formData.allowFlowRecursion}
+						onchange={handleCheckboxChange}
+					/>
+					<span class="slds-checkbox_faux"></span>
+					<span class="slds-form-element__label">Allow Flow Recursion</span>
+				</label>
+				<p class="slds-text-body_x-small slds-text-color_weak" style="margin-top: 0.5rem; margin-left: 1.5rem;">
+					Allow the associated flow to call itself recursively.
+				</p>
+			</div>
+
+			<!-- Entry Criteria -->
+			<lightning-textarea
+				label="Entry Criteria Formula"
+				data-field="entryCriteria"
+				value={formData.entryCriteria}
+				onchange={handleInputChange}
+				placeholder="Optional: Status__c == 'Active' AND Amount__c > 1000"
+				help-text="Optional formula to conditionally execute this action per record"
+				class="slds-var-m-bottom_small"
+			>
+			</lightning-textarea>
+
+			<!-- Description -->
+			<lightning-textarea
+				label="Description"
+				data-field="description"
+				value={formData.description}
+				onchange={handleInputChange}
+				placeholder="Describe what this action does"
+				required
+				class="slds-var-m-bottom_medium"
+			>
+			</lightning-textarea>
+
+			<!-- Bypass Execution -->
+			<div class="slds-form-element slds-var-m-bottom_small">
+				<label class="slds-checkbox">
+					<input
+						type="checkbox"
+						data-field="bypassExecution"
+						checked={formData.bypassExecution}
+						onchange={handleCheckboxChange}
+					/>
+					<span class="slds-checkbox_faux"></span>
+					<span class="slds-form-element__label">Bypass Execution</span>
+				</label>
+				<p class="slds-text-body_x-small slds-text-color_weak" style="margin-top: 0.5rem; margin-left: 1.5rem;">
+					Disable this trigger action without removing it from the configuration.
+				</p>
+			</div>
+			</div>
+			<footer class="slds-modal__footer">
+				<lightning-button
+					label="Cancel"
+					onclick={handleCancel}
+					class="slds-var-m-right_small"
+				>
+				</lightning-button>
+				<lightning-button
+					label="Save"
+					variant="brand"
+					onclick={handleSave}
+					loading={isLoading}
+				>
+				</lightning-button>
+			</footer>
+		</div>
+	</section>
+	<div class="slds-backdrop slds-backdrop_open"></div>
+</template>
