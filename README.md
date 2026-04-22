@@ -52,7 +52,7 @@ Manage the global configuration for each SObject:
 Configure individual automations within each trigger context:
 - **Auto-Detection**: Select an Apex class, and the tool automatically detects which trigger interfaces (Before Insert, After Update, etc.) it implements.
 - **Context Enforcement**: Ensures each record maps to exactly one execution context, preventing framework validation errors.
-- **Execution Order**: Drag and drop or manually adjust the order of operations.
+- **Execution Order**: Manually adjust the order of operations.
 - **Formula-Based Entry Criteria**: Define conditional execution logic using standard Salesforce formula syntax.
 
 ### 3. Visual Transparency

@@ -200,7 +200,7 @@ public with sharing class TriggerActionService {
 		List<sObject_Trigger_Setting__mdt> settings;
 		if (String.isNotBlank(existing.Object_API_Name__c)) {
 			settings = [
-				SELECT DeveloperName
+				SELECT DeveloperName, Object_API_Name__c
 				FROM sObject_Trigger_Setting__mdt
 				WHERE Object_API_Name__c = :existing.Object_API_Name__c
 				LIMIT 1
