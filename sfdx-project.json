@@ -21,10 +21,10 @@
       "package": "Trigger Actions Admin Panel Examples",
       "dependencies": [
         {
-          "package": "04tKY000000R0yHYAS"
+          "package": "Trigger Actions Framework"
         },
         {
-          "package": "04tgL000000E3PRQA0"
+          "package": "Trigger Actions Admin Panel@1.0.0-2"
         }
       ]
     }
@@ -36,9 +36,7 @@
   "packageAliases": {
     "Trigger Actions Framework": "04tKY000000R0yHYAS",
     "Trigger Actions Admin Panel": "0HogL0000002AjFSAU",
-    "Trigger Actions Admin Panel@0.1.0-1": "04tgL000000E1DxQAK",
-    "Trigger Actions Admin Panel@0.1.0-2": "04tgL000000E3PRQA0",
-    "Trigger Actions Admin Panel Examples": "0HogL0000002B2bSAE",
-    "Trigger Actions Admin Panel@1.0.0-1": "04tgL000000E6LhQAK"
+    "Trigger Actions Admin Panel@1.0.0-2": "04tgL000000E6QXQA0",
+    "Trigger Actions Admin Panel Examples": "0HogL0000002B2bSAE"
   }
 }
