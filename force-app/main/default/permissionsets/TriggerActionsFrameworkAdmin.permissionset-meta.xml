@@ -16,10 +16,7 @@
         <apexClass>CustomMetadataCallback</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>CustomMetadataDelete</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
+
     <label>Trigger Actions Framework Admin</label>
     <tabSettings>
         <tab>TriggerActionsPage</tab>

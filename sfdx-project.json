@@ -1,11 +1,12 @@
 {
   "packageDirectories": [
     {
-      "versionName": "ver 0.1",
-      "versionNumber": "0.1.0.NEXT",
+      "versionName": "Version 1.0",
+      "versionNumber": "1.0.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "Trigger Actions Admin Panel",
+      "description": "Admin Panel for managing Trigger Actions Framework configurations. Maintained by Shahrier.",
       "dependencies": [
         {
           "package": "Trigger Actions Framework"
@@ -37,6 +38,7 @@
     "Trigger Actions Admin Panel": "0HogL0000002AjFSAU",
     "Trigger Actions Admin Panel@0.1.0-1": "04tgL000000E1DxQAK",
     "Trigger Actions Admin Panel@0.1.0-2": "04tgL000000E3PRQA0",
-    "Trigger Actions Admin Panel Examples": "0HogL0000002B2bSAE"
+    "Trigger Actions Admin Panel Examples": "0HogL0000002B2bSAE",
+    "Trigger Actions Admin Panel@1.0.0-1": "04tgL000000E6LhQAK"
   }
 }
