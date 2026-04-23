@@ -1,5 +1,5 @@
 <template>
-	<lightning-card title="Trigger Actions Framework" icon-name="standard:config">
+	<lightning-card variant="narrow" icon-name="standard:config">
 		<div class="slds-m-around_medium slds-is-relative">
 			<template if:true={isLoading}>
 				<lightning-spinner alternative-text="Loading" size="medium" class="slds-spinner_container"></lightning-spinner>
@@ -55,7 +55,7 @@
 				<div class="slds-col slds-size_5-of-12">
 					<template if:true={selectedObjectName}>
 						<div class="actions-toolbar slds-var-m-bottom_small">
-							<h3 class="slds-text-heading_small toolbar-title">{selectedObjectName} Actions</h3>
+							<h3 class="slds-text-heading_small toolbar-title">Actions: {selectedObjectName}</h3>
 							<lightning-button-group>
 								<lightning-button
 									label="Create"
