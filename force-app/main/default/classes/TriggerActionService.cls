@@ -89,7 +89,8 @@ public with sharing class TriggerActionService {
 		Decimal order,
 		Map<String, Boolean> contexts,
 		String entryCriteria,
-		String description
+		String description,
+		Boolean allowFlowRecursion
 	) {
 		TriggerActionValidator.validateApexClassName(apexClassName);
 		if (String.isNotBlank(flowName)) {
@@ -141,7 +142,7 @@ public with sharing class TriggerActionService {
 			addMetadataValue(record, 'Description__c', description);
 		}
 		addMetadataValue(record, 'Bypass_Execution__c', false);
-		addMetadataValue(record, 'Allow_Flow_Recursion__c', false);
+		addMetadataValue(record, 'Allow_Flow_Recursion__c', allowFlowRecursion != null ? allowFlowRecursion : false);
 
 		Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
 		mdContainer.addMetadata(record);

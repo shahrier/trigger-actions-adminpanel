@@ -113,12 +113,16 @@
 						data-field="allowFlowRecursion"
 						checked={formData.allowFlowRecursion}
 						onchange={handleCheckboxChange}
+						disabled={isFlowRecursionDisabled}
 					/>
 					<span class="slds-checkbox_faux"></span>
 					<span class="slds-form-element__label">Allow Flow Recursion</span>
 				</label>
 				<p class="slds-text-body_x-small slds-text-color_weak" style="margin-top: 0.5rem; margin-left: 1.5rem;">
-					Allow the associated flow to call itself recursively.
+					Allow the associated flow to call itself recursively. 
+					<template if:true={isFlowRecursionDisabled}>
+						<span class="slds-text-color_error">(Requires Flow API Name)</span>
+					</template>
 				</p>
 			</div>
 

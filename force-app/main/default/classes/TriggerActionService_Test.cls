@@ -123,7 +123,8 @@ private class TriggerActionService_Test {
 				1,
 				new Map<String, Boolean>{ 'Before_Insert__c' => true },
 				null,
-				null
+				null,
+				false
 			);
 			System.assert(false, 'Should throw exception for non-existent Apex class');
 		} catch (AuraHandledException e) {
@@ -148,7 +149,8 @@ private class TriggerActionService_Test {
 				1,
 				new Map<String, Boolean>(),
 				null,
-				null
+				null,
+				false
 			);
 			System.assert(false, 'Should throw exception for no contexts');
 		} catch (AuraHandledException e) {
@@ -180,7 +182,8 @@ private class TriggerActionService_Test {
 					'After_Undelete__c' => false
 				},
 				null,
-				null
+				null,
+				false
 			);
 			System.assert(false, 'Should throw exception when all contexts are disabled');
 		} catch (AuraHandledException e) {

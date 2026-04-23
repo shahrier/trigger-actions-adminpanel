@@ -112,11 +112,20 @@ export default class TriggerActionForm extends LightningElement {
 		return this.contextOptions.length > 0;
 	}
 
+	get isFlowRecursionDisabled() {
+		return !this.formData.flowName;
+	}
+
 	handleInputChange(event) {
 		const field = event.target.dataset.field;
 		// Handle both lightning-combobox (event.detail.value) and lightning-input (event.target.value)
 		const value = event.detail !== undefined ? event.detail.value : event.target.value;
 		this.formData = { ...this.formData, [field]: value };
+		
+		// If flowName is cleared, also clear allowFlowRecursion
+		if (field === 'flowName' && !value) {
+			this.formData.allowFlowRecursion = false;
+		}
 	}
 
 	handleNumberChange(event) {
@@ -194,7 +203,8 @@ export default class TriggerActionForm extends LightningElement {
 					order: this.formData.order,
 					contexts: contextsMap,
 					entryCriteria: this.formData.entryCriteria || null,
-					description: this.formData.description || null
+					description: this.formData.description || null,
+					allowFlowRecursion: this.formData.allowFlowRecursion || false
 				});
 			} else {
 				await updateTriggerAction({
