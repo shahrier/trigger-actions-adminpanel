@@ -52,8 +52,8 @@
 				</div>
 
 				<!-- Column 2: Actions Grouped List (5-of-12) -->
-				<div class="slds-col slds-size_5-of-12">
-					<template if:true={selectedObjectName}>
+				<template if:true={selectedObjectName}>
+					<div class="slds-col slds-size_5-of-12">
 						<div class="actions-toolbar slds-var-m-bottom_small">
 							<h3 class="slds-text-heading_small toolbar-title">Actions: {selectedObjectName}</h3>
 							<lightning-button-group>
@@ -119,106 +119,143 @@
 								</div>
 							</template>
 						</div>
-					</template>
+					</div>
 
-					<!-- No object selected -->
-					<template if:false={selectedObjectName}>
-						<div class="empty-state slds-text-align_center">
-							<lightning-icon icon-name="standard:config" size="large" class="slds-var-m-bottom_medium"></lightning-icon>
-							<h3 class="slds-text-heading_small slds-var-m-bottom_small">Select an SObject</h3>
-							<p class="slds-text-body_small slds-text-color_weak">
-								Choose an SObject to view its trigger actions.
-							</p>
-						</div>
-					</template>
-				</div>
-
-				<!-- Column 3: Action Details (5-of-12) -->
-				<div class="slds-col slds-size_5-of-12">
-					<template if:true={selectedAction}>
-						<div class="detail-panel">
-							<lightning-card title="Action Details" icon-name="standard:record">
-								<div class="slds-m-around_medium">
-									<div class="slds-grid slds-wrap">
-										<div class="slds-col slds-size_1-of-1 detail-row">
-											<div class="detail-label">Developer Name</div>
-											<div class="detail-value">{selectedAction.DeveloperName}</div>
-										</div>
-										<div class="slds-col slds-size_1-of-1 detail-row">
-											<div class="detail-label">Apex Class</div>
-											<div class="detail-value">{selectedAction.Apex_Class_Name__c}</div>
-										</div>
-										<div class="slds-col slds-size_1-of-2 detail-row">
-											<div class="detail-label">Order</div>
-											<div class="detail-value">{selectedAction.Order__c}</div>
-										</div>
-										<template if:true={selectedAction.Flow_Name__c}>
+					<!-- Column 3: Action Details (5-of-12) -->
+					<div class="slds-col slds-size_5-of-12">
+						<template if:true={selectedAction}>
+							<div class="detail-panel">
+								<lightning-card title="Action Details" icon-name="standard:record">
+									<div class="slds-m-around_medium">
+										<div class="slds-grid slds-wrap">
+											<div class="slds-col slds-size_1-of-1 detail-row">
+												<div class="detail-label">Developer Name</div>
+												<div class="detail-value">{selectedAction.DeveloperName}</div>
+											</div>
+											<div class="slds-col slds-size_1-of-1 detail-row">
+												<div class="detail-label">Apex Class</div>
+												<div class="detail-value">{selectedAction.Apex_Class_Name__c}</div>
+											</div>
 											<div class="slds-col slds-size_1-of-2 detail-row">
-												<div class="detail-label">Flow Name</div>
-												<div class="detail-value">{selectedAction.Flow_Name__c}</div>
+												<div class="detail-label">Order</div>
+												<div class="detail-value">{selectedAction.Order__c}</div>
 											</div>
-										</template>
-										<div class="slds-col slds-size_1-of-1 detail-row">
-											<div class="detail-label">Contexts</div>
-											<div class="detail-value">
-												<template for:each={activeContextLabels} for:item="ctx">
-													<lightning-badge
-														key={ctx.key}
-														label={ctx.label}
+											<template if:true={selectedAction.Flow_Name__c}>
+												<div class="slds-col slds-size_1-of-2 detail-row">
+													<div class="detail-label">Flow Name</div>
+													<div class="detail-value">{selectedAction.Flow_Name__c}</div>
+												</div>
+											</template>
+											<div class="slds-col slds-size_1-of-1 detail-row">
+												<div class="detail-label">Contexts</div>
+												<div class="detail-value">
+													<template for:each={activeContextLabels} for:item="ctx">
+														<lightning-badge
+															key={ctx.key}
+															label={ctx.label}
+															class="slds-var-m-right_xx-small"
+														>
+														</lightning-badge>
+													</template>
+												</div>
+											</div>
+											<template if:true={selectedAction.Entry_Criteria__c}>
+												<div class="slds-col slds-size_1-of-1 detail-row">
+													<div class="detail-label">Entry Criteria</div>
+													<div class="detail-value criteria-text">{selectedAction.Entry_Criteria__c}</div>
+												</div>
+											</template>
+											<template if:true={selectedAction.Description__c}>
+												<div class="slds-col slds-size_1-of-1 detail-row">
+													<div class="detail-label">Description</div>
+													<div class="detail-value">{selectedAction.Description__c}</div>
+												</div>
+											</template>
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Bypass Execution</div>
+												<div class="detail-value">
+													<lightning-icon
+														icon-name={bypassIcon}
+														size="x-small"
 														class="slds-var-m-right_xx-small"
-													>
-													</lightning-badge>
-												</template>
+													></lightning-icon>
+													{bypassLabel}
+												</div>
 											</div>
-										</div>
-										<template if:true={selectedAction.Entry_Criteria__c}>
-											<div class="slds-col slds-size_1-of-1 detail-row">
-												<div class="detail-label">Entry Criteria</div>
-												<div class="detail-value criteria-text">{selectedAction.Entry_Criteria__c}</div>
-											</div>
-										</template>
-										<template if:true={selectedAction.Description__c}>
-											<div class="slds-col slds-size_1-of-1 detail-row">
-												<div class="detail-label">Description</div>
-												<div class="detail-value">{selectedAction.Description__c}</div>
-											</div>
-										</template>
-										<div class="slds-col slds-size_1-of-2 detail-row">
-											<div class="detail-label">Bypass Execution</div>
-											<div class="detail-value">
-												<lightning-icon
-													icon-name={bypassIcon}
-													size="x-small"
-													class="slds-var-m-right_xx-small"
-												></lightning-icon>
-												{bypassLabel}
-											</div>
-										</div>
-										<div class="slds-col slds-size_1-of-2 detail-row">
-											<div class="detail-label">Allow Flow Recursion</div>
-											<div class="detail-value">
-												<lightning-icon
-													icon-name={flowRecursionIcon}
-													size="x-small"
-													class="slds-var-m-right_xx-small"
-												></lightning-icon>
-												{flowRecursionLabel}
+											<div class="slds-col slds-size_1-of-2 detail-row">
+												<div class="detail-label">Allow Flow Recursion</div>
+												<div class="detail-value">
+													<lightning-icon
+														icon-name={flowRecursionIcon}
+														size="x-small"
+														class="slds-var-m-right_xx-small"
+													></lightning-icon>
+													{flowRecursionLabel}
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-							</lightning-card>
-						</div>
-					</template>
-					<template if:false={selectedAction}>
-						<template if:true={selectedObjectName}>
+								</lightning-card>
+							</div>
+						</template>
+						<template if:false={selectedAction}>
 							<div class="empty-state slds-text-align_center">
 								<lightning-icon icon-name="standard:record" size="large" class="slds-var-m-bottom_medium slds-icon-text-light"></lightning-icon>
 								<p class="slds-text-body_small slds-text-color_weak">Select an action to view details</p>
 							</div>
 						</template>
-					</template>
-				</div>
+					</div>
+				</template>
+
+				<!-- No object selected: Welcome Dashboard (10-of-12) -->
+				<template if:false={selectedObjectName}>
+					<div class="slds-col slds-size_10-of-12">
+						<div class="welcome-dashboard slds-text-align_center">
+							<div class="welcome-header">
+								<lightning-icon icon-name="standard:config" size="large" class="slds-var-m-bottom_medium"></lightning-icon>
+								<h1 class="welcome-title">Trigger Actions Admin Panel</h1>
+								<p class="welcome-subtitle">
+									A streamlined UI for configuring and ordering your Trigger Actions metadata.
+								</p>
+							</div>
+
+							<div class="getting-started-grid">
+								<div class="step-card">
+									<div class="step-number">1</div>
+									<h3 class="step-title">Select SObject</h3>
+									<p class="step-description">
+										Choose an SObject from the sidebar to view its active trigger actions and settings.
+									</p>
+								</div>
+								<div class="step-card">
+									<div class="step-number">2</div>
+									<h3 class="step-title">Add Settings</h3>
+									<p class="step-description">
+										Use the "+" button in the sidebar to add trigger settings for new SObjects.
+									</p>
+								</div>
+								<div class="step-card">
+									<div class="step-number">3</div>
+									<h3 class="step-title">Manage Actions</h3>
+									<p class="step-description">
+										Create, edit, or reorder Apex and Flow actions to control your execution logic.
+									</p>
+								</div>
+							</div>
+
+							<div class="upstream-footer">
+								<p class="slds-text-body_small slds-text-color_weak slds-var-m-bottom_small">
+									Powered by the Trigger Actions Framework
+								</p>
+								<a href="https://github.com/mitchspano/trigger-actions-framework" target="_blank" rel="noopener noreferrer" class="upstream-link">
+									<lightning-icon icon-name="utility:github" size="xx-small" variant="base"></lightning-icon>
+									<span>View Framework Documentation</span>
+									<lightning-icon icon-name="utility:new_window" size="xx-small" variant="base" class="slds-var-m-left_xx-small"></lightning-icon>
+								</a>
+							</div>
+						</div>
+					</div>
+				</template>
 			</div>
 		</div>
 	</lightning-card>
