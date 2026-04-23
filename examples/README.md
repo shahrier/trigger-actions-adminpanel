@@ -1,26 +1,41 @@
 # Trigger Actions Admin Panel — Examples
 
-This folder contains a hit-the-ground-running example to help you learn how the Trigger Actions Framework operates alongside the Admin Panel. 
+This folder contains a comprehensive set of examples to help you master the Trigger Actions Framework alongside the Admin Panel. 
 
-It installs a ready-to-use **Account Trigger** accompanied by a sample Apex Action (`SampleAccountAction`) and all necessary metadata to make it visible in the Admin Panel immediately!
+## What's Included?
 
-## Deploy via Salesforce CLI
+We've provided ready-to-use triggers and actions for three core objects to showcase different framework capabilities:
 
-If you have already installed the core packages and just want to push these specific examples to your scratch org or sandbox, run:
+### 1. Account (Before Triggers)
+*   **`SampleAccountAction.cls`**: 
+    *   *Before Insert*: Automatically populates a default description.
+    *   *Before Update*: Blocks saves if `AnnualRevenue` is negative.
+
+### 2. Contact (After Triggers)
+*   **`ContactTaskAction.cls`**:
+    *   *After Insert*: Automatically creates a "Welcome Call" Task for the new Contact. Demonstrates cross-object automation.
+
+### 3. Opportunity (Conditional Logic)
+*   **`OpportunityStageAction.cls`**:
+    *   *Before Insert*: Flags "High Value" opportunities (> $100k) by updating the description field.
+
+---
+
+## 🚀 Deployment
+
+### Option 1: Salesforce CLI
+If you have the source locally, run:
 ```bash
 sf project deploy start -d examples/force-app
 ```
 
-## What's Included?
+### Option 2: Unlocked Package
+*   [Install Examples Package](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tKY000000R0yHYAS) *(Note: Placeholder ID)*
 
-1. **`AccountTrigger.trigger`**: A properly constructed 1-line trigger standardizing all events to the `MetadataTriggerHandler`.
-2. **`SampleAccountAction.cls`**: An Apex class implementing `BeforeInsert` and `BeforeUpdate`.
-    * *Before Insert*: Automatically populates a default description.
-    * *Before Update*: Blocks the record from saving if the `AnnualRevenue` is set to a negative number.
-3. **Trigger Settings & Actions Metadata**: We automatically register the Account object and the sample action to the framework so you can instantly see it rendered in the Trigger Actions Admin Panel UI.
+---
 
-## Testing it Out
-1. Install the examples.
-2. Open the **Trigger Actions Framework** app in your org.
-3. Click "Account" on the left sidebar. You will see your new `SampleAccountAction` nicely configured!
-4. Try creating an Account or updating an Account with negative revenue to see the framework dynamically execute your settings.
+## ⚙️ Testing the Demo
+1. Open the **Trigger Actions Admin Panel** app.
+2. Observe the sidebar: You now have **Account**, **Contact**, and **Opportunity** ready for management.
+3. Click through the objects to see how different contexts (Before Insert, After Insert) are visualized.
+4. Create a new Contact or a high-value Opportunity to see the framework execute the logic in real-time.
