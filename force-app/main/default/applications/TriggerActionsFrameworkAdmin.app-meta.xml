@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>A unified administrative dashboard for managing the Trigger Actions Framework. Visualize, reorder, and toggle trigger logic in real-time. Maintained by Shahrier.</description>
     <formFactors>Large</formFactors>
     <label>Trigger Actions Framework Admin</label>
     <navType>Standard</navType>

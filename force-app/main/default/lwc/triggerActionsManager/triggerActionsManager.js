@@ -1,4 +1,4 @@
-import { LightningElement, api, wire, track } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
 import getAllTriggerActions from '@salesforce/apex/TriggerActionService.getAllTriggerActions';
@@ -6,28 +6,13 @@ import getTriggerActionById from '@salesforce/apex/TriggerActionService.getTrigg
 import getAvailableSObjects from '@salesforce/apex/TriggerActionService.getAvailableSObjects';
 
 const CONTEXT_LABELS = [
-	{ field: 'Before_Insert__c', label: 'Before Insert', short: 'BI' },
-	{ field: 'After_Insert__c', label: 'After Insert', short: 'AI' },
-	{ field: 'Before_Update__c', label: 'Before Update', short: 'BU' },
-	{ field: 'After_Update__c', label: 'After Update', short: 'AU' },
-	{ field: 'Before_Delete__c', label: 'Before Delete', short: 'BD' },
-	{ field: 'After_Delete__c', label: 'After Delete', short: 'AD' },
-	{ field: 'After_Undelete__c', label: 'After Undelete', short: 'AUD' }
-];
-
-const DATATABLE_COLUMNS = [
-	{ label: 'Name', fieldName: 'DeveloperName', sortable: true },
-	{ label: 'Order', fieldName: 'Order__c', type: 'number', sortable: true, initialWidth: 80, cellAttributes: { alignment: 'left' } },
-	{ label: 'Contexts', fieldName: 'contextString', sortable: true },
-	{ label: 'Class', fieldName: 'Apex_Class_Name__c', sortable: true },
-	{ 
-		label: 'Bypass', 
-		fieldName: 'Bypass_Execution__c', 
-		type: 'boolean', 
-		sortable: true, 
-		initialWidth: 80,
-		cellAttributes: { iconName: { fieldName: 'bypassIcon' }, iconPosition: 'left' }
-	}
+	{ field: 'Before_Insert__c', label: 'Before Insert' },
+	{ field: 'After_Insert__c', label: 'After Insert' },
+	{ field: 'Before_Update__c', label: 'Before Update' },
+	{ field: 'After_Update__c', label: 'After Update' },
+	{ field: 'Before_Delete__c', label: 'Before Delete' },
+	{ field: 'After_Delete__c', label: 'After Delete' },
+	{ field: 'After_Undelete__c', label: 'After Undelete' }
 ];
 
 export default class TriggerActionsManager extends LightningElement {
@@ -42,10 +27,6 @@ export default class TriggerActionsManager extends LightningElement {
 	availableSObjects = [];
 	_wiredActionsResult;
 	_wiredSObjectsResult;
-
-	@track sortBy = 'Order__c';
-	@track sortDirection = 'asc';
-	columns = DATATABLE_COLUMNS;
 
 	@wire(getAllTriggerActions)
 	wiredActions(result) {
@@ -81,32 +62,36 @@ export default class TriggerActionsManager extends LightningElement {
 		}));
 	}
 
-	get flattenedActions() {
+	get objectActions() {
 		if (!this.selectedObjectName) return [];
 
 		const filtered = this.actions
-			.filter(a => a.Object_API_Name__c === this.selectedObjectName)
-			.map(action => {
-				const activeContexts = CONTEXT_LABELS
-					.filter(c => action[c.field])
-					.map(c => c.short);
-				
-				return {
+			.filter(a => a.Object_API_Name__c === this.selectedObjectName);
+
+		const sections = [];
+		for (const ctx of CONTEXT_LABELS) {
+			const contextActions = filtered
+				.filter(a => a[ctx.field])
+				.sort((a, b) => (a.Order__c || 0) - (b.Order__c || 0))
+				.map(action => ({
 					...action,
-					contextString: activeContexts.join(', '),
-					bypassIcon: action.Bypass_Execution__c ? 'utility:warning' : ''
-				};
-			});
-		
-		return this.sortData(filtered, this.sortBy, this.sortDirection);
+					compositeId: `${ctx.field}-${action.Id}`,
+					cssClass: 'action-item' + (this.selectedAction && this.selectedAction.Id === action.Id ? ' selected' : '')
+				}));
+			
+			if (contextActions.length > 0) {
+				sections.push({
+					key: ctx.field,
+					label: ctx.label,
+					actions: contextActions
+				});
+			}
+		}
+		return sections;
 	}
 
 	get hasObjectActions() {
-		return this.flattenedActions.length > 0;
-	}
-
-	get selectedRows() {
-		return this.selectedAction ? [this.selectedAction.Id] : [];
+		return this.objectActions.length > 0;
 	}
 
 	get noActionSelected() {
@@ -146,16 +131,8 @@ export default class TriggerActionsManager extends LightningElement {
 		this.selectedAction = null;
 	}
 
-	handleRowSelection(event) {
-		const selectedRows = event.detail.selectedRows;
-		if (selectedRows.length > 0) {
-			this.loadActionDetails(selectedRows[0].Id);
-		} else {
-			this.selectedAction = null;
-		}
-	}
-
-	async loadActionDetails(actionId) {
+	async handleActionClick(event) {
+		const actionId = event.currentTarget.dataset.actionId;
 		this.isLoading = true;
 		try {
 			this.selectedAction = await getTriggerActionById({ actionId });
@@ -164,24 +141,6 @@ export default class TriggerActionsManager extends LightningElement {
 		} finally {
 			this.isLoading = false;
 		}
-	}
-
-	handleSort(event) {
-		this.sortBy = event.detail.fieldName;
-		this.sortDirection = event.detail.sortDirection;
-	}
-
-	sortData(data, fieldname, direction) {
-		const parseData = [...data];
-		const keyValue = (a) => a[fieldname];
-		const isReverse = direction === 'asc' ? 1 : -1;
-
-		parseData.sort((x, y) => {
-			x = keyValue(x) ? keyValue(x) : '';
-			y = keyValue(y) ? keyValue(y) : '';
-			return isReverse * ((x > y) - (y > x));
-		});
-		return parseData;
 	}
 
 	handleCreateNew() {

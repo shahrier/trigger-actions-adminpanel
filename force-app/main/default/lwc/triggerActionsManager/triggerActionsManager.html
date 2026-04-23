@@ -51,7 +51,7 @@
 					</div>
 				</div>
 
-				<!-- Column 2: Actions Sortable List (5-of-12) -->
+				<!-- Column 2: Actions Grouped List (5-of-12) -->
 				<div class="slds-col slds-size_5-of-12">
 					<template if:true={selectedObjectName}>
 						<div class="actions-toolbar slds-var-m-bottom_small">
@@ -75,21 +75,35 @@
 							</lightning-button-group>
 						</div>
 
-						<div class="actions-list datatable-container">
+						<div class="actions-list">
 							<template if:true={hasObjectActions}>
-								<lightning-datatable
-									key-field="Id"
-									data={flattenedActions}
-									columns={columns}
-									onrowselection={handleRowSelection}
-									selected-rows={selectedRows}
-									max-row-selection="1"
-									onsort={handleSort}
-									sorted-by={sortBy}
-									sorted-direction={sortDirection}
-									hide-checkbox-column
-								>
-								</lightning-datatable>
+								<template for:each={objectActions} for:item="section">
+									<div key={section.key} class="context-section">
+										<div class="context-header">
+											<span class="context-header-label">{section.label}</span>
+											<span class="context-header-count">{section.actions.length}</span>
+										</div>
+										<template for:each={section.actions} for:item="action">
+											<div
+												key={action.compositeId}
+												class={action.cssClass}
+												data-action-id={action.Id}
+												onclick={handleActionClick}
+											>
+												<div class="action-order">#{action.Order__c}</div>
+												<div class="action-details-compact">
+													<div class="action-name-compact">{action.DeveloperName}</div>
+													<div class="action-class-compact">{action.Apex_Class_Name__c}</div>
+												</div>
+												<div class="action-status-compact">
+													<template if:true={action.Bypass_Execution__c}>
+														<lightning-icon icon-name="utility:warning" size="xx-small" variant="warning"></lightning-icon>
+													</template>
+												</div>
+											</div>
+										</template>
+									</div>
+								</template>
 							</template>
 							<template if:false={hasObjectActions}>
 								<div class="slds-p-around_large slds-text-align_center">

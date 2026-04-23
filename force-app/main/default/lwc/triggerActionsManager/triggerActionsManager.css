@@ -79,13 +79,107 @@
 	border: 1px solid #e0e0e0;
 	border-radius: 4px;
 	background-color: #ffffff;
-	min-height: 400px;
 	max-height: 700px;
+	overflow-y: auto;
+}
+
+/* Context section headers */
+.context-section {
+	border-bottom: 1px solid #e0e0e0;
+}
+
+.context-section:last-child {
+	border-bottom: none;
+}
+
+.context-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.4rem 0.75rem;
+	background-color: #f7f9fb;
+	border-bottom: 1px solid #e8ecf0;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.context-header-label {
+	font-size: 0.65rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #3e3e3c;
+}
+
+.context-header-count {
+	background-color: #d8dde4;
+	color: #3e3e3c;
+	border-radius: 10px;
+	padding: 0.05rem 0.4rem;
+	font-size: 0.6rem;
+	font-weight: 600;
+	min-width: 16px;
+	text-align: center;
+}
+
+.action-item {
+	display: flex;
+	align-items: center;
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid #f0f0f0;
+	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.action-item:last-child {
+	border-bottom: none;
+}
+
+.action-item:hover {
+	background-color: #f9f9f9;
+}
+
+.action-item.selected {
+	background-color: #e8f4fd;
+	border-left: 3px solid #0070d2;
+}
+
+.action-order {
+	font-weight: 600;
+	color: #0070d2;
+	min-width: 30px;
+	flex-shrink: 0;
+	text-align: center;
+	font-size: 0.75rem;
+}
+
+.action-details-compact {
+	flex-grow: 1;
+	margin-left: 0.5rem;
 	overflow: hidden;
 }
 
-.datatable-container {
-	--lwc-spacingMedium: 0.5rem;
+.action-name-compact {
+	font-weight: 600;
+	color: #333;
+	font-size: 0.8125rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.action-class-compact {
+	color: #777;
+	font-size: 0.7rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.action-status-compact {
+	flex-shrink: 0;
+	margin-left: 0.25rem;
 }
 
 /* Detail panel */
@@ -142,10 +236,4 @@
 
 .slds-icon-text-light {
 	--lwc-colorTextIconDefault: #d8dde6;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1200px) {
-	.slds-size_2-of-12 { width: 20%; }
-	.slds-size_5-of-12 { width: 40%; }
 }
