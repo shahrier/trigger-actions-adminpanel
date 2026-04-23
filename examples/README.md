@@ -23,15 +23,11 @@ We've provided ready-to-use triggers and actions for three core objects to showc
 
 ## 🚀 Deployment
 
-### Option 1: Salesforce CLI
+### Salesforce CLI
 If you have the source locally, run:
 ```bash
 sf project deploy start -d examples/force-app
 ```
-
-### Option 2: Unlocked Package
-*   [Install Examples Package](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tKY000000R0yHYAS) *(Note: Placeholder ID)*
-
 ---
 
 ## ⚙️ Testing the Demo
