@@ -1,30 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <label>Sample Account Action Before Insert</label>
+    <label>TA Contact ValidateEmail</label>
     <protected>false</protected>
     <values>
         <field>Object_API_Name__c</field>
-        <value xsi:type="xsd:string">Account</value>
-    </values>
-    <values>
-        <field>Allow_Flow_Recursion__c</field>
-        <value xsi:type="xsd:boolean">false</value>
+        <value xsi:type="xsd:string">Contact</value>
     </values>
     <values>
         <field>Apex_Class_Name__c</field>
-        <value xsi:type="xsd:string">SampleAccountAction</value>
+        <value xsi:type="xsd:string">TA_Contact_ValidateEmail</value>
     </values>
     <values>
         <field>Before_Insert__c</field>
-        <value xsi:type="xsd:string">Account</value>
-    </values>
-    <values>
-        <field>Bypass_Execution__c</field>
-        <value xsi:type="xsd:boolean">false</value>
+        <value xsi:type="xsd:string">Contact</value>
     </values>
     <values>
         <field>Description__c</field>
-        <value xsi:type="xsd:string">Populates default description on insert.</value>
+        <value xsi:type="xsd:string">Ensures all Contacts have an email address.</value>
     </values>
     <values>
         <field>Order__c</field>

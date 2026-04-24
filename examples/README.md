@@ -1,37 +1,55 @@
 # Trigger Actions Admin Panel — Examples
 
-This folder contains a comprehensive set of examples to help you master the Trigger Actions Framework alongside the Admin Panel. 
+This folder contains a robust and comprehensive set of examples to help you master the **Trigger Actions Framework** alongside the **Admin Panel**. 
 
-## What's Included?
+## ✨ What's Included?
 
-We've provided ready-to-use triggers and actions for three core objects to showcase different framework capabilities:
+We've provided ready-to-use actions for core objects, showcasing the framework's power and the `TA_` naming convention (`TA_[Object]_[Action]`).
 
-### 1. Account (Before Triggers)
-*   **`SampleAccountAction.cls`**: 
-    *   *Before Insert*: Automatically populates a default description.
-    *   *Before Update*: Blocks saves if `AnnualRevenue` is negative.
+### 🏦 Account
+*   **`TA_Account_PreventDelete`**: Blocks deletion of Accounts with related Opportunities.
+*   **`TA_Account_SetDefaults`**: Automatically populates standard fields on insert.
+*   **`TA_Account_ValidateName`**: Enforces naming standards for new Accounts.
 
-### 2. Contact (After Triggers)
-*   **`ContactTaskAction.cls`**:
-    *   *After Insert*: Automatically creates a "Welcome Call" Task for the new Contact. Demonstrates cross-object automation.
+### 💼 Case
+*   **`TA_Case_Lifecycle`**: Manages status transitions and timestamps.
+*   **`TA_Case_SetPriority`**: Automatically prioritizes cases based on origin or type.
 
-### 3. Opportunity (Conditional Logic)
-*   **`OpportunityStageAction.cls`**:
-    *   *Before Insert*: Flags "High Value" opportunities (> $100k) by updating the description field.
+### 👤 Contact
+*   **`TA_Contact_StampAddress`**: Synchronizes address information from the parent Account.
+*   **`TA_Contact_ValidateEmail`**: Ensures all Contacts have a valid email format.
+
+### 🎯 Lead
+*   **`TA_Lead_CreateFollowUp`**: Generates a Task for the owner when a Lead is created.
+*   **`TA_Lead_EnrichData`**: Populates industry or source data via external logic.
+
+### 💰 Opportunity
+*   **`TA_Opportunity_NotifyOwner`**: Sends custom notifications on major stage changes.
+*   **`TA_Opportunity_PreventDelete`**: Prevents deletion of closed-won opportunities.
+*   **`TA_Opportunity_SetDefaults`**: Sets default close dates and stages.
+*   **`TA_Opportunity_UpdateAccount`**: Rolls up key metrics to the parent Account.
+*   **`TA_Opportunity_ValidateAmount`**: Blocks saves if the amount is missing for high-value stages.
 
 ---
 
 ## 🚀 Deployment
 
-### Salesforce CLI
-If you have the source locally, run:
+### 1. Deploy New Actions
+To deploy these examples to your org:
 ```bash
 sf project deploy start -d examples/force-app
 ```
+
+### 2. Cleanup Legacy Examples
+If you previously had the old sample classes installed, run the destructive deployment:
+```bash
+sf project deploy start --manifest manifest/package.xml --destructive-changes-post manifest/destructiveChanges.xml
+```
+
 ---
 
 ## ⚙️ Testing the Demo
 1. Open the **Trigger Actions Admin Panel** app.
-2. Observe the sidebar: You now have **Account**, **Contact**, and **Opportunity** ready for management.
-3. Click through the objects to see how different contexts (Before Insert, After Insert) are visualized.
-4. Create a new Contact or a high-value Opportunity to see the framework execute the logic in real-time.
+2. Observe the sidebar: You'll see the objects ready for management.
+3. Use the Admin Panel to toggle these actions on or off across different trigger contexts (Before Insert, After Update, etc.).
+4. Perform data operations (e.g., delete an Account with an Opp) to see the framework execute the logic in real-time.
