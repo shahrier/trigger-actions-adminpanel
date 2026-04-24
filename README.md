@@ -20,8 +20,8 @@ A lightweight, metadata-driven UI for managing the [Trigger Actions Framework](h
 > **Prerequisite:** You must have the core [Trigger Actions Framework](https://github.com/mitchspano/trigger-actions-framework) installed in your org first.
 
 ### Option 1: Unlocked Package (Recommended)
-*   [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000EEG1QAO)
-*   [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000EEG1QAO)
+*   [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000EEHdQAO)
+*   [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000EEHdQAO)
 
 ### Option 2: Deploy from Source
 <a href="https://githubsfdeploy.herokuapp.com?owner=shahrier&repo=trigger-actions-adminpanel&ref=main">

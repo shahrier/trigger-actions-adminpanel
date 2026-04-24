@@ -24,7 +24,7 @@
           "package": "Trigger Actions Framework"
         },
         {
-          "package": "Trigger Actions Admin Panel@1.0.0-2"
+          "package": "Trigger Actions Admin Panel@1.0.0-5"
         }
       ]
     }
@@ -39,6 +39,7 @@
     "Trigger Actions Admin Panel@1.0.0-2": "04tgL000000E6QXQA0",
     "Trigger Actions Admin Panel Examples": "0HogL0000002B2bSAE",
     "Trigger Actions Admin Panel@1.0.0-3": "04tgL000000EE7xQAG",
-    "Trigger Actions Admin Panel@1.0.0-4": "04tgL000000EEG1QAO"
+    "Trigger Actions Admin Panel@1.0.0-4": "04tgL000000EEG1QAO",
+    "Trigger Actions Admin Panel@1.0.0-5": "04tgL000000EEHdQAO"
   }
 }
