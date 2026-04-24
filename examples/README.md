@@ -34,16 +34,10 @@ We've provided ready-to-use actions for core objects, showcasing the framework's
 
 ## 🚀 Deployment
 
-### 1. Deploy New Actions
+### Deploy New Actions
 To deploy these examples to your org:
 ```bash
 sf project deploy start -d examples/force-app
-```
-
-### 2. Cleanup Legacy Examples
-If you previously had the old sample classes installed, run the destructive deployment:
-```bash
-sf project deploy start --manifest manifest/package.xml --destructive-changes-post manifest/destructiveChanges.xml
 ```
 
 ---
