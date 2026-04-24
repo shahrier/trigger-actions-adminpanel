@@ -428,6 +428,39 @@ public with sharing class TriggerActionService {
 
 		return result;
 	}
+	
+	/**
+	 * @description Retrieves the source code (body) of an Apex class by name.
+	 * @param className The name of the Apex class.
+	 * @return String The class body.
+	 */
+	@AuraEnabled(cacheable=true)
+	public static String getApexClassBody(String className) {
+		List<ApexClass> classes = [SELECT Body FROM ApexClass WHERE Name = :className LIMIT 1];
+		if (classes.isEmpty()) {
+			throw new AuraHandledException('Apex class "' + className + '" not found in the org.');
+		}
+		return classes[0].Body;
+	}
+
+	/**
+	 * @description Retrieves the ID of a Flow by its DeveloperName.
+	 * @param flowName The API name of the Flow.
+	 * @return String The Flow ID.
+	 */
+	@AuraEnabled(cacheable=true)
+	public static String getFlowIdByName(String flowName) {
+		List<FlowDefinitionView> flows = [
+			SELECT ActiveVersionId 
+			FROM FlowDefinitionView 
+			WHERE ApiName = :flowName 
+			LIMIT 1
+		];
+		if (flows.isEmpty()) {
+			throw new AuraHandledException('Flow "' + flowName + '" not found in the org.');
+		}
+		return flows[0].ActiveVersionId;
+	}
 
 	/**
 	 * @description Inspects an Apex class and returns which TriggerAction interfaces it implements

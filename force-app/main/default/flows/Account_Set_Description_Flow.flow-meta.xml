@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <assignments>
+        <name>Set_Description</name>
+        <label>Set Description</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <assignmentItems>
+            <assignToReference>Loop_triggerNew.Description</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Updated by Trigger Actions Framework Flow Example</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_triggerNew</targetReference>
+        </connector>
+    </assignments>
+    <description>A sample Autolaunched Flow for the Trigger Actions Framework.</description>
+    <environments>Default</environments>
+    <interviewLabel>Account: Set Description Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Account: Set Description Flow</label>
+    <loops>
+        <name>Loop_triggerNew</name>
+        <label>Loop triggerNew</label>
+        <locationX>176</locationX>
+        <locationY>122</locationY>
+        <collectionReference>triggerNew</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Set_Description</targetReference>
+        </nextValueConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Loop_triggerNew</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>triggerNew</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>true</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <name>triggerOld</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+</Flow>

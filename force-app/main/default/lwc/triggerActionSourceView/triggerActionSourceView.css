@@ -1,0 +1,17 @@
+.code-container {
+	background-color: #1e1e1e;
+	color: #d4d4d4;
+	padding: 1rem;
+	border-radius: 4px;
+	font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	overflow: auto;
+	max-height: 60vh;
+	white-space: pre-wrap;
+	tab-size: 4;
+}
+
+code {
+	color: inherit;
+}

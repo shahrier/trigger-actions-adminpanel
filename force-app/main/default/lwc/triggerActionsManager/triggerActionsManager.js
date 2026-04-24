@@ -1,9 +1,11 @@
 import { LightningElement, api, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { refreshApex } from '@salesforce/apex';
+import { NavigationMixin } from 'lightning/navigation';
 import getAllTriggerActions from '@salesforce/apex/TriggerActionService.getAllTriggerActions';
 import getTriggerActionById from '@salesforce/apex/TriggerActionService.getTriggerActionById';
 import getAvailableSObjects from '@salesforce/apex/TriggerActionService.getAvailableSObjects';
+import getFlowIdByName from '@salesforce/apex/TriggerActionService.getFlowIdByName';
 
 const CONTEXT_LABELS = [
 	{ field: 'Before_Insert__c', label: 'Before Insert' },
@@ -15,7 +17,7 @@ const CONTEXT_LABELS = [
 	{ field: 'After_Undelete__c', label: 'After Undelete' }
 ];
 
-export default class TriggerActionsManager extends LightningElement {
+export default class TriggerActionsManager extends NavigationMixin(LightningElement) {
 	@api title;
 	actions = [];
 	selectedAction = null;
@@ -23,6 +25,8 @@ export default class TriggerActionsManager extends LightningElement {
 	isLoading = false;
 	showFormModal = false;
 	showSettingFormModal = false;
+	showSourceModal = false;
+	searchTerm = '';
 	isCreating = false;
 	availableSObjects = [];
 	_wiredActionsResult;
@@ -49,17 +53,26 @@ export default class TriggerActionsManager extends LightningElement {
 	// --- Computed properties ---
 
 	get objectList() {
-		const actionCounts = {};
-		this.actions.forEach(action => {
-			const obj = action.Object_API_Name__c;
-			actionCounts[obj] = (actionCounts[obj] || 0) + 1;
-		});
+		if (!this.availableSObjects) return [];
 
-		return this.availableSObjects.map(obj => ({
-			name: obj.name,
-			actionCount: actionCounts[obj.name] || 0,
-			cssClass: 'object-item' + (this.selectedObjectName === obj.name ? ' selected' : '')
-		}));
+		const actionCounts = {};
+		if (this.actions) {
+			this.actions.forEach(action => {
+				const obj = action.Object_API_Name__c;
+				actionCounts[obj] = (actionCounts[obj] || 0) + 1;
+			});
+		}
+
+		return this.availableSObjects
+			.filter(obj => 
+				!this.searchTerm || 
+				obj.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+			)
+			.map(obj => ({
+				name: obj.name,
+				actionCount: actionCounts[obj.name] || 0,
+				cssClass: 'object-item' + (this.selectedObjectName === obj.name ? ' selected' : '')
+			}));
 	}
 
 	get objectActions() {
@@ -125,6 +138,10 @@ export default class TriggerActionsManager extends LightningElement {
 
 	// --- Event handlers ---
 
+	handleSearchChange(event) {
+		this.searchTerm = event.target.value;
+	}
+
 	handleObjectClick(event) {
 		const objectName = event.currentTarget.dataset.objectName;
 		this.selectedObjectName = objectName;
@@ -160,6 +177,36 @@ export default class TriggerActionsManager extends LightningElement {
 		}
 		this.isCreating = false;
 		this.showFormModal = true;
+	}
+
+	handleViewSource() {
+		if (this.selectedAction?.Apex_Class_Name__c) {
+			this.showSourceModal = true;
+		}
+	}
+
+	handleSourceClose() {
+		this.showSourceModal = false;
+	}
+
+	async handleOpenFlowBuilder() {
+		const flowName = this.selectedAction?.Flow_Name__c;
+		if (!flowName) return;
+
+		this.isLoading = true;
+		try {
+			const flowId = await getFlowIdByName({ flowName });
+			this[NavigationMixin.Navigate]({
+				type: 'standard__webPage',
+				attributes: {
+					url: `/builder_platform_interaction/flowBuilder.app?flowId=${flowId}`
+				}
+			});
+		} catch (error) {
+			this.showError('Error opening Flow Builder', error.body?.message || error.message);
+		} finally {
+			this.isLoading = false;
+		}
 	}
 
 	handleFormClose() {

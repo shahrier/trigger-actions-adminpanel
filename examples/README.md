@@ -10,6 +10,7 @@ We've provided ready-to-use actions for core objects, showcasing the framework's
 *   **`TA_Account_PreventDelete`**: Blocks deletion of Accounts with related Opportunities.
 *   **`TA_Account_SetDefaults`**: Automatically populates standard fields on insert.
 *   **`TA_Account_ValidateName`**: Enforces naming standards for new Accounts.
+*   **`TA_Account_SetDescriptionFlow`**: (Flow Example) Automatically sets the Account description using an Autolaunched Flow.
 
 ### 💼 Case
 *   **`TA_Case_Lifecycle`**: Manages status transitions and timestamps.

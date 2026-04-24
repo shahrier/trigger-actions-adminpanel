@@ -216,6 +216,22 @@
 	font-size: 0.875rem;
 }
 
+.view-source-button {
+	font-size: 0.75rem;
+	height: auto;
+	line-height: 1;
+}
+
+.view-source-button :deep(.slds-button) {
+	color: #0070d2;
+	text-decoration: none;
+}
+
+.view-source-button :deep(.slds-button:hover) {
+	color: #005fb2;
+	text-decoration: underline;
+}
+
 .detail-value.criteria-text {
 	font-family: "Courier New", monospace;
 	background-color: #f5f5f5;

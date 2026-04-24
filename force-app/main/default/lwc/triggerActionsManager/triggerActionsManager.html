@@ -8,26 +8,39 @@
 				<!-- Column 1: SObject List (2-of-12) -->
 				<div class="slds-col slds-size_2-of-12">
 					<div class="object-panel">
-						<div class="panel-header">
-							<h3 class="slds-text-heading_small">SObjects</h3>
-							<div class="slds-grid slds-grid_vertical-align-center">
-								<lightning-button-icon
-									icon-name="utility:add"
-									alternative-text="Add SObject"
-									onclick={handleAddSObject}
-									size="small"
-									variant="bare"
-									class="slds-var-m-right_x-small"
+						<div class="panel-header slds-grid slds-wrap">
+							<div class="slds-col slds-size_1-of-1 slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+								<h3 class="slds-text-heading_small">SObjects</h3>
+								<div class="slds-grid slds-grid_vertical-align-center">
+									<lightning-button-icon
+										icon-name="utility:add"
+										alternative-text="Add SObject"
+										onclick={handleAddSObject}
+										size="small"
+										variant="bare"
+										class="slds-var-m-right_x-small"
+									>
+									</lightning-button-icon>
+									<lightning-button-icon
+										icon-name="utility:refresh"
+										alternative-text="Refresh"
+										onclick={handleRefresh}
+										size="small"
+										variant="border-filled"
+									>
+									</lightning-button-icon>
+								</div>
+							</div>
+							<div class="slds-col slds-size_1-of-1">
+								<lightning-input
+									type="search"
+									variant="label-hidden"
+									placeholder="Search..."
+									onchange={handleSearchChange}
+									class="object-search-input"
+									value={searchTerm}
 								>
-								</lightning-button-icon>
-								<lightning-button-icon
-									icon-name="utility:refresh"
-									alternative-text="Refresh"
-									onclick={handleRefresh}
-									size="small"
-									variant="border-filled"
-								>
-								</lightning-button-icon>
+								</lightning-input>
 							</div>
 						</div>
 						<div class="object-list">
@@ -133,7 +146,17 @@
 												<div class="detail-value">{selectedAction.DeveloperName}</div>
 											</div>
 											<div class="slds-col slds-size_1-of-1 detail-row">
-												<div class="detail-label">Apex Class</div>
+												<div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+													<div class="detail-label">Apex Class</div>
+													<lightning-button
+														label="View Source"
+														icon-name="utility:code"
+														variant="base"
+														onclick={handleViewSource}
+														class="view-source-button"
+													>
+													</lightning-button>
+												</div>
 												<div class="detail-value">{selectedAction.Apex_Class_Name__c}</div>
 											</div>
 											<div class="slds-col slds-size_1-of-2 detail-row">
@@ -142,7 +165,18 @@
 											</div>
 											<template if:true={selectedAction.Flow_Name__c}>
 												<div class="slds-col slds-size_1-of-2 detail-row">
-													<div class="detail-label">Flow Name</div>
+													<div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+														<div class="detail-label">Flow Name</div>
+														<lightning-button-icon
+															icon-name="utility:new_window"
+															variant="bare"
+															onclick={handleOpenFlowBuilder}
+															alternative-text="Open in Flow Builder"
+															title="Open in Flow Builder"
+															size="small"
+														>
+														</lightning-button-icon>
+													</div>
 													<div class="detail-value">{selectedAction.Flow_Name__c}</div>
 												</div>
 											</template>
@@ -279,5 +313,15 @@
 			onsavesuccess={handleSettingSaveSuccess}
 		>
 		</c-trigger-setting-form>
+	</template>
+
+	<!-- Source View Modal -->
+	<template if:true={selectedAction}>
+		<c-trigger-action-source-view
+			class-name={selectedAction.Apex_Class_Name__c}
+			show-modal={showSourceModal}
+			onclose={handleSourceClose}
+		>
+		</c-trigger-action-source-view>
 	</template>
 </template>
