@@ -21,26 +21,20 @@ public with sharing class TriggerActionValidator {
 	public static void validateApexClassName(String apexClassName) {
 		if (String.isBlank(apexClassName)) {
 			String msg = 'Apex class name is required.';
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
+				throw createAuraException(msg);
 		}
 
 		try {
 			Type classType = Type.forName(apexClassName);
 			if (classType == null) {
 				String msg = 'Apex class "' + apexClassName + '" does not exist or is not accessible.';
-				AuraHandledException ahe = new AuraHandledException(msg);
-				ahe.setMessage(msg);
-				throw ahe;
+				throw createAuraException(msg);
 			}
 		} catch (AuraHandledException ahe) {
 			throw ahe;
 		} catch (Exception e) {
 			String msg = 'Error validating Apex class "' + apexClassName + '": ' + e.getMessage();
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
+				throw createAuraException(msg);
 		}
 	}
 
@@ -53,15 +47,37 @@ public with sharing class TriggerActionValidator {
 			return; // Flow name is optional
 		}
 
-		// Basic validation: flow name should not contain invalid characters
-		// Simply check that it doesn't start with a number and contains only valid chars
 		String firstChar = flowName.substring(0, 1);
 		if (firstChar.isNumeric()) {
 			String msg = 'Flow name must start with a letter or underscore.';
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
+			throw createAuraException(msg);
 		}
+	}
+
+	/**
+	 * @description Validates that the Flow exists in the org
+	 * @param flowName The API name of the Flow
+	 */
+	public static void validateFlowExists(String flowName) {
+		if (String.isBlank(flowName)) {
+			return;
+		}
+		List<FlowDefinitionView> flows = [
+			SELECT ApiName 
+			FROM FlowDefinitionView 
+			WHERE ApiName = :flowName 
+			WITH USER_MODE
+			LIMIT 1
+		];
+		if (flows.isEmpty()) {
+			throw createAuraException('Flow "' + flowName + '" not found in the org.');
+		}
+	}
+
+	private static AuraHandledException createAuraException(String msg) {
+		AuraHandledException ahe = new AuraHandledException(msg);
+		ahe.setMessage(msg);
+		return ahe;
 	}
 
 	/**
@@ -71,9 +87,7 @@ public with sharing class TriggerActionValidator {
 	public static void validateTriggerContexts(Map<String, Boolean> contexts) {
 		if (contexts == null || contexts.isEmpty()) {
 			String msg = 'At least one trigger context must be selected.';
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
+			throw createAuraException(msg);
 		}
 
 		Boolean hasValidContext = false;
@@ -82,9 +96,7 @@ public with sharing class TriggerActionValidator {
 			String normalizedName = contextName.endsWith('__c') ? contextName : contextName + '__c';
 			if (!VALID_TRIGGER_CONTEXTS.contains(normalizedName)) {
 				String msg = 'Invalid trigger context: ' + contextName;
-				AuraHandledException ahe = new AuraHandledException(msg);
-				ahe.setMessage(msg);
-				throw ahe;
+				throw createAuraException(msg);
 			}
 			if (contexts.get(contextName)) {
 				hasValidContext = true;
@@ -93,9 +105,7 @@ public with sharing class TriggerActionValidator {
 
 		if (!hasValidContext) {
 			String msg = 'At least one trigger context must be enabled.';
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
+			throw createAuraException(msg);
 		}
 	}
 }

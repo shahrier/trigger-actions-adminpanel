@@ -32,6 +32,7 @@ public with sharing class TriggerActionService {
 				After_Delete__c,
 				After_Undelete__c
 			FROM Trigger_Action__mdt
+			WITH USER_MODE
 			ORDER BY Object_API_Name__c, Order__c
 		];
 	}
@@ -64,6 +65,7 @@ public with sharing class TriggerActionService {
 				After_Undelete__c
 			FROM Trigger_Action__mdt
 			WHERE Id = :actionId
+			WITH USER_MODE
 		];
 		return actions.isEmpty() ? null : actions[0];
 	}
@@ -95,6 +97,7 @@ public with sharing class TriggerActionService {
 		TriggerActionValidator.validateApexClassName(apexClassName);
 		if (String.isNotBlank(flowName)) {
 			TriggerActionValidator.validateFlowName(flowName);
+			TriggerActionValidator.validateFlowExists(flowName);
 		}
 		validateUniqueDevName(devName);
 		TriggerActionValidator.validateTriggerContexts(contexts);
@@ -106,6 +109,7 @@ public with sharing class TriggerActionService {
 			SELECT DeveloperName
 			FROM sObject_Trigger_Setting__mdt
 			WHERE Object_API_Name__c = :objectName
+			WITH USER_MODE
 			LIMIT 1
 		];
 		if (settings.isEmpty()) {
@@ -147,6 +151,9 @@ public with sharing class TriggerActionService {
 		Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
 		mdContainer.addMetadata(record);
 
+		if (Test.isRunningTest()) {
+			return 'MockJobId';
+		}
 		Id jobId = Metadata.Operations.enqueueDeployment(mdContainer, new CustomMetadataCallback());
 		return jobId;
 	}
@@ -179,6 +186,7 @@ public with sharing class TriggerActionService {
 		TriggerActionValidator.validateApexClassName(apexClassName);
 		if (String.isNotBlank(flowName)) {
 			TriggerActionValidator.validateFlowName(flowName);
+			TriggerActionValidator.validateFlowExists(flowName);
 		}
 		TriggerActionValidator.validateTriggerContexts(contexts);
 
@@ -194,6 +202,7 @@ public with sharing class TriggerActionService {
 				After_Undelete__c
 			FROM Trigger_Action__mdt
 			WHERE DeveloperName = :devName
+			WITH USER_MODE
 		];
 
 		// Look up the sObject Trigger Setting DeveloperName for this object
@@ -204,6 +213,7 @@ public with sharing class TriggerActionService {
 				SELECT DeveloperName, Object_API_Name__c
 				FROM sObject_Trigger_Setting__mdt
 				WHERE Object_API_Name__c = :existing.Object_API_Name__c
+				WITH USER_MODE
 				LIMIT 1
 			];
 		} else {
@@ -221,6 +231,7 @@ public with sharing class TriggerActionService {
 					SELECT DeveloperName, Object_API_Name__c
 					FROM sObject_Trigger_Setting__mdt
 					WHERE Id = :settingId
+					WITH USER_MODE
 					LIMIT 1
 				];
 			}
@@ -260,6 +271,9 @@ public with sharing class TriggerActionService {
 		Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
 		mdContainer.addMetadata(record);
 
+		if (Test.isRunningTest()) {
+			return 'MockJobId';
+		}
 		Id jobId = Metadata.Operations.enqueueDeployment(mdContainer, new CustomMetadataCallback());
 		return jobId;
 	}
@@ -317,10 +331,10 @@ public with sharing class TriggerActionService {
 		if (devName.length() > 37) devName = devName.substring(0, 37);
 
 		List<sObject_Trigger_Setting__mdt> existingByName = [
-			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE DeveloperName = :devName
+			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE DeveloperName = :devName WITH USER_MODE
 		];
 		List<sObject_Trigger_Setting__mdt> existingByObject = [
-			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE Object_API_Name__c = :objectName
+			SELECT Id FROM sObject_Trigger_Setting__mdt WHERE Object_API_Name__c = :objectName WITH USER_MODE
 		];
 
 		if (!existingByName.isEmpty() || !existingByObject.isEmpty()) {
@@ -347,6 +361,9 @@ public with sharing class TriggerActionService {
 		Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
 		mdContainer.addMetadata(record);
 
+		if (Test.isRunningTest()) {
+			return 'MockJobId';
+		}
 		return Metadata.Operations.enqueueDeployment(mdContainer, new CustomMetadataCallback());
 	}
 	/**
@@ -360,6 +377,7 @@ public with sharing class TriggerActionService {
 		for (sObject_Trigger_Setting__mdt setting : [
 			SELECT Object_API_Name__c
 			FROM sObject_Trigger_Setting__mdt
+			WITH USER_MODE
 			ORDER BY Object_API_Name__c
 		]) {
 			Map<String, String> obj = new Map<String, String>();
@@ -390,6 +408,7 @@ public with sharing class TriggerActionService {
 			SELECT Id
 			FROM Trigger_Action__mdt
 			WHERE DeveloperName = :devName
+			WITH USER_MODE
 		];
 		if (!existing.isEmpty()) {
 			String msg = 'A Trigger Action with Developer Name "' + devName + '" already exists.';
@@ -413,6 +432,7 @@ public with sharing class TriggerActionService {
 			SELECT Apex_Class_Name__c
 			FROM Trigger_Action__mdt
 			WHERE Apex_Class_Name__c != null
+			WITH USER_MODE
 			ORDER BY Apex_Class_Name__c
 		]) {
 			classNames.add(action.Apex_Class_Name__c);
@@ -436,7 +456,7 @@ public with sharing class TriggerActionService {
 	 */
 	@AuraEnabled(cacheable=true)
 	public static String getApexClassBody(String className) {
-		List<ApexClass> classes = [SELECT Body FROM ApexClass WHERE Name = :className LIMIT 1];
+		List<ApexClass> classes = [SELECT Body FROM ApexClass WHERE Name = :className WITH USER_MODE LIMIT 1];
 		if (classes.isEmpty()) {
 			throw new AuraHandledException('Apex class "' + className + '" not found in the org.');
 		}
@@ -454,6 +474,7 @@ public with sharing class TriggerActionService {
 			SELECT ActiveVersionId 
 			FROM FlowDefinitionView 
 			WHERE ApiName = :flowName 
+			WITH USER_MODE
 			LIMIT 1
 		];
 		if (flows.isEmpty()) {
@@ -483,12 +504,19 @@ public with sharing class TriggerActionService {
 			Type classType = Type.forName(apexClassName);
 			if (classType == null) {
 				String msg = 'Class "' + apexClassName + '" not found.';
-				AuraHandledException ahe = new AuraHandledException(msg);
-				ahe.setMessage(msg);
-				throw ahe;
+				throw createAuraException(msg);
 			}
 
-			Object instance = classType.newInstance();
+			Object instance;
+			try {
+				instance = classType.newInstance();
+			} catch (System.TypeException e) {
+				String msg = 'Class "' + apexClassName + '" must have a public default (no-arg) constructor to be auto-detected.';
+				throw createAuraException(msg);
+			} catch (Exception e) {
+				String msg = 'Error instantiating class "' + apexClassName + '": ' + e.getMessage();
+				throw createAuraException(msg);
+			}
 
 			// Check which interfaces this class implements
 			if (instance instanceof TriggerAction.BeforeInsert) {
@@ -516,12 +544,16 @@ public with sharing class TriggerActionService {
 			throw ahe;
 		} catch (Exception e) {
 			String msg = 'Error inspecting class "' + apexClassName + '": ' + e.getMessage();
-			AuraHandledException ahe = new AuraHandledException(msg);
-			ahe.setMessage(msg);
-			throw ahe;
+			throw createAuraException(msg);
 		}
 
 		return JSON.serialize(contexts);
+	}
+
+	private static AuraHandledException createAuraException(String msg) {
+		AuraHandledException ahe = new AuraHandledException(msg);
+		ahe.setMessage(msg);
+		return ahe;
 	}
 
 	/**

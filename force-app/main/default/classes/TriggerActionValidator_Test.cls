@@ -159,4 +159,21 @@ private class TriggerActionValidator_Test {
 		Test.stopTest();
 		System.assert(threwExpectedException, 'Expected AuraHandledException for invalid flow name');
 	}
+
+	/**
+	 * Test validation of Flow existence - non-existent flow
+	 */
+	@isTest
+	static void testValidateFlowExistsInvalid() {
+		Test.startTest();
+		Boolean threwExpectedException = false;
+		try {
+			TriggerActionValidator.validateFlowExists('NonExistentFlow');
+			System.assert(false, 'Should throw for non-existent flow');
+		} catch (AuraHandledException e) {
+			threwExpectedException = true;
+		}
+		Test.stopTest();
+		System.assert(threwExpectedException, 'Expected AuraHandledException for non-existent flow');
+	}
 }
