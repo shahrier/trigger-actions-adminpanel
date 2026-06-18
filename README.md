@@ -51,23 +51,37 @@ Uncover hidden automation debt in seconds. The Discovery engine scans your entir
 
 ![Discovery Modal](images/discovery_modal.png)
 
-### Unified Hierarchy View
+### Unified Hierarchy View & Reordering
 
-Full visibility into every automation on an object. Actions are grouped by execution context — Before Insert, After Update, etc. — and displayed in their precise execution order. Native triggers and Record-Triggered Flows are tracked alongside framework actions, with direct access to View Source and Flow Visualizer from each item.
+Full visibility into every automation on an object. Actions are grouped by execution context — Before Insert, After Update, etc. — and displayed in their precise execution order.
+
+- **Interactive Reordering:** Reorder execution sequences on-the-fly using precise, accessible up/down controls, with a draft banner to save or reset. Saving triggers an automated Custom Metadata deployment in the background.
+- **Unified Visibility:** Native triggers and Record-Triggered Flows are tracked alongside framework actions, with direct access to View Source and Flow Visualizer from each item.
 
 ![Hierarchy View](images/hierarchy_view.png)
 
 ![Native Automations](images/native_automation_features.png)
 
-### Flow Visualizer
+### Flow Visualizer & Multi-Level Drill-Down
 
-Visualize Record-Triggered Flows as interactive flowcharts directly in the Command Center. See flow details, assignments, decisions, and loops rendered as a diagram — with a direct link to open the Flow in Flow Builder.
+Visualize Record-Triggered Flows as interactive flowcharts directly in the Command Center.
 
-![Flow Visualizer](images/flow_viz.png)
+- **Multi-Level Drill-Down:** Click on any Subflow node to fetch its metadata and render its nested flowchart, or click on an Apex Action to trace into its logic diagram and code.
+- **Side-by-Side Comparison:** Compare subflows or Apex logic side-by-side with the parent Flow, or expand to a full focused view with breadcrumbs.
+- **Rich Diagrams & Exports:** Use the built-in Legend to decode execution nodes, view input/output parameter maps directly inside nodes, and export high-definition PNGs of your flowcharts for offline documentation.
 
-### Developer Source View
+![Flow Visualizer](images/flow_viz1.png)
 
-Inspect implementation logic without leaving the UI. The "View Source" feature renders Apex code for both framework-managed actions and native triggers, while the "Apex Code Visualizer" generates interactive flowcharts from your Apex classes — bridging administration and development in one place.
+![Split-Pane Side-by-Side Comparison](images/flow_viz3.png)
+
+![Apex Logic Visualizer Drill-down](images/flow_viz2.png)
+
+### Developer Source View & Apex Visualizer
+
+Inspect implementation logic without leaving the UI.
+
+- **Apex Logic Flowcharts:** Automatically parse Apex source code and generate flowchart diagrams for classes and methods (including auto-detection of `@InvocableMethod` entry points).
+- **Direct Source Inspection:** View full Apex class bodies side-by-side with logic diagrams for rapid validation.
 
 ![Action Details](images/apex_features.png)
 
