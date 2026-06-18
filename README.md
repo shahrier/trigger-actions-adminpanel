@@ -131,6 +131,18 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 
 ## 📋 Changelog
 
+### v4.0.0
+
+- **Added** Flow Details panel — version, status, API version, trigger order, run mode, and description, sourced from the flow's own metadata
+- **Added** a diagram Legend, full-diagram PNG export, and an "unsupported element" placeholder so diagrams never silently drop nodes
+- **Improved** drill-down — opens in a focused full view by default with a "Compare with parent flow" toggle, and a clean aligned side-by-side compare view
+- **Fixed** edge-label rendering (labels are now centered on their connector) and special-character handling in flow labels
+- **Replaced** drag-and-drop action reordering with precise, accessible up/down move buttons
+- **Fixed** the Native Automations panel briefly showing the previous object's results while switching objects
+- **Widened** the visualizer modals to use more of the viewport
+- **Hardened** security — the session token is no longer cached, Mermaid runs in strict mode, and the browser session-token model + CORS requirement are documented
+- **Added** continuous integration (ESLint + Jest) and expanded unit-test coverage
+
 ### v3.0.0
 
 - **Renamed** from "Trigger Actions Admin Panel" to **Automation Command Center**

@@ -1,8 +1,8 @@
 {
   "packageDirectories": [
     {
-      "versionName": "v3.0.1",
-      "versionNumber": "3.0.1.NEXT",
+      "versionName": "v4.0.0",
+      "versionNumber": "4.0.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "Automation Command Center",
@@ -15,7 +15,7 @@
     }
   ],
   "name": "trigger-actions-adminpanel",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
   "sourceApiVersion": "66.0",
