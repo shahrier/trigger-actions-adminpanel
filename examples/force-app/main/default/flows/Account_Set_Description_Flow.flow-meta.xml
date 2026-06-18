@@ -7,16 +7,13 @@
         <locationX>176</locationX>
         <locationY>134</locationY>
         <assignmentItems>
-            <assignToReference>Loop_triggerNew.Description</assignToReference>
+            <assignToReference>record.Description</assignToReference>
             <operator>Assign</operator>
             <value>
                 <stringValue
         >Updated by Trigger Actions Framework Flow Example</stringValue>
             </value>
         </assignmentItems>
-        <connector>
-            <targetReference>Loop_triggerNew</targetReference>
-        </connector>
     </assignments>
     <description
   >A sample Autolaunched Flow for the Trigger Actions Framework.</description>
@@ -24,17 +21,6 @@
     <interviewLabel
   >Account: Set Description Flow {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Account: Set Description Flow</label>
-    <loops>
-        <name>Loop_triggerNew</name>
-        <label>Loop triggerNew</label>
-        <locationX>176</locationX>
-        <locationY>122</locationY>
-        <collectionReference>triggerNew</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference>Set_Description</targetReference>
-        </nextValueConnector>
-    </loops>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -58,22 +44,22 @@
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Loop_triggerNew</targetReference>
+            <targetReference>Set_Description</targetReference>
         </connector>
     </start>
     <status>Active</status>
     <variables>
-        <name>triggerNew</name>
+        <name>record</name>
         <dataType>SObject</dataType>
-        <isCollection>true</isCollection>
+        <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>true</isOutput>
         <objectType>Account</objectType>
     </variables>
     <variables>
-        <name>triggerOld</name>
+        <name>recordPrior</name>
         <dataType>SObject</dataType>
-        <isCollection>true</isCollection>
+        <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
         <objectType>Account</objectType>
