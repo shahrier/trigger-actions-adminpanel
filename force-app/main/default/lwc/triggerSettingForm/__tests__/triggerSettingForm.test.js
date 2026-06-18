@@ -1,11 +1,17 @@
 import { createElement } from "lwc";
 import TriggerSettingForm from "c/triggerSettingForm";
-import { registerApexTestWireAdapter } from "@salesforce/sfdx-lwc-jest";
+// Apex methods double as test wire adapters in Jest — call .emit() directly.
 import getAllOrgSObjects from "@salesforce/apex/TriggerActionService.getAllOrgSObjects";
 import createTriggerSetting from "@salesforce/apex/TriggerActionService.createTriggerSetting";
 
-const sobjectsWire = registerApexTestWireAdapter(getAllOrgSObjects);
-
+jest.mock(
+  "@salesforce/apex/TriggerActionService.getAllOrgSObjects",
+  () => {
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
+    return { default: createApexTestWireAdapter(jest.fn()) };
+  },
+  { virtual: true }
+);
 jest.mock(
   "@salesforce/apex/TriggerActionService.createTriggerSetting",
   () => ({ default: jest.fn().mockResolvedValue("MockJobId") }),
@@ -42,7 +48,7 @@ describe("c-trigger-setting-form", () => {
       is: TriggerSettingForm
     });
     document.body.appendChild(element);
-    sobjectsWire.emit([{ label: "MyObj", value: "ns__MyObj__c" }]);
+    getAllOrgSObjects.emit([{ label: "MyObj", value: "ns__MyObj__c" }]);
     await flush();
 
     setObjectName(element, "ns__MyObj__c");
@@ -62,7 +68,7 @@ describe("c-trigger-setting-form", () => {
       is: TriggerSettingForm
     });
     document.body.appendChild(element);
-    sobjectsWire.emit([{ label: "Account", value: "Account" }]);
+    getAllOrgSObjects.emit([{ label: "Account", value: "Account" }]);
     await flush();
 
     setObjectName(element, "Account");

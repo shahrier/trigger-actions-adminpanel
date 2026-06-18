@@ -1,20 +1,46 @@
 import { createElement } from "lwc";
 import TriggerActionsManager from "c/triggerActionsManager";
-import { registerApexTestWireAdapter } from "@salesforce/sfdx-lwc-jest";
+// Apex methods imported into a Jest test double as test wire adapters — call
+// .emit()/.error() directly (registerApexTestWireAdapter is deprecated).
 import getAllTriggerActions from "@salesforce/apex/TriggerActionService.getAllTriggerActions";
 import getAvailableSObjects from "@salesforce/apex/TriggerActionService.getAvailableSObjects";
 import getGlobalStats from "@salesforce/apex/TriggerActionService.getGlobalStats";
 import getNativeAutomations from "@salesforce/apex/TriggerActionService.getNativeAutomations";
 import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.updateTriggerActionOrders";
 
-// Register wire adapters
-const getAllTriggerActionsWire =
-  registerApexTestWireAdapter(getAllTriggerActions);
-const getAvailableSObjectsWire =
-  registerApexTestWireAdapter(getAvailableSObjects);
-const getGlobalStatsWire = registerApexTestWireAdapter(getGlobalStats);
-const getNativeAutomationsWire =
-  registerApexTestWireAdapter(getNativeAutomations);
+// Wired Apex methods: mock each as an emit-able test wire adapter.
+jest.mock(
+  "@salesforce/apex/TriggerActionService.getAllTriggerActions",
+  () => {
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
+    return { default: createApexTestWireAdapter(jest.fn()) };
+  },
+  { virtual: true }
+);
+jest.mock(
+  "@salesforce/apex/TriggerActionService.getAvailableSObjects",
+  () => {
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
+    return { default: createApexTestWireAdapter(jest.fn()) };
+  },
+  { virtual: true }
+);
+jest.mock(
+  "@salesforce/apex/TriggerActionService.getGlobalStats",
+  () => {
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
+    return { default: createApexTestWireAdapter(jest.fn()) };
+  },
+  { virtual: true }
+);
+jest.mock(
+  "@salesforce/apex/TriggerActionService.getNativeAutomations",
+  () => {
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
+    return { default: createApexTestWireAdapter(jest.fn()) };
+  },
+  { virtual: true }
+);
 
 jest.mock(
   "@salesforce/apex/TriggerActionService.updateTriggerActionOrders",
@@ -80,9 +106,9 @@ describe("c-trigger-actions-manager", () => {
     document.body.appendChild(element);
 
     // Emit mock wire data
-    getAvailableSObjectsWire.emit(mockSObjects);
-    getAllTriggerActionsWire.emit(mockActions);
-    getGlobalStatsWire.emit(mockStats);
+    getAvailableSObjects.emit(mockSObjects);
+    getAllTriggerActions.emit(mockActions);
+    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -102,9 +128,9 @@ describe("c-trigger-actions-manager", () => {
     });
     document.body.appendChild(element);
 
-    getAvailableSObjectsWire.emit(mockSObjects);
-    getAllTriggerActionsWire.emit(mockActions);
-    getGlobalStatsWire.emit(mockStats);
+    getAvailableSObjects.emit(mockSObjects);
+    getAllTriggerActions.emit(mockActions);
+    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -137,9 +163,9 @@ describe("c-trigger-actions-manager", () => {
     });
     document.body.appendChild(element);
 
-    getAvailableSObjectsWire.emit(mockSObjects);
-    getAllTriggerActionsWire.emit(mockActions);
-    getGlobalStatsWire.emit(mockStats);
+    getAvailableSObjects.emit(mockSObjects);
+    getAllTriggerActions.emit(mockActions);
+    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -154,7 +180,7 @@ describe("c-trigger-actions-manager", () => {
     expect(element.shadowRoot.querySelector(".audit-item")).toBeNull();
 
     // Native automations resolve → spinner clears.
-    getNativeAutomationsWire.emit({ triggers: [], flows: [] });
+    getNativeAutomations.emit({ triggers: [], flows: [] });
     await flushPromises();
 
     expect(
@@ -178,9 +204,9 @@ describe("c-trigger-actions-manager", () => {
     });
     document.body.appendChild(element);
 
-    getAvailableSObjectsWire.emit(mockSObjects);
-    getAllTriggerActionsWire.emit(mockActions);
-    getGlobalStatsWire.emit(mockStats);
+    getAvailableSObjects.emit(mockSObjects);
+    getAllTriggerActions.emit(mockActions);
+    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -226,9 +252,9 @@ describe("c-trigger-actions-manager", () => {
     });
     document.body.appendChild(element);
 
-    getAvailableSObjectsWire.emit(mockSObjects);
-    getAllTriggerActionsWire.emit(mockActions);
-    getGlobalStatsWire.emit(mockStats);
+    getAvailableSObjects.emit(mockSObjects);
+    getAllTriggerActions.emit(mockActions);
+    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -267,9 +293,9 @@ describe("c-trigger-actions-manager", () => {
     });
     document.body.appendChild(element);
 
-    getAvailableSObjectsWire.emit(mockSObjects);
-    getAllTriggerActionsWire.emit(mockActions);
-    getGlobalStatsWire.emit(mockStats);
+    getAvailableSObjects.emit(mockSObjects);
+    getAllTriggerActions.emit(mockActions);
+    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 

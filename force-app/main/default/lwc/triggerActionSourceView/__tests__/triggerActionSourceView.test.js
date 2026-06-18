@@ -1,9 +1,16 @@
 import { createElement } from "lwc";
 import TriggerActionSourceView from "c/triggerActionSourceView";
-import { registerApexTestWireAdapter } from "@salesforce/sfdx-lwc-jest";
+// Apex methods double as test wire adapters in Jest — call .emit() directly.
 import getApexClassBody from "@salesforce/apex/TriggerActionService.getApexClassBody";
 
-const bodyWire = registerApexTestWireAdapter(getApexClassBody);
+jest.mock(
+  "@salesforce/apex/TriggerActionService.getApexClassBody",
+  () => {
+    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
+    return { default: createApexTestWireAdapter(jest.fn()) };
+  },
+  { virtual: true }
+);
 
 describe("c-trigger-action-source-view", () => {
   afterEach(() => {
@@ -36,7 +43,7 @@ describe("c-trigger-action-source-view", () => {
     element.className = "Foo";
     document.body.appendChild(element);
 
-    bodyWire.emit("public class Bar {}");
+    getApexClassBody.emit("public class Bar {}");
     await flush();
 
     const content = element.shadowRoot.querySelector(".slds-modal__content");
