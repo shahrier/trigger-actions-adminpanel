@@ -416,12 +416,6 @@
   font-size: var(--slds-g-font-scale-1, 0.875rem);
 }
 
-.command-footer {
-  border-top: var(--slds-g-sizing-border-1, 1px) solid
-    var(--slds-g-color-border-1, #e2e8f0);
-  padding-top: var(--slds-g-spacing-6, 2rem);
-}
-
 /* Empty state */
 .empty-state {
   padding: var(--slds-g-spacing-10, 4rem) var(--slds-g-spacing-4, 1rem);
