@@ -134,6 +134,29 @@
               </lightning-button-group>
             </div>
 
+            <template if:true={hasDraftChanges}>
+              <div
+                class="draft-banner slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small"
+              >
+                <span class="slds-text-color_error slds-text-title_bold">
+                  Unsaved changes
+                </span>
+                <div>
+                  <lightning-button
+                    label="Reset"
+                    variant="neutral"
+                    onclick={handleResetReordering}
+                    class="slds-m-right_x-small"
+                  ></lightning-button>
+                  <lightning-button
+                    label="Save Order"
+                    variant="brand"
+                    onclick={handleSaveReordering}
+                  ></lightning-button>
+                </div>
+              </div>
+            </template>
+
             <div class="actions-list">
               <template if:true={hasObjectActions}>
                 <template for:each={objectActions} for:item="section">
@@ -149,8 +172,34 @@
                         key={action.compositeId}
                         class={action.cssClass}
                         data-action-id={action.Id}
+                        data-action-name={action.DeveloperName}
+                        data-context={section.key}
                         onclick={handleActionClick}
                       >
+                        <div class="action-reorder">
+                          <lightning-button-icon
+                            icon-name="utility:up"
+                            variant="bare"
+                            size="x-small"
+                            alternative-text="Move up"
+                            title="Move up"
+                            disabled={action.isFirst}
+                            data-action-id={action.Id}
+                            data-context={action.context}
+                            onclick={handleMoveUp}
+                          ></lightning-button-icon>
+                          <lightning-button-icon
+                            icon-name="utility:down"
+                            variant="bare"
+                            size="x-small"
+                            alternative-text="Move down"
+                            title="Move down"
+                            disabled={action.isLast}
+                            data-action-id={action.Id}
+                            data-context={action.context}
+                            onclick={handleMoveDown}
+                          ></lightning-button-icon>
+                        </div>
                         <div class="action-order">#{action.Order__c}</div>
                         <div class="action-details-compact">
                           <div class="action-name-compact">
@@ -396,7 +445,18 @@
                     </div>
                   </div>
 
-                  <template if:true={auditGroups.length}>
+                  <template if:true={nativeLoading}>
+                    <div
+                      class="slds-is-relative slds-p-around_large slds-text-align_center"
+                    >
+                      <lightning-spinner
+                        alternative-text="Loading native automations"
+                        size="small"
+                      ></lightning-spinner>
+                    </div>
+                  </template>
+
+                  <template if:true={showAuditGroups}>
                     <template for:each={auditGroups} for:item="group">
                       <div key={group.field} class="slds-var-m-bottom_large">
                         <h4
@@ -474,7 +534,7 @@
                     </template>
                   </template>
 
-                  <template if:false={auditGroups.length}>
+                  <template if:true={showAuditEmpty}>
                     <div
                       class="empty-state slds-text-align_center slds-p-around_large"
                     >
@@ -627,8 +687,8 @@
             icon-name="utility:close"
             onclick={handleCloseDiscovery}
             alternative-text="Close"
-            variant="bare-inverse"
-            class="slds-modal__close"
+            variant="bare"
+            class="slds-button slds-button_icon slds-modal__close"
           ></lightning-button-icon>
           <h2 class="slds-text-heading_medium">Automation Discovery</h2>
         </header>
@@ -742,15 +802,15 @@
       role="dialog"
       tabindex="-1"
       aria-modal="true"
-      class="slds-modal slds-fade-in-open slds-modal_large"
+      class="slds-modal slds-fade-in-open slds-modal_large viz-modal"
     >
       <div class="slds-modal__container">
         <header class="slds-modal__header">
           <lightning-button-icon
             icon-name="utility:close"
             alternative-text="Close"
-            variant="bare-inverse"
-            class="slds-modal__close"
+            variant="bare"
+            class="slds-button slds-button_icon slds-modal__close"
             onclick={handleCloseFlowModal}
           >
           </lightning-button-icon>
@@ -781,15 +841,15 @@
       role="dialog"
       tabindex="-1"
       aria-modal="true"
-      class="slds-modal slds-fade-in-open slds-modal_large"
+      class="slds-modal slds-fade-in-open slds-modal_large viz-modal"
     >
       <div class="slds-modal__container">
         <header class="slds-modal__header">
           <lightning-button-icon
             icon-name="utility:close"
             alternative-text="Close"
-            variant="bare-inverse"
-            class="slds-modal__close"
+            variant="bare"
+            class="slds-button slds-button_icon slds-modal__close"
             onclick={handleCloseApexModal}
           >
           </lightning-button-icon>

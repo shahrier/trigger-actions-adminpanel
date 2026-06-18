@@ -10,6 +10,7 @@ import getNativeAutomations from "@salesforce/apex/TriggerActionService.getNativ
 import getDiscoveredObjects from "@salesforce/apex/TriggerActionService.getDiscoveredObjects";
 import createTriggerSetting from "@salesforce/apex/TriggerActionService.createTriggerSetting";
 import getGlobalStats from "@salesforce/apex/TriggerActionService.getGlobalStats";
+import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.updateTriggerActionOrders";
 
 const CONTEXT_LABELS = [
   { field: "Before_Insert__c", label: "Before Insert" },
@@ -42,6 +43,7 @@ export default class TriggerActionsManager extends NavigationMixin(
   discoveredObjects = [];
   globalStats = {};
   nativeAutomations = { triggers: [], flows: [] };
+  nativeLoading = false;
   discoverySearchTerm = "";
   discoverySortBy = "label";
   activeTab = "actions";
@@ -57,6 +59,12 @@ export default class TriggerActionsManager extends NavigationMixin(
   _wiredNativeResult;
   _wiredStatsResult;
 
+  draftOrders = {};
+
+  get hasDraftChanges() {
+    return Object.keys(this.draftOrders).length > 0;
+  }
+
   @wire(getGlobalStats)
   wiredStats(result) {
     this._wiredStatsResult = result;
@@ -70,7 +78,9 @@ export default class TriggerActionsManager extends NavigationMixin(
     this._wiredNativeResult = result;
     if (result.data) {
       this.nativeAutomations = result.data;
+      this.nativeLoading = false;
     } else if (result.error) {
+      this.nativeLoading = false;
       this.showError(
         "Error loading native automations",
         result.error.body?.message || result.error.message
@@ -82,7 +92,8 @@ export default class TriggerActionsManager extends NavigationMixin(
   wiredActions(result) {
     this._wiredActionsResult = result;
     if (result.data) {
-      this.actions = result.data;
+      this.actions = result.data.map((action) => ({ ...action }));
+      this.draftOrders = {};
     } else if (result.error) {
       this.showError(
         "Error loading trigger actions",
@@ -148,18 +159,21 @@ export default class TriggerActionsManager extends NavigationMixin(
 
     const sections = [];
     for (const ctx of CONTEXT_LABELS) {
-      const contextActions = filtered
+      const sorted = filtered
         .filter((a) => a[ctx.field])
-        .sort((a, b) => (a.Order__c || 0) - (b.Order__c || 0))
-        .map((action) => ({
-          ...action,
-          compositeId: `${ctx.field}-${action.Id}`,
-          cssClass:
-            "action-item" +
-            (this.selectedAction && this.selectedAction.Id === action.Id
-              ? " selected"
-              : "")
-        }));
+        .sort((a, b) => (a.Order__c || 0) - (b.Order__c || 0));
+      const contextActions = sorted.map((action, idx) => ({
+        ...action,
+        compositeId: `${ctx.field}-${action.Id}`,
+        context: ctx.field,
+        isFirst: idx === 0,
+        isLast: idx === sorted.length - 1,
+        cssClass:
+          "action-item" +
+          (this.selectedAction && this.selectedAction.Id === action.Id
+            ? " selected"
+            : "")
+      }));
 
       if (contextActions.length > 0) {
         sections.push({
@@ -205,6 +219,14 @@ export default class TriggerActionsManager extends NavigationMixin(
 
   get flowRecursionLabel() {
     return this.selectedAction?.Allow_Flow_Recursion__c ? "Yes" : "No";
+  }
+
+  get showAuditGroups() {
+    return !this.nativeLoading && this.auditGroups.length > 0;
+  }
+
+  get showAuditEmpty() {
+    return !this.nativeLoading && this.auditGroups.length === 0;
   }
 
   get auditGroups() {
@@ -391,16 +413,97 @@ export default class TriggerActionsManager extends NavigationMixin(
 
   // --- Event handlers ---
 
+  handleMoveUp(event) {
+    this.moveAction(event, -1);
+  }
+
+  handleMoveDown(event) {
+    this.moveAction(event, 1);
+  }
+
+  // Move an action one position within its execution context. `delta` is -1
+  // (up) or +1 (down). Updates the draft orders consumed by Save Order / Reset.
+  moveAction(event, delta) {
+    // Don't let the click bubble to the row (which opens the action details).
+    event.stopPropagation();
+
+    const actionId = event.currentTarget.dataset.actionId;
+    const context = event.currentTarget.dataset.context;
+
+    const contextActions = this.actions
+      .filter((a) => a[context])
+      .sort((a, b) => (a.Order__c || 0) - (b.Order__c || 0));
+
+    const idx = contextActions.findIndex((a) => a.Id === actionId);
+    const targetIdx = idx + delta;
+    if (idx === -1 || targetIdx < 0 || targetIdx >= contextActions.length) {
+      return;
+    }
+
+    const [moved] = contextActions.splice(idx, 1);
+    contextActions.splice(targetIdx, 0, moved);
+
+    contextActions.forEach((action, i) => {
+      const newOrder = i + 1;
+      if (action.Order__c !== newOrder) {
+        action.Order__c = newOrder;
+        this.draftOrders[action.DeveloperName] = newOrder;
+      }
+    });
+
+    this.actions = [...this.actions];
+  }
+
+  async handleSaveReordering() {
+    this.isLoading = true;
+    try {
+      await updateTriggerActionOrders({ newOrders: this.draftOrders });
+      this.showSuccess(
+        "Trigger Action orders deployment started. The list will refresh shortly."
+      );
+      this.draftOrders = {};
+
+      // eslint-disable-next-line @lwc/lwc/no-async-operation
+      setTimeout(() => {
+        this.refreshList().catch(() => {});
+      }, 8000);
+    } catch (error) {
+      this.showError(
+        "Save Reordering Error",
+        error.body?.message || error.message
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  handleResetReordering() {
+    this.draftOrders = {};
+    if (this._wiredActionsResult && this._wiredActionsResult.data) {
+      this.actions = this._wiredActionsResult.data.map((action) => ({
+        ...action
+      }));
+    }
+  }
+
   handleSearchChange(event) {
     this.searchTerm = event.target.value;
   }
 
   handleObjectClick(event) {
     const objectName = event.currentTarget.dataset.objectName;
-    this.selectedObjectName = objectName;
+    // No-op on re-selecting the same object (avoids a stuck loading state, since
+    // the per-object wire won't re-fire when its parameter is unchanged).
+    if (objectName === this.selectedObjectName) return;
+
     this.selectedAction = null;
     this.nativeTypeFilter = "all";
     this.nativeStatusFilter = "all";
+    // Clear the previous object's native automations and show a loading state
+    // until the per-object wire resolves — otherwise the prior result flashes.
+    this.nativeAutomations = { triggers: [], flows: [] };
+    this.nativeLoading = true;
+    this.selectedObjectName = objectName;
   }
 
   async handleActionClick(event) {

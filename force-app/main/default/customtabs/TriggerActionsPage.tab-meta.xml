@@ -4,5 +4,5 @@
   >Automation Command Center for managing and visualizing Salesforce automation configurations.</description>
     <flexiPage>TriggerActionsPage</flexiPage>
     <label>Command Center</label>
-    <motif>Custom63: Chip</motif>
+    <motif>Custom19: Wrench</motif>
 </CustomTab>
