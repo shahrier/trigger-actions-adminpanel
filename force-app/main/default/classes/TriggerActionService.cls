@@ -387,6 +387,148 @@ public with sharing class TriggerActionService {
   }
 
   /**
+   * @description Updates the execution orders of multiple Trigger Actions in a single metadata deployment.
+   * @param newOrders Map of DeveloperNames to their new execution Order values
+   * @return String The deployment job ID
+   */
+  @AuraEnabled
+  public static String updateTriggerActionOrders(
+    Map<String, Decimal> newOrders
+  ) {
+    if (newOrders == null || newOrders.isEmpty()) {
+      throw createAuraException('No orders to update.');
+    }
+
+    List<Trigger_Action__mdt> existingActions = new List<Trigger_Action__mdt>();
+    if (mockActions != null) {
+      for (Trigger_Action__mdt action : mockActions) {
+        if (newOrders.containsKey(action.DeveloperName)) {
+          existingActions.add(action);
+        }
+      }
+    } else {
+      existingActions = [
+        SELECT
+          DeveloperName,
+          MasterLabel,
+          Object_API_Name__c,
+          Apex_Class_Name__c,
+          Flow_Name__c,
+          Order__c,
+          Before_Insert__c,
+          After_Insert__c,
+          Before_Update__c,
+          After_Update__c,
+          Before_Delete__c,
+          After_Delete__c,
+          After_Undelete__c,
+          Entry_Criteria__c,
+          Description__c,
+          Bypass_Execution__c,
+          Allow_Flow_Recursion__c
+        FROM Trigger_Action__mdt
+        WHERE DeveloperName IN :newOrders.keySet()
+        WITH USER_MODE
+      ];
+    }
+
+    // Gather setting IDs
+    Set<Id> settingIds = new Set<Id>();
+    for (Trigger_Action__mdt action : existingActions) {
+      if (action.Before_Insert__c != null)
+        settingIds.add(action.Before_Insert__c);
+      if (action.After_Insert__c != null)
+        settingIds.add(action.After_Insert__c);
+      if (action.Before_Update__c != null)
+        settingIds.add(action.Before_Update__c);
+      if (action.After_Update__c != null)
+        settingIds.add(action.After_Update__c);
+      if (action.Before_Delete__c != null)
+        settingIds.add(action.Before_Delete__c);
+      if (action.After_Delete__c != null)
+        settingIds.add(action.After_Delete__c);
+      if (action.After_Undelete__c != null)
+        settingIds.add(action.After_Undelete__c);
+    }
+
+    Map<Id, String> settingDevNames = new Map<Id, String>();
+    if (mockSettings != null) {
+      for (sObject_Trigger_Setting__mdt setting : mockSettings) {
+        if (settingIds.contains(setting.Id)) {
+          settingDevNames.put(setting.Id, setting.DeveloperName);
+        }
+      }
+    } else if (!settingIds.isEmpty()) {
+      for (sObject_Trigger_Setting__mdt setting : [
+        SELECT Id, DeveloperName
+        FROM sObject_Trigger_Setting__mdt
+        WHERE Id IN :settingIds
+        WITH USER_MODE
+      ]) {
+        settingDevNames.put(setting.Id, setting.DeveloperName);
+      }
+    }
+
+    Metadata.DeployContainer mdContainer = new Metadata.DeployContainer();
+
+    for (Trigger_Action__mdt action : existingActions) {
+      Decimal newOrder = newOrders.get(action.DeveloperName);
+
+      Metadata.CustomMetadata record = new Metadata.CustomMetadata();
+      record.fullName = METADATA_API_NAME + '.' + action.DeveloperName;
+      record.label = action.DeveloperName;
+
+      addMetadataValue(record, 'Object_API_Name__c', action.Object_API_Name__c);
+      addMetadataValue(record, 'Apex_Class_Name__c', action.Apex_Class_Name__c);
+      addMetadataValue(record, 'Flow_Name__c', action.Flow_Name__c);
+      addMetadataValue(record, 'Order__c', newOrder);
+      addMetadataValue(record, 'Entry_Criteria__c', action.Entry_Criteria__c);
+      addMetadataValue(record, 'Description__c', action.Description__c);
+      addMetadataValue(
+        record,
+        'Bypass_Execution__c',
+        action.Bypass_Execution__c
+      );
+      addMetadataValue(
+        record,
+        'Allow_Flow_Recursion__c',
+        action.Allow_Flow_Recursion__c
+      );
+
+      // Context fields
+      Map<String, Id> contexts = new Map<String, Id>{
+        'Before_Insert__c' => action.Before_Insert__c,
+        'After_Insert__c' => action.After_Insert__c,
+        'Before_Update__c' => action.Before_Update__c,
+        'After_Update__c' => action.After_Update__c,
+        'Before_Delete__c' => action.Before_Delete__c,
+        'After_Delete__c' => action.After_Delete__c,
+        'After_Undelete__c' => action.After_Undelete__c
+      };
+
+      for (String ctxField : contexts.keySet()) {
+        Id refId = contexts.get(ctxField);
+        Object val = (refId != null && settingDevNames.containsKey(refId))
+          ? settingDevNames.get(refId)
+          : null;
+        addMetadataValue(record, ctxField, val);
+      }
+
+      mdContainer.addMetadata(record);
+    }
+
+    if (Test.isRunningTest()) {
+      return 'MockJobId';
+    }
+
+    Id jobId = Metadata.Operations.enqueueDeployment(
+      mdContainer,
+      new CustomMetadataCallback()
+    );
+    return jobId;
+  }
+
+  /**
    * @description Gets all triggerable SObjects in the org for the picklist
    * @return List<Map<String, String>> List of triggerable SObjects
    */
@@ -736,6 +878,13 @@ public with sharing class TriggerActionService {
   @AuraEnabled(cacheable=true)
   public static AutomationAuditWrapper getNativeAutomations(String objectName) {
     AutomationAuditWrapper wrapper = new AutomationAuditWrapper();
+    wrapper.triggers = new List<ApexTrigger>();
+    wrapper.flows = new List<FlowDefinitionView>();
+
+    // No object selected: return an empty result rather than an unfiltered query.
+    if (String.isBlank(objectName)) {
+      return wrapper;
+    }
 
     String resolvedObjectName = objectName;
     List<sObject_Trigger_Setting__mdt> settings = [

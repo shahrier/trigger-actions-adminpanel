@@ -804,4 +804,45 @@ private class TriggerActionService_Test {
     System.assert(audit.triggers != null, 'Triggers list should not be null');
     System.assert(audit.flows != null, 'Flows list should not be null');
   }
+
+  @isTest
+  static void testUpdateTriggerActionOrdersValid() {
+    TriggerActionService.mockActions = new List<Trigger_Action__mdt>{
+      (Trigger_Action__mdt) JSON.deserialize(
+        '{"DeveloperName":"Test_Action1","Object_API_Name__c":"Account"}',
+        Trigger_Action__mdt.class
+      ),
+      (Trigger_Action__mdt) JSON.deserialize(
+        '{"DeveloperName":"Test_Action2","Object_API_Name__c":"Account"}',
+        Trigger_Action__mdt.class
+      )
+    };
+    TriggerActionService.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      (sObject_Trigger_Setting__mdt) JSON.deserialize(
+        '{"DeveloperName":"Account","Object_API_Name__c":"Account"}',
+        sObject_Trigger_Setting__mdt.class
+      )
+    };
+
+    Test.startTest();
+    String jobId = TriggerActionService.updateTriggerActionOrders(
+      new Map<String, Decimal>{ 'Test_Action1' => 10, 'Test_Action2' => 20 }
+    );
+    Test.stopTest();
+    System.assertEquals('MockJobId', jobId, 'Should return MockJobId');
+  }
+
+  @isTest
+  static void testUpdateTriggerActionOrdersEmpty() {
+    Test.startTest();
+    try {
+      TriggerActionService.updateTriggerActionOrders(
+        new Map<String, Decimal>()
+      );
+      System.assert(false, 'Should throw an exception for empty map');
+    } catch (AuraHandledException e) {
+      System.assertEquals('No orders to update.', e.getMessage());
+    }
+    Test.stopTest();
+  }
 }

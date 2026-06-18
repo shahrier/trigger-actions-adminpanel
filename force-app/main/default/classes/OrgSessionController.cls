@@ -6,7 +6,10 @@ public with sharing class OrgSessionController {
    * @description Fetches the API-enabled session ID by loading the SessionIdPage Visualforce page.
    * @return String The current session ID, or empty string if an error occurs.
    */
-  @AuraEnabled(cacheable=true)
+  // NOT cacheable: the session ID rotates/expires, and a cached value would be
+  // served stale by the Lightning client cache, causing intermittent 401s on
+  // the direct API callouts that consume it (resolvable only by a hard reload).
+  @AuraEnabled(cacheable=false)
   public static String getSessionId() {
     if (mockSessionId != null) {
       return mockSessionId;

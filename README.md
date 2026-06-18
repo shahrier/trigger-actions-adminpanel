@@ -100,6 +100,35 @@ For detailed documentation on the Trigger Actions Framework — writing Action c
 
 ---
 
+## 🔐 Security Considerations
+
+The **Flow Visualizer** and **Apex Code Visualizer** read live metadata (Flow definitions, sObject describes, Apex bodies) from the Salesforce **Tooling / REST API**. To keep this responsive and avoid Apex callout governor limits, these calls are made **directly from the browser**, authenticated with the current user's **session ID**.
+
+**How the session token is handled**
+
+- The session ID is obtained from the `SessionIdPage` Visualforce page (`$Api.Session_ID`) via `OrgSessionController.getSessionId()` and sent as a `Bearer` token on the client-side API calls.
+- It is the **logged-in user's own session**, so every call runs **as that user** and honors their object/field permissions. Server-side Apex queries additionally run `WITH USER_MODE` / `with sharing`.
+- The token is **not cached or persisted** — `getSessionId` is `cacheable=false`, and the value lives only in page memory for the duration of the session.
+
+**What this means for you**
+
+- The session token is present in the browser while the page is open. As with any tool that surfaces a session, **restrict access to trusted administrators** — the Command Center is gated behind the **Trigger Actions Framework Admin** permission set, and you should not broaden that assignment.
+- Standard org hardening still applies and is recommended: login IP ranges, session timeout, and **"Lock sessions to the IP address from which they originated."**
+- Diagram text (flow/apex labels) is rendered with HTML labels disabled and Mermaid's `strict` sanitization, so metadata text cannot be interpreted as markup.
+
+> If your security posture does not permit a session token in the browser, the visualizer callouts would need to be re-routed through server-side Apex (e.g., a Named Credential). The rest of the Command Center does not depend on this pattern.
+
+### CORS requirement
+
+Because the visualizer calls the API from the browser, your org must allow the Lightning domain as a CORS origin:
+
+1. Go to **Setup → Security → CORS**.
+2. Under **Allowed Origins List**, add your Lightning domain (e.g., `https://<your-domain>.lightning.force.com`).
+
+If diagrams fail to load with a CORS / callout error, this step is usually the cause.
+
+---
+
 ## 📋 Changelog
 
 ### v3.0.0
