@@ -164,4 +164,20 @@ describe("apexLensConverter", () => {
       "FineAndSafelyTruncatesTheTextAtTheLimit"
     );
   });
+
+  it("should default to the method annotated with @InvocableMethod when targetMethodName is not found", () => {
+    const code = `
+      public class MyInvocableAction {
+        public void helperMethod() {
+          System.debug('helper');
+        }
+        @InvocableMethod(label='Perform Action')
+        public static void executeAction() {
+          System.debug('invocable');
+        }
+      }
+    `;
+    const result = convertApexToMermaid(code, "SomeUnknownParameterMethod");
+    expect(result.selectedMethod).toBe("executeAction");
+  });
 });

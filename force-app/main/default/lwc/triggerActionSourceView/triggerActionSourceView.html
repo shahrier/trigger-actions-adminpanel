@@ -11,7 +11,7 @@
       <div class="slds-modal__container">
         <header class="slds-modal__header">
           <button
-            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+            class="slds-button slds-button_icon slds-modal__close"
             title="Close"
             onclick={handleClose}
           >
@@ -41,7 +41,7 @@
           </template>
           <template if:true={error}>
             <div
-              class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error"
+              class="slds-notify slds-notify_alert slds-theme_error"
               role="alert"
             >
               <span class="slds-assistive-text">error</span>

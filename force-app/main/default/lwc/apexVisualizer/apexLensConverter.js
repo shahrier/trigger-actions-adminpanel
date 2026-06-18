@@ -184,24 +184,53 @@ export function convertApexToMermaid(sourceCode, targetMethodName) {
   const methodsList = finder.methods;
   let selectedMethod = targetMethodName;
 
-  // Auto-detect a default method if not specified or not found
-  if (
-    !selectedMethod ||
-    !methodsList.some((m) => m.toLowerCase() === selectedMethod.toLowerCase())
-  ) {
-    const triggerEvents = [
-      "beforeInsert",
-      "afterInsert",
-      "beforeUpdate",
-      "afterUpdate",
-      "beforeDelete",
-      "afterDelete",
-      "afterUndelete"
-    ];
-    const defaultMethod = methodsList.find((m) =>
-      triggerEvents.some((event) => event.toLowerCase() === m.toLowerCase())
-    );
-    selectedMethod = defaultMethod || methodsList[0] || "";
+  // Auto-detect a default method if not specified or not found exactly
+  let matchedMethod = null;
+  if (selectedMethod) {
+    const selLower = selectedMethod.toLowerCase();
+    matchedMethod = methodsList.find((m) => m.toLowerCase() === selLower);
+  }
+
+  if (matchedMethod) {
+    selectedMethod = matchedMethod;
+  } else {
+    // Look for @InvocableMethod annotation in the class code to use as the default entry point
+    let invocableMethodName = "";
+    const invocableRegex =
+      /@InvocableMethod\s*(?:\([^)]*\))?\s*(?:public|global|private|protected|static|virtual|override|\s)+[\w<>]+\s+(\w+)\s*\(/gi;
+    let match;
+    invocableRegex.lastIndex = 0;
+    while ((match = invocableRegex.exec(sourceCode)) !== null) {
+      if (match[1]) {
+        invocableMethodName = match[1];
+        break;
+      }
+    }
+
+    // Verify the detected invocable method name actually exists in the methods list
+    const invocableMatch = invocableMethodName
+      ? methodsList.find(
+          (m) => m.toLowerCase() === invocableMethodName.toLowerCase()
+        )
+      : null;
+
+    if (invocableMatch) {
+      selectedMethod = invocableMatch;
+    } else {
+      const triggerEvents = [
+        "beforeInsert",
+        "afterInsert",
+        "beforeUpdate",
+        "afterUpdate",
+        "beforeDelete",
+        "afterDelete",
+        "afterUndelete"
+      ];
+      const defaultMethod = methodsList.find((m) =>
+        triggerEvents.some((event) => event.toLowerCase() === m.toLowerCase())
+      );
+      selectedMethod = defaultMethod || methodsList[0] || "";
+    }
   }
 
   // Find the context of the selected method if we auto-detected it

@@ -12,9 +12,20 @@ export default class ApexVisualizer extends LightningElement {
   error;
   isLoading = true;
   loadingMessage = "Loading parsing libraries...";
-  resources;
 
-  selectedMethod = "";
+  _selectedMethod = "";
+
+  @api
+  get selectedMethod() {
+    return this._selectedMethod;
+  }
+  set selectedMethod(value) {
+    this._selectedMethod = value || "";
+    if (this.classBody) {
+      this.generateFlowchart();
+    }
+  }
+
   methodsList = [];
 
   classId;
@@ -26,33 +37,10 @@ export default class ApexVisualizer extends LightningElement {
   isParserLoaded = false;
   _isDestroyed = false;
 
-  get filteredResources() {
-    if (!this.resources) return null;
-    if (!this.selectedMethod) return this.resources;
-
-    const filteredVariables = this.resources.variables.filter((v) => {
-      return (
-        v.scope === "Class Field" ||
-        v.scope === "Class Property" ||
-        v.scope === `Method: ${this.selectedMethod}()`
-      );
-    });
-
-    return {
-      ...this.resources,
-      variables: filteredVariables
-    };
-  }
-
   get methodOptions() {
     return (this.methodsList || []).map((methodName) => {
       return { label: methodName, value: methodName };
     });
-  }
-
-  get builderUrl() {
-    if (!this.orgDomainUrl || !this.classId) return "";
-    return `${this.orgDomainUrl}/lightning/setup/ApexClasses/page?address=%2F${this.classId}`;
   }
 
   connectedCallback() {
@@ -130,7 +118,6 @@ export default class ApexVisualizer extends LightningElement {
       this.classId = record.Id;
       this.classBody = record.Body;
       this.symbolTable = record.SymbolTable;
-      this.resources = this.parseApexResources(this.symbolTable);
 
       this.generateFlowchart();
     } catch (err) {
@@ -144,9 +131,9 @@ export default class ApexVisualizer extends LightningElement {
   generateFlowchart() {
     this.loadingMessage = "Generating flowchart diagram...";
     try {
-      const result = convertApexToMermaid(this.classBody, this.selectedMethod);
+      const result = convertApexToMermaid(this.classBody, this._selectedMethod);
       this.mermaidCode = result.mermaidCode;
-      this.selectedMethod = result.selectedMethod;
+      this._selectedMethod = result.selectedMethod;
       this.methodsList = result.methods;
 
       this.isLoading = false;
@@ -159,7 +146,7 @@ export default class ApexVisualizer extends LightningElement {
   }
 
   handleMethodChange(event) {
-    this.selectedMethod = event.detail.value;
+    this._selectedMethod = event.detail.value;
     this.isLoading = true;
     this.generateFlowchart();
   }
@@ -168,90 +155,5 @@ export default class ApexVisualizer extends LightningElement {
     this.error = null;
     this.isLoading = true;
     this.loadLibraries();
-  }
-
-  parseApexResources(symbolTable) {
-    if (!symbolTable) return null;
-
-    const resources = {
-      variables: [],
-      formulas: [],
-      constants: [],
-      textTemplates: []
-    };
-
-    const getArray = (val) => {
-      if (!val) return [];
-      return Array.isArray(val) ? val : [val];
-    };
-
-    // Sort methods by start line to match local variables to their enclosing methods
-    const methods = getArray(symbolTable.methods)
-      .map((m) => ({
-        name: m.name,
-        line: m.location ? m.location.line : 0
-      }))
-      .filter((m) => m.line > 0)
-      .sort((a, b) => a.line - b.line);
-
-    const getEnclosingMethod = (line) => {
-      if (!line || methods.length === 0) return null;
-      let enclosing = null;
-      for (let i = 0; i < methods.length; i++) {
-        if (methods[i].line <= line) {
-          enclosing = methods[i].name;
-        } else {
-          break;
-        }
-      }
-      return enclosing;
-    };
-
-    const uniqueVariables = new Map();
-
-    // 1. Variables (Fields / Local variables / Parameters)
-    getArray(symbolTable.variables).forEach((v) => {
-      const typeText = v.type || "Object";
-      const hasModifiers = v.modifiers && v.modifiers.length > 0;
-      const modifiers = getArray(v.modifiers).join(" ") || "private";
-      const line = v.location ? v.location.line : null;
-
-      let scope = "Class Field";
-      if (!hasModifiers && line) {
-        const methodName = getEnclosingMethod(line);
-        if (methodName) {
-          scope = `Method: ${methodName}()`;
-        }
-      }
-
-      uniqueVariables.set(v.name, {
-        name: v.name,
-        dataType: typeText,
-        isCollection: typeText.includes("<") || typeText.includes("[]"),
-        access: modifiers,
-        scope: scope
-      });
-    });
-
-    // 2. Properties (prefer properties over variables if names clash)
-    getArray(symbolTable.properties).forEach((p) => {
-      const typeText = p.type || "Object";
-      const modifiers = getArray(p.modifiers).join(" ") || "public";
-
-      uniqueVariables.set(p.name, {
-        name: p.name,
-        dataType: `${typeText} {Property}`,
-        isCollection: typeText.includes("<") || typeText.includes("[]"),
-        access: modifiers,
-        scope: "Class Property"
-      });
-    });
-
-    resources.variables = Array.from(uniqueVariables.values());
-
-    // Sort alphabetically by name
-    resources.variables.sort((a, b) => a.name.localeCompare(b.name));
-
-    return resources;
   }
 }

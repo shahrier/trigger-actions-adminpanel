@@ -251,6 +251,47 @@ describe("flowLensConverter", () => {
       expect(result).toContain("record.IsActive == true");
     });
 
+    it("should encode pipes and quotes in outcome labels so the edge syntax is not broken", () => {
+      const flow = {
+        processType: "AutoLaunchedFlow",
+        start: {
+          connector: { targetReference: "MyDecision" }
+        },
+        decisions: {
+          name: "MyDecision",
+          label: "Check Status",
+          defaultConnector: { targetReference: "Wrap" },
+          defaultConnectorLabel: "Default",
+          rules: {
+            name: "VIP",
+            // Admin-authored outcome label containing Mermaid-breaking chars.
+            label: 'Amount > 1000 | "VIP"',
+            conditionLogic: "and",
+            conditions: {
+              leftValueReference: "record.IsActive",
+              operator: "EqualTo",
+              rightValue: { booleanValue: true }
+            },
+            connector: { targetReference: "Wrap" }
+          }
+        },
+        assignments: {
+          name: "Wrap",
+          label: "Wrap",
+          assignmentItems: [],
+          connector: null
+        }
+      };
+
+      const result = convertFlowToMermaid(flow);
+
+      // Pipe encoded, quotes normalized — all in the rendered edge label.
+      expect(result).toContain("Amount > 1000 #124; 'VIP'");
+      // No raw pipe from the label leaking into the edge syntax.
+      expect(result).not.toContain('1000 | "VIP"');
+      expect(result).not.toContain('"VIP"');
+    });
+
     it("should render decision rules with AND logic and single quoted string literals", () => {
       const flow = {
         processType: "AutoLaunchedFlow",
@@ -601,6 +642,41 @@ describe("flowLensConverter", () => {
       expect(result).toContain("Invoke Apex");
       expect(result).toContain("class CallApex navy");
     });
+
+    it("should render input and output parameters", () => {
+      const flow = {
+        processType: "AutoLaunchedFlow",
+        start: {
+          connector: { targetReference: "CallApex" }
+        },
+        actionCalls: {
+          name: "CallApex",
+          label: "Invoke Apex",
+          actionType: "apex",
+          actionName: "DnBCustomerCreditValidation",
+          inputParameters: [
+            {
+              name: "requestedAmount",
+              value: { elementReference: "varRequestedAmount" }
+            }
+          ],
+          outputParameters: [
+            {
+              assignToReference: "varCreditLimitFinal",
+              name: "creditLimit"
+            }
+          ],
+          connector: null
+        }
+      };
+
+      const result = convertFlowToMermaid(flow);
+
+      expect(result).toContain("INPUTS:");
+      expect(result).toContain("• requestedAmount = varRequestedAmount");
+      expect(result).toContain("OUTPUTS:");
+      expect(result).toContain("• varCreditLimitFinal = creditLimit");
+    });
   });
 
   // ─── Screen Node ────────────────────────────────────────────────
@@ -908,6 +984,42 @@ describe("flowLensConverter", () => {
       expect(result).toContain("class CallSubflow navy");
     });
 
+    it("should handle subflow inputs and outputs", () => {
+      const flow = {
+        processType: "AutoLaunchedFlow",
+        start: {
+          connector: { targetReference: "CallSubflow" }
+        },
+        subflows: {
+          name: "CallSubflow",
+          label: "Invoke Child Flow",
+          flowName: "Subflow_Name",
+          inputAssignments: [
+            {
+              inputParameterName: "inParam",
+              value: { stringValue: "hello" }
+            }
+          ],
+          outputAssignments: [
+            {
+              assignToReference: "outVar",
+              outputParameterName: "outParam"
+            }
+          ],
+          connector: null
+        }
+      };
+
+      const result = convertFlowToMermaid(flow);
+
+      expect(result).toContain("Subflow ➡️");
+      expect(result).toContain("Invoke Child Flow");
+      expect(result).toContain("INPUTS:");
+      expect(result).toContain("• inParam = 'hello'");
+      expect(result).toContain("OUTPUTS:");
+      expect(result).toContain("• outVar = outParam");
+    });
+
     it("should handle a wait node", () => {
       const flow = {
         processType: "AutoLaunchedFlow",
@@ -985,6 +1097,30 @@ describe("flowLensConverter", () => {
       const result = convertFlowToMermaid(flow);
       expect(result).toContain("nullVar = null");
       expect(result).not.toContain("nullVar = 'null'");
+    });
+  });
+
+  // ─── Unsupported / unknown elements ─────────────────────────────
+  describe("unsupported elements", () => {
+    it("renders a placeholder for a connector target that has no matching element instead of rerouting to End", () => {
+      // Start connects to "MysteryElement", which is not one of the element
+      // arrays the converter collects (simulates a new/unsupported Flow type).
+      const flow = {
+        processType: "AutoLaunchedFlow",
+        label: "Has Unknown",
+        start: {
+          connector: { targetReference: "MysteryElement" }
+        }
+      };
+
+      const result = convertFlowToMermaid(flow);
+
+      // The unknown element is surfaced, not dropped.
+      expect(result).toContain("Unsupported Element");
+      expect(result).toContain("MysteryElement");
+      // The edge points at the placeholder, not straight to End.
+      expect(result).toContain("FLOW_START -->");
+      expect(result).not.toMatch(/FLOW_START -->\s*FLOW_END/);
     });
   });
 });

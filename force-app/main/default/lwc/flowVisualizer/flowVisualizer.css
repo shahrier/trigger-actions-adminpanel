@@ -1,1 +1,119 @@
-/* Styling is delegated to c-diagram-viewer */
+:host {
+  display: block;
+  height: 100%;
+}
+
+.visualizer-split-container {
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  height: 100%;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.flow-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-width: 0;
+  transition: all 0.3s ease;
+}
+
+.flow-pane.split-active {
+  flex: 1 1 50%;
+}
+
+.flow-pane.split-hidden {
+  flex: 0 0 0%;
+  width: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.apex-split-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  border-left: 2px dashed var(--slds-g-color-border-1, #cbd5e1);
+  padding-left: 16px;
+  position: relative;
+  transition: all 0.3s ease;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.apex-split-pane.expanded {
+  flex: 1 1 100%;
+  border-left: none;
+  padding-left: 0;
+}
+
+.split-pane-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.control-btn {
+  --slds-c-button-color-border-hover: var(
+    --slds-g-color-brand-base-50,
+    #0070d2
+  );
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shown in full view only. The top margin clears the absolute pane controls;
+   the bottom margin provides the gap to the diagram/tabset below (which are
+   otherwise flush to the top so compare mode aligns with the flow pane). */
+.breadcrumb-container {
+  background-color: var(--slds-g-color-surface-container-2, #fafafb);
+  border-radius: var(--slds-g-radius-border-1, 4px);
+  margin-top: 40px;
+  margin-bottom: 12px;
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-1, #cbd5e1);
+}
+
+.split-pane-tabset {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.split-pane-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1 1 auto;
+}
+
+.split-code-container {
+  background: var(--slds-g-color-surface-container-inverse-1, #1a202c);
+  color: var(--slds-g-color-on-surface-inverse-1, #f7fafc);
+  padding: var(--slds-g-spacing-3, 0.75rem);
+  border-radius: var(--slds-g-radius-border-1, 4px);
+  font-family: Consolas, Monaco, monospace;
+  font-size: var(--slds-g-font-scale-base, 0.8125rem);
+  overflow: auto;
+  max-height: 600px;
+  white-space: pre;
+  text-align: left;
+  border: 1px solid var(--slds-g-color-border-inverse-1, #2d3748);
+}

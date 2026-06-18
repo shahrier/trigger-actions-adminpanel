@@ -40,18 +40,18 @@
     <div class={workspaceClass}>
       <!-- Toolbar Header -->
       <div
-        class="toolbar-header slds-grid slds-grid_vertical-align-center slds-grid_align-spread slds-var-p-around_small slds-var-m-bottom_small"
+        class="toolbar-header slds-var-p-around_small slds-var-m-bottom_small"
       >
         <!-- Title and Custom Controls -->
-        <div class="slds-col slds-grid slds-grid_vertical-align-center">
+        <div class="toolbar-left">
           <span class="visualizer-title">{title}</span>
           <slot name="controls"></slot>
         </div>
 
         <!-- Zoom and Copy Actions -->
-        <div class="slds-col slds-grid slds-grid_vertical-align-center">
+        <div class="toolbar-right">
           <!-- Zoom Buttons -->
-          <lightning-button-group class="slds-var-m-right_medium">
+          <lightning-button-group>
             <lightning-button-icon
               icon-name="utility:zoomout"
               alternative-text="Zoom Out"
@@ -81,13 +81,12 @@
           </lightning-button-group>
 
           <!-- Action Buttons -->
-          <template if:true={hasResources}>
+          <template if:true={hasPanelContent}>
             <lightning-button
-              label="View Resources"
+              label={detailsButtonLabel}
               icon-name="utility:list"
               variant="neutral"
               onclick={toggleDrawer}
-              class="slds-var-m-right_small"
             ></lightning-button>
           </template>
 
@@ -96,8 +95,36 @@
             icon-name="utility:copy"
             variant="neutral"
             onclick={handleCopyCode}
-            class="slds-var-m-right_small"
           ></lightning-button>
+
+          <lightning-button
+            label="Export PNG"
+            icon-name="utility:download"
+            variant="neutral"
+            onclick={handleExportPng}
+          ></lightning-button>
+
+          <!-- Legend (color/icon key) -->
+          <div class="legend-wrapper">
+            <lightning-button
+              label="Legend"
+              icon-name="utility:key"
+              variant="neutral"
+              onclick={toggleLegend}
+            ></lightning-button>
+            <template if:true={isLegendOpen}>
+              <div class="legend-popover">
+                <div class="legend-title">Diagram Legend</div>
+                <template for:each={legendItems} for:item="item">
+                  <div key={item.label} class="legend-row">
+                    <span class="legend-swatch" style={item.style}></span>
+                    <span class="legend-icon">{item.icon}</span>
+                    <span class="legend-text">{item.label}</span>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
 
           <template if:true={builderUrl}>
             <lightning-button
@@ -123,7 +150,7 @@
     </div>
 
     <!-- Sliding Sidebar Drawer & Backdrop Overlay -->
-    <template if:true={hasResources}>
+    <template if:true={hasPanelContent}>
       <template if:true={isDrawerOpen}>
         <div class="drawer-backdrop" onclick={toggleDrawer}></div>
       </template>
@@ -142,6 +169,21 @@
           ></lightning-button-icon>
         </div>
         <div class="drawer-content">
+          <!-- Flow Information (administrative metadata) -->
+          <template if:true={hasDetails}>
+            <div class="resource-section">
+              <h3 class="section-title">Flow Information</h3>
+              <div class="detail-list">
+                <template for:each={details} for:item="row">
+                  <div key={row.label} class="detail-row">
+                    <span class="detail-label">{row.label}</span>
+                    <span class="detail-value">{row.value}</span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+
           <!-- Variables -->
           <template if:true={hasVariables}>
             <div class="resource-section">

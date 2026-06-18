@@ -1,16 +1,147 @@
 <template>
-  <c-diagram-viewer
-    title={flowName}
-    mermaid-code={mermaidCode}
-    copied-mermaid-code={copiedMermaidCode}
-    diagram-id={flowId}
-    builder-url={builderUrl}
-    builder-button-label="Open in Flow Builder"
-    is-loading={isLoading}
-    loading-message={loadingMessage}
-    error={error}
-    type="flow"
-    resources={resources}
-    onretry={handleRetry}
-  ></c-diagram-viewer>
+  <div class="visualizer-split-container">
+    <!-- Left Pane: Flow Diagram -->
+    <div class={flowPaneClass}>
+      <c-diagram-viewer
+        title={flowName}
+        mermaid-code={mermaidCode}
+        copied-mermaid-code={copiedMermaidCode}
+        diagram-id={flowId}
+        builder-url={builderUrl}
+        builder-button-label="Open in Flow Builder"
+        is-loading={isLoading}
+        loading-message={loadingMessage}
+        error={error}
+        type="flow"
+        resources={resources}
+        details={flowDetails}
+        onretry={handleRetry}
+        onnodeclick={handleNodeClick}
+      ></c-diagram-viewer>
+    </div>
+
+    <!-- Right Pane: Drill-down Visualizer (Apex or Subflow) -->
+    <template if:true={isSplitPaneOpen}>
+      <div class={splitPaneClass}>
+        <!-- Split Pane Controls -->
+        <div class="split-pane-controls">
+          <button
+            class="slds-button slds-button_icon slds-button_icon-border-filled control-btn"
+            onclick={handleToggleExpand}
+            title={expandButtonTitle}
+          >
+            <lightning-icon
+              icon-name={expandButtonIcon}
+              alternative-text="Toggle Size"
+              size="x-small"
+            ></lightning-icon>
+          </button>
+          <button
+            class="slds-button slds-button_icon slds-button_icon-border-filled control-btn"
+            onclick={handleCloseSplitPane}
+            title="Close Visualizer"
+          >
+            <lightning-icon
+              icon-name="utility:close"
+              alternative-text="Close"
+              size="x-small"
+            ></lightning-icon>
+          </button>
+        </div>
+
+        <!-- Breadcrumbs Navigation (full view only; redundant side-by-side) -->
+        <template if:true={isApexPaneExpanded}>
+          <div
+            class="breadcrumb-container slds-p-horizontal_small slds-p-vertical_xx-small"
+          >
+            <lightning-breadcrumbs>
+              <template for:each={breadcrumbs} for:item="crumb">
+                <lightning-breadcrumb
+                  key={crumb.id}
+                  label={crumb.label}
+                  name={crumb.index}
+                  onclick={handleBreadcrumbClick}
+                ></lightning-breadcrumb>
+              </template>
+            </lightning-breadcrumbs>
+          </div>
+        </template>
+
+        <!-- Subflow Render -->
+        <template if:true={isSubflowActive}>
+          <div class="split-pane-content">
+            <c-diagram-viewer
+              title={activePaneLabel}
+              mermaid-code={activePaneMermaidCode}
+              copied-mermaid-code={activePaneCopiedMermaidCode}
+              diagram-id={activePaneId}
+              builder-url={activePaneBuilderUrl}
+              builder-button-label="Open in Flow Builder"
+              is-loading={isSubflowLoading}
+              loading-message={subflowLoadingMessage}
+              error={subflowError}
+              type="flow"
+              resources={activePaneResources}
+              details={activePaneDetails}
+              onretry={handleSubflowRetry}
+              onnodeclick={handleNodeClick}
+            ></c-diagram-viewer>
+          </div>
+        </template>
+
+        <!-- Apex in compare (side-by-side) view: bare diagram, aligned with flow -->
+        <template if:true={isApexCompareView}>
+          <div class="split-pane-content">
+            <c-apex-visualizer
+              class-name={activePaneId}
+              selected-method={activePaneMethod}
+            ></c-apex-visualizer>
+          </div>
+        </template>
+
+        <!-- Apex in full view: rich Logic Diagram / Source Code tabset -->
+        <template if:true={isApexExpandedView}>
+          <lightning-tabset variant="scoped" class="split-pane-tabset">
+            <lightning-tab label="Logic Diagram" value="diagram">
+              <div class="split-pane-content">
+                <c-apex-visualizer
+                  class-name={activePaneId}
+                  selected-method={activePaneMethod}
+                ></c-apex-visualizer>
+              </div>
+            </lightning-tab>
+            <lightning-tab
+              label="Source Code"
+              value="code"
+              onactive={handleTabActive}
+            >
+              <template if:true={isCodeLoading}>
+                <div class="slds-p-around_medium slds-text-align_center">
+                  <lightning-spinner
+                    alternative-text="Loading code..."
+                    size="small"
+                  ></lightning-spinner>
+                  <p class="slds-var-m-top_small slds-text-body_small">
+                    Loading source code...
+                  </p>
+                </div>
+              </template>
+              <template if:true={codeError}>
+                <div class="slds-notify slds-notify_alert slds-theme_error">
+                  {codeError}
+                </div>
+              </template>
+              <template if:false={isCodeLoading}>
+                <template if:true={sourceCode}>
+                  <pre
+                    class="split-code-container"
+                  ><code>{sourceCode}</code></pre>
+                </template>
+              </template>
+            </lightning-tab>
+          </lightning-tabset>
+        </template>
+      </div>
+    </template>
+  </div>
 </template>

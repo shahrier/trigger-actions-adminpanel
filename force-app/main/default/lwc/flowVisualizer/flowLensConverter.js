@@ -114,6 +114,13 @@ function sanitizeLabel(label) {
   return label ? label.replace(/"/g, "'") : "";
 }
 
+// Edge labels use Mermaid's unquoted `-->|...|` syntax, where a literal pipe
+// terminates the label and breaks the diagram. Normalize quotes like node
+// labels, then encode pipes as the HTML entity Mermaid decodes back to "|".
+function sanitizeEdgeLabel(label) {
+  return sanitizeLabel(label).replace(/\|/g, "#124;");
+}
+
 function translateOperator(op) {
   const operatorMap = {
     // Comparison
@@ -740,6 +747,33 @@ function getFlowActionCall(node) {
     innerNodeContent.push(`Action: ${node.actionName}`);
   }
 
+  // Input parameters
+  const inputParams = node.inputParameters
+    ? Array.isArray(node.inputParameters)
+      ? node.inputParameters
+      : [node.inputParameters]
+    : [];
+  if (inputParams.length > 0) {
+    innerNodeContent.push("INPUTS:");
+    inputParams.forEach((param) => {
+      const val = toString(param.value);
+      innerNodeContent.push(`• ${param.name} = ${val}`);
+    });
+  }
+
+  // Output parameters
+  const outputParams = node.outputParameters
+    ? Array.isArray(node.outputParameters)
+      ? node.outputParameters
+      : [node.outputParameters]
+    : [];
+  if (outputParams.length > 0) {
+    innerNodeContent.push("OUTPUTS:");
+    outputParams.forEach((param) => {
+      innerNodeContent.push(`• ${param.assignToReference} = ${param.name}`);
+    });
+  }
+
   return toUmlString({
     id: node.name,
     label: node.label || node.name,
@@ -764,6 +798,35 @@ function getFlowSubflow(node) {
   const innerNodeContent = [];
   if (node.flowName) {
     innerNodeContent.push(`Flow: ${node.flowName}`);
+  }
+
+  // Input assignments
+  const inputAssigns = node.inputAssignments
+    ? Array.isArray(node.inputAssignments)
+      ? node.inputAssignments
+      : [node.inputAssignments]
+    : [];
+  if (inputAssigns.length > 0) {
+    innerNodeContent.push("INPUTS:");
+    inputAssigns.forEach((assign) => {
+      const val = toString(assign.value);
+      innerNodeContent.push(`• ${assign.inputParameterName} = ${val}`);
+    });
+  }
+
+  // Output assignments
+  const outputAssigns = node.outputAssignments
+    ? Array.isArray(node.outputAssignments)
+      ? node.outputAssignments
+      : [node.outputAssignments]
+    : [];
+  if (outputAssigns.length > 0) {
+    innerNodeContent.push("OUTPUTS:");
+    outputAssigns.forEach((assign) => {
+      innerNodeContent.push(
+        `• ${assign.assignToReference} = ${assign.outputParameterName}`
+      );
+    });
   }
 
   return toUmlString({
@@ -825,7 +888,16 @@ function createTransition(
   nameToNode
 ) {
   const targetRef = connection.targetReference;
-  const connectedNode = nameToNode.get(targetRef);
+  let connectedNode = nameToNode.get(targetRef);
+  if (!connectedNode && targetRef) {
+    // The connector points to an element we didn't collect — an unsupported or
+    // newly-introduced Flow element type. Surface it as a placeholder node
+    // instead of silently rerouting the edge to End (which would falsely make
+    // the flow look like it terminates here). Registered into nameToNode so the
+    // emit loop renders it.
+    connectedNode = { name: targetRef, label: targetRef, _type: "unsupported" };
+    nameToNode.set(targetRef, connectedNode);
+  }
   const toName = connectedNode ? connectedNode.name : "FLOW_END";
   return {
     from: from.name,
@@ -844,6 +916,12 @@ function getTransitionsForNode(node, nameToNode) {
       transitions.push(
         createTransition(node, node.connector, false, undefined, nameToNode)
       );
+    } else {
+      transitions.push({
+        from: node.name,
+        to: "FLOW_END",
+        fault: false
+      });
     }
     const paths = node.scheduledPaths
       ? Array.isArray(node.scheduledPaths)
@@ -893,6 +971,13 @@ function getTransitionsForNode(node, nameToNode) {
         createTransition(node, node.faultConnector, true, "Fault", nameToNode)
       );
     }
+    if (!node.connector && !node.defaultConnector) {
+      transitions.push({
+        from: node.name,
+        to: "FLOW_END",
+        fault: false
+      });
+    }
   } else if (type === "step") {
     const connectors = node.connectors
       ? Array.isArray(node.connectors)
@@ -904,6 +989,13 @@ function getTransitionsForNode(node, nameToNode) {
         createTransition(node, conn, false, undefined, nameToNode)
       );
     });
+    if (connectors.length === 0) {
+      transitions.push({
+        from: node.name,
+        to: "FLOW_END",
+        fault: false
+      });
+    }
   } else if (type === "decision") {
     if (node.defaultConnector) {
       transitions.push(
@@ -915,6 +1007,13 @@ function getTransitionsForNode(node, nameToNode) {
           nameToNode
         )
       );
+    } else {
+      transitions.push({
+        from: node.name,
+        to: "FLOW_END",
+        fault: false,
+        label: "Default"
+      });
     }
     const rules = node.rules
       ? Array.isArray(node.rules)
@@ -926,6 +1025,13 @@ function getTransitionsForNode(node, nameToNode) {
         transitions.push(
           createTransition(node, rule.connector, false, rule.label, nameToNode)
         );
+      } else {
+        transitions.push({
+          from: node.name,
+          to: "FLOW_END",
+          fault: false,
+          label: rule.label
+        });
       }
     });
   } else if (type === "loop") {
@@ -950,6 +1056,13 @@ function getTransitionsForNode(node, nameToNode) {
           nameToNode
         )
       );
+    } else {
+      transitions.push({
+        from: node.name,
+        to: "FLOW_END",
+        fault: false,
+        label: "after all"
+      });
     }
   } else if (
     type === "assignment" ||
@@ -969,6 +1082,12 @@ function getTransitionsForNode(node, nameToNode) {
         transitions.push(
           createTransition(node, conn, false, undefined, nameToNode)
         );
+      });
+    } else {
+      transitions.push({
+        from: node.name,
+        to: "FLOW_END",
+        fault: false
       });
     }
   }
@@ -1068,7 +1187,10 @@ export function convertFlowToMermaid(flow, flowLabel, includeTitle = true) {
   // Emit node state definitions
   nameToNode.forEach((node) => {
     if (node.name === "FLOW_END") {
-      lines.push(toUmlString(node));
+      const hasEndTransitions = transitions.some((t) => t.to === "FLOW_END");
+      if (hasEndTransitions) {
+        lines.push(toUmlString(node));
+      }
       return;
     }
 
@@ -1196,8 +1318,19 @@ export function convertFlowToMermaid(flow, flowLabel, includeTitle = true) {
       case "customError":
         lines.push(getFlowCustomError(node));
         break;
+      case "unsupported":
       default:
-        // Unrecognized node types are silently skipped
+        // Render unknown/unhandled element types as a visible placeholder so the
+        // diagram stays honest rather than dropping the element silently.
+        lines.push(
+          toUmlString({
+            id: node.name,
+            label: node.label || node.name,
+            type: "⚠️ Unsupported Element",
+            color: SkinColor.NONE,
+            icon: Icon.ERROR
+          })
+        );
         break;
     }
   });
@@ -1210,7 +1343,7 @@ export function convertFlowToMermaid(flow, flowLabel, includeTitle = true) {
     const toId = sanitizeId(trans.to);
     const faultIndicator = trans.fault ? "❌" : "";
     const label = trans.label
-      ? `|${faultIndicator} ${trans.label} ${faultIndicator}|`
+      ? `|${faultIndicator} ${sanitizeEdgeLabel(trans.label)} ${faultIndicator}|`
       : "";
     lines.push(`  ${fromId} -->${label} ${toId}`);
   });
