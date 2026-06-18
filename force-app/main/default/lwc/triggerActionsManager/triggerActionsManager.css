@@ -447,3 +447,31 @@
   border-radius: var(--slds-g-radius-border-1, 4px);
   border: 1px dashed var(--slds-g-color-error-base-50, #ea001e);
 }
+
+/* Apex Code Visualizer modal — Logic/Source tabset + source panel.
+   LWC styles are component-scoped, so these are defined here (not inherited
+   from flowVisualizer) even though they mirror that component's classes. */
+.split-pane-tabset {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.split-pane-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1 1 auto;
+}
+.split-code-container {
+  background: var(--slds-g-color-surface-container-inverse-1, #1a202c);
+  color: var(--slds-g-color-on-surface-inverse-1, #f7fafc);
+  padding: var(--slds-g-spacing-3, 0.75rem);
+  border-radius: var(--slds-g-radius-border-1, 4px);
+  font-family: Consolas, Monaco, monospace;
+  font-size: var(--slds-g-font-scale-base, 0.8125rem);
+  overflow: auto;
+  max-height: 600px;
+  white-space: pre;
+  text-align: left;
+  border: 1px solid var(--slds-g-color-border-inverse-1, #2d3748);
+}

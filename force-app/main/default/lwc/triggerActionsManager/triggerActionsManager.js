@@ -11,6 +11,7 @@ import getDiscoveredObjects from "@salesforce/apex/TriggerActionService.getDisco
 import createTriggerSetting from "@salesforce/apex/TriggerActionService.createTriggerSetting";
 import getGlobalStats from "@salesforce/apex/TriggerActionService.getGlobalStats";
 import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.updateTriggerActionOrders";
+import getApexClassBody from "@salesforce/apex/TriggerActionService.getApexClassBody";
 
 const CONTEXT_LABELS = [
   { field: "Before_Insert__c", label: "Before Insert" },
@@ -33,11 +34,11 @@ export default class TriggerActionsManager extends NavigationMixin(
   showFormModal = false;
   showSettingFormModal = false;
   showDiscoveryModal = false;
-  showSourceModal = false;
-  sourceCode = "";
-  sourceClassName = "";
-  sourceRecordId = "";
   searchTerm = "";
+  apexSourceCode = "";
+  isApexCodeLoading = false;
+  apexCodeError = null;
+  isApexTrigger = false;
   isCreating = false;
   availableSObjects = [];
   discoveredObjects = [];
@@ -537,22 +538,6 @@ export default class TriggerActionsManager extends NavigationMixin(
     this.showFormModal = true;
   }
 
-  handleViewSource() {
-    if (this.selectedAction?.Apex_Class_Name__c) {
-      this.sourceClassName = this.selectedAction.Apex_Class_Name__c;
-      this.sourceCode = "";
-      this.sourceRecordId = "";
-      this.showSourceModal = true;
-    }
-  }
-
-  handleSourceClose() {
-    this.showSourceModal = false;
-    this.sourceCode = "";
-    this.sourceClassName = "";
-    this.sourceRecordId = "";
-  }
-
   async handleViewTriggerActionFlow() {
     const flowName = this.selectedAction?.Flow_Name__c;
     if (!flowName) return;
@@ -606,6 +591,9 @@ export default class TriggerActionsManager extends NavigationMixin(
   handleCloseApexModal() {
     this.isApexModalOpen = false;
     this.selectedApexClassName = "";
+    this.apexSourceCode = "";
+    this.isApexTrigger = false;
+    this.apexCodeError = null;
   }
 
   handleViewTriggerSource(event) {
@@ -614,10 +602,29 @@ export default class TriggerActionsManager extends NavigationMixin(
       (t) => t.Id === id
     );
     if (trigger && trigger.Body) {
-      this.sourceClassName = trigger.Name;
-      this.sourceCode = trigger.Body;
-      this.sourceRecordId = trigger.Id;
-      this.showSourceModal = true;
+      this.selectedApexClassName = trigger.Name;
+      this.apexSourceCode = trigger.Body;
+      this.isApexTrigger = true;
+      this.isApexModalOpen = true;
+    }
+  }
+
+  async handleApexTabActive(event) {
+    const tabValue = event.target.value;
+    if (tabValue !== "code") return;
+    if (this.apexSourceCode) return;
+
+    this.isApexCodeLoading = true;
+    this.apexCodeError = null;
+    try {
+      const body = await getApexClassBody({
+        className: this.selectedApexClassName
+      });
+      this.apexSourceCode = body;
+    } catch (err) {
+      this.apexCodeError = `Failed to retrieve class body: ${err.body?.message || err.message}`;
+    } finally {
+      this.isApexCodeLoading = false;
     }
   }
 
