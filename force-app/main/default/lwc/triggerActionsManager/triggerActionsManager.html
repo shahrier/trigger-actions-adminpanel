@@ -550,209 +550,931 @@
         <template if:false={selectedObjectName}>
           <div class="slds-col slds-size_10-of-12">
             <div class="command-center">
-              <div class="command-header slds-text-align_center">
-                <h1 class="command-title">Trigger Actions Admin Panel</h1>
-                <p class="command-subtitle">
-                  Visualize, analyze, and orchestrate SObject trigger actions
-                  and native automations.
-                </p>
-              </div>
-
-              <!-- Tool Overview Section -->
-              <div
-                class="slds-box slds-theme_default slds-m-bottom_large welcome-panel"
-              >
-                <div
-                  class="slds-text-heading_medium slds-m-bottom_small panel-heading"
-                >
-                  Overview
+              <div class="ta-dashboard-content">
+                <div class="ta-dashboard-header">
+                  <p class="command-title">Trigger Actions Admin Panel</p>
+                  <h1 class="ta-dashboard-heading">
+                    See, understand, and govern every automation on your objects
+                  </h1>
                 </div>
-                <p
-                  class="slds-text-body_regular slds-m-bottom_medium welcome-intro"
-                >
-                  The Trigger Actions Admin Panel provides administrators and
-                  developers with a centralized console to orchestrate, analyze,
-                  and monitor trigger execution. Seamlessly integrated with the
-                  <a
-                    href="https://github.com/mitchspano/trigger-actions-framework"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Trigger Actions Framework</a
-                  >, it bridges the gap between custom Apex code and declarative
-                  metadata configuration.
-                </p>
 
-                <div
-                  class="slds-grid slds-wrap slds-gutters_medium feature-highlights"
-                >
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
-                  >
-                    <div class="feature-item slds-media">
-                      <div class="slds-media__figure">
-                        <lightning-icon
-                          icon-name="utility:slider"
-                          size="small"
-                          class="feature-icon-blue"
-                        ></lightning-icon>
+                <div class="ta-lenses">
+                  <!-- DISCOVER -->
+                  <div class="ta-lens-card">
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 8px;
+                      "
+                    >
+                      <span
+                        style="
+                          flex: none;
+                          width: 34px;
+                          height: 34px;
+                          border-radius: 8px;
+                          background: #eef4fb;
+                          color: #0176d3;
+                          display: inline-flex;
+                          align-items: center;
+                          justify-content: center;
+                        "
+                        ><svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <circle cx="11" cy="11" r="7"></circle>
+                          <path d="M21 21l-4-4"></path></svg
+                      ></span>
+                      <div class="ta-lens-title">Discover</div>
+                    </div>
+                    <p class="ta-lens-intro">
+                      Scan your Salesforce org to identify unmanaged native
+                      triggers and record-triggered flows, and audit exactly
+                      what executes on each object.
+                    </p>
+                    <div
+                      style="display: flex; flex-direction: column; gap: 11px"
+                    >
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Org-wide Discovery scan</span
+                        >
                       </div>
-                      <div class="slds-media__body">
-                        <h4 class="slds-text-title_bold">
-                          Declarative Control
-                        </h4>
-                        <p class="slds-text-body_small">
-                          Toggle bypasses for specific trigger actions or entire
-                          SObjects instantly, enabling seamless data loads and
-                          migrations without code deployment.
-                        </p>
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Native automation audit</span
+                        >
+                      </div>
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Action hierarchy</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="ta-lens-illustration-container"
+                      aria-hidden="true"
+                    >
+                      <div class="ta-lens-illustration-box">
+                        <div
+                          style="display: flex; gap: 6px; margin-bottom: 8px"
+                        >
+                          <div class="ta-lens-illustration-search">
+                            <svg
+                              width="9"
+                              height="9"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="#9aa0a6"
+                              stroke-width="2.4"
+                            >
+                              <circle cx="11" cy="11" r="6"></circle>
+                              <path d="M20 20l-4.5-4.5"></path>
+                            </svg>
+                            <div
+                              class="ta-lens-illustration-placeholder"
+                              style="height: 4px; width: 48%"
+                            ></div>
+                          </div>
+                          <div
+                            class="ta-lens-illustration-search"
+                            style="flex: none"
+                          >
+                            <div
+                              class="ta-lens-illustration-placeholder"
+                              style="height: 4px; width: 20px"
+                            ></div>
+                            <svg
+                              width="8"
+                              height="8"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="#9aa0a6"
+                              stroke-width="2.6"
+                            >
+                              <path d="M6 9l6 6 6-6"></path>
+                            </svg>
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1fr;
+                            gap: 6px;
+                          "
+                        >
+                          <div class="ta-lens-illustration-item">
+                            <div
+                              style="
+                                display: flex;
+                                gap: 4px;
+                                align-items: center;
+                              "
+                            >
+                              <div
+                                style="
+                                  flex: none;
+                                  width: 9px;
+                                  height: 9px;
+                                  border-radius: 50%;
+                                  background: var(
+                                    --slds-g-color-success-base-40,
+                                    #2e844a
+                                  );
+                                "
+                              ></div>
+                              <div
+                                class="ta-lens-illustration-placeholder"
+                                style="height: 4px; flex: 1"
+                              ></div>
+                            </div>
+                            <div class="ta-lens-illustration-blue-bar"></div>
+                          </div>
+                          <div class="ta-lens-illustration-item">
+                            <div
+                              style="
+                                display: flex;
+                                gap: 4px;
+                                align-items: center;
+                              "
+                            >
+                              <div
+                                style="
+                                  flex: none;
+                                  width: 9px;
+                                  height: 9px;
+                                  border-radius: 50%;
+                                  background: var(
+                                    --slds-g-color-success-base-40,
+                                    #2e844a
+                                  );
+                                "
+                              ></div>
+                              <div
+                                class="ta-lens-illustration-placeholder"
+                                style="height: 4px; flex: 1"
+                              ></div>
+                            </div>
+                            <div class="ta-lens-illustration-blue-bar"></div>
+                          </div>
+                          <div class="ta-lens-illustration-item">
+                            <div
+                              style="
+                                display: flex;
+                                gap: 4px;
+                                align-items: center;
+                              "
+                            >
+                              <div
+                                style="
+                                  flex: none;
+                                  width: 9px;
+                                  height: 9px;
+                                  border-radius: 50%;
+                                  background: var(
+                                    --slds-g-color-success-base-40,
+                                    #2e844a
+                                  );
+                                "
+                              ></div>
+                              <div
+                                class="ta-lens-illustration-placeholder"
+                                style="height: 4px; flex: 1"
+                              ></div>
+                            </div>
+                            <div class="ta-lens-illustration-blue-bar"></div>
+                          </div>
+                          <div class="ta-lens-illustration-item">
+                            <div
+                              style="
+                                display: flex;
+                                gap: 4px;
+                                align-items: center;
+                              "
+                            >
+                              <div
+                                style="
+                                  flex: none;
+                                  width: 9px;
+                                  height: 9px;
+                                  border-radius: 50%;
+                                  background: var(
+                                    --slds-g-color-success-base-40,
+                                    #2e844a
+                                  );
+                                "
+                              ></div>
+                              <div
+                                class="ta-lens-illustration-placeholder"
+                                style="height: 4px; flex: 1"
+                              ></div>
+                            </div>
+                            <div class="ta-lens-illustration-blue-bar"></div>
+                          </div>
+                          <div class="ta-lens-illustration-item">
+                            <div
+                              style="
+                                display: flex;
+                                gap: 4px;
+                                align-items: center;
+                              "
+                            >
+                              <div
+                                style="
+                                  flex: none;
+                                  width: 9px;
+                                  height: 9px;
+                                  border-radius: 50%;
+                                  background: var(
+                                    --slds-g-color-success-base-40,
+                                    #2e844a
+                                  );
+                                "
+                              ></div>
+                              <div
+                                class="ta-lens-illustration-placeholder"
+                                style="height: 4px; flex: 1"
+                              ></div>
+                            </div>
+                            <div class="ta-lens-illustration-blue-bar"></div>
+                          </div>
+                          <div class="ta-lens-illustration-item">
+                            <div
+                              style="
+                                display: flex;
+                                gap: 4px;
+                                align-items: center;
+                              "
+                            >
+                              <div
+                                style="
+                                  flex: none;
+                                  width: 9px;
+                                  height: 9px;
+                                  border-radius: 50%;
+                                  background: var(
+                                    --slds-g-color-success-base-40,
+                                    #2e844a
+                                  );
+                                "
+                              ></div>
+                              <div
+                                class="ta-lens-illustration-placeholder"
+                                style="height: 4px; flex: 1"
+                              ></div>
+                            </div>
+                            <div class="ta-lens-illustration-blue-bar"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        style="
+                          font-size: 10px;
+                          color: #747474;
+                          text-align: center;
+                          margin-top: 8px;
+                          letter-spacing: 0.02em;
+                        "
+                      >
+                        Scans the org for unmanaged automation
                       </div>
                     </div>
                   </div>
 
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
-                  >
-                    <div class="feature-item slds-media">
-                      <div class="slds-media__figure">
-                        <lightning-icon
-                          icon-name="utility:sort"
-                          size="small"
-                          class="feature-icon-blue"
-                        ></lightning-icon>
+                  <!-- UNDERSTAND -->
+                  <div class="ta-lens-card">
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 8px;
+                      "
+                    >
+                      <span
+                        style="
+                          flex: none;
+                          width: 34px;
+                          height: 34px;
+                          border-radius: 8px;
+                          background: #0176d3;
+                          color: #fff;
+                          display: inline-flex;
+                          align-items: center;
+                          justify-content: center;
+                        "
+                        ><svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+                          <rect x="3" y="14" width="6" height="4" rx="1"></rect>
+                          <rect
+                            x="15"
+                            y="14"
+                            width="6"
+                            height="4"
+                            rx="1"
+                          ></rect>
+                          <path d="M12 7v4M12 11H6v3M12 11h6v3"></path></svg
+                      ></span>
+                      <div class="ta-lens-title">Understand</div>
+                    </div>
+                    <p class="ta-lens-intro">
+                      Diagram Apex logic and view record-triggered flows
+                      alongside the code they invoke—bringing visual clarity to
+                      complex execution paths.
+                    </p>
+                    <div
+                      style="display: flex; flex-direction: column; gap: 11px"
+                    >
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Flow Visualizer</span
+                        >
                       </div>
-                      <div class="slds-media__body">
-                        <h4 class="slds-text-title_bold">
-                          Execution Reordering
-                        </h4>
-                        <p class="slds-text-body_small">
-                          Adjust execution sequences on-the-fly using precise
-                          up/down controls. Saving automatically triggers a
-                          background metadata deployment.
-                        </p>
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Apex logic flowcharts</span
+                        >
+                      </div>
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Drill-down &amp; compare</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="ta-lens-illustration-container"
+                      aria-hidden="true"
+                    >
+                      <div
+                        style="
+                          display: flex;
+                          align-items: stretch;
+                          gap: 10px;
+                          height: 128px;
+                          box-sizing: border-box;
+                        "
+                      >
+                        <div class="ta-lens-illustration-code">
+                          <div style="display: flex; gap: 4px">
+                            <div
+                              style="
+                                width: 16px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #7aa2f7;
+                              "
+                            ></div>
+                            <div
+                              style="
+                                width: 30px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #9ece6a;
+                              "
+                            ></div>
+                          </div>
+                          <div
+                            style="display: flex; gap: 4px; margin-left: 9px"
+                          >
+                            <div
+                              style="
+                                width: 12px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #bb9af7;
+                              "
+                            ></div>
+                            <div
+                              style="
+                                width: 24px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #c0caf5;
+                                opacity: 0.55;
+                              "
+                            ></div>
+                          </div>
+                          <div
+                            style="display: flex; gap: 4px; margin-left: 9px"
+                          >
+                            <div
+                              style="
+                                width: 20px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #7aa2f7;
+                              "
+                            ></div>
+                            <div
+                              style="
+                                width: 14px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #c0caf5;
+                                opacity: 0.55;
+                              "
+                            ></div>
+                          </div>
+                          <div style="display: flex; gap: 4px">
+                            <div
+                              style="
+                                width: 10px;
+                                height: 5px;
+                                border-radius: 2px;
+                                background: #bb9af7;
+                              "
+                            ></div>
+                          </div>
+                        </div>
+                        <span
+                          style="
+                            align-self: center;
+                            color: #0176d3;
+                            display: inline-flex;
+                          "
+                          ><svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path d="M5 12h14M13 6l6 6-6 6"></path></svg
+                        ></span>
+                        <div
+                          class="ta-lens-illustration-box"
+                          style="
+                            flex: 1;
+                            padding: 9px 8px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 4px;
+                          "
+                        >
+                          <div
+                            style="
+                              width: 40px;
+                              height: 11px;
+                              border-radius: 6px;
+                              background: var(
+                                --slds-g-color-brand-base-50,
+                                #0176d3
+                              );
+                            "
+                          ></div>
+                          <div
+                            style="
+                              width: 2px;
+                              height: 5px;
+                              background: var(
+                                --slds-g-color-brand-base-80,
+                                #cfe0f3
+                              );
+                            "
+                          ></div>
+                          <div
+                            style="
+                              width: 13px;
+                              height: 13px;
+                              transform: rotate(45deg);
+                              background: var(
+                                --slds-g-color-brand-base-95,
+                                #eef4fb
+                              );
+                              border: 1.5px solid
+                                var(--slds-g-color-brand-base-50, #0176d3);
+                            "
+                          ></div>
+                          <div
+                            style="
+                              width: 2px;
+                              height: 5px;
+                              background: var(
+                                --slds-g-color-brand-base-80,
+                                #cfe0f3
+                              );
+                            "
+                          ></div>
+                          <div style="display: flex; gap: 6px">
+                            <div
+                              style="
+                                width: 24px;
+                                height: 10px;
+                                border-radius: 3px;
+                                background: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                              "
+                            ></div>
+                            <div
+                              style="
+                                width: 24px;
+                                height: 10px;
+                                border-radius: 3px;
+                                background: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                                opacity: 0.5;
+                              "
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        style="
+                          font-size: 10px;
+                          color: #747474;
+                          text-align: center;
+                          margin-top: 8px;
+                          letter-spacing: 0.02em;
+                        "
+                      >
+                        From Apex code to a visual flow
                       </div>
                     </div>
                   </div>
 
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
-                  >
-                    <div class="feature-item slds-media">
-                      <div class="slds-media__figure">
-                        <lightning-icon
-                          icon-name="utility:search"
-                          size="small"
-                          class="feature-icon-blue"
-                        ></lightning-icon>
+                  <!-- GOVERN -->
+                  <div class="ta-lens-card">
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        margin-bottom: 8px;
+                      "
+                    >
+                      <span
+                        style="
+                          flex: none;
+                          width: 34px;
+                          height: 34px;
+                          border-radius: 8px;
+                          background: #eef4fb;
+                          color: #0176d3;
+                          display: inline-flex;
+                          align-items: center;
+                          justify-content: center;
+                        "
+                        ><svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M7 4v16M7 4l-3 3M7 4l3 3M17 20V4M17 20l-3-3M17 20l3-3"
+                          ></path></svg
+                      ></span>
+                      <div class="ta-lens-title">Govern</div>
+                    </div>
+                    <p class="ta-lens-intro">
+                      Orchestrate trigger execution order on-the-fly and toggle
+                      declarative bypasses for data loads—all without deploying
+                      new code.
+                    </p>
+                    <div
+                      style="display: flex; flex-direction: column; gap: 11px"
+                    >
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Initialize SObjects</span
+                        >
                       </div>
-                      <div class="slds-media__body">
-                        <h4 class="slds-text-title_bold">
-                          Intelligent Discovery
-                        </h4>
-                        <p class="slds-text-body_small">
-                          Scan your Salesforce org to identify unmanaged native
-                          triggers and record-triggered flows, and quickly
-                          initialize them under the framework.
-                        </p>
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Reorder execution</span
+                        >
+                      </div>
+                      <div
+                        style="display: flex; gap: 10px; align-items: center"
+                      >
+                        <span class="ta-lens-bullet"></span
+                        ><span class="ta-lens-feature-label"
+                          >Bypass toggles</span
+                        >
                       </div>
                     </div>
-                  </div>
-
-                  <div
-                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
-                  >
-                    <div class="feature-item slds-media">
-                      <div class="slds-media__figure">
-                        <lightning-icon
-                          icon-name="utility:flow"
-                          size="small"
-                          class="feature-icon-blue"
-                        ></lightning-icon>
+                    <div
+                      class="ta-lens-illustration-container"
+                      aria-hidden="true"
+                    >
+                      <div class="ta-lens-illustration-box flex-column">
+                        <div
+                          style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            margin-bottom: 9px;
+                          "
+                        >
+                          <div
+                            class="ta-lens-illustration-placeholder"
+                            style="height: 6px; width: 42px"
+                          ></div>
+                          <div style="display: flex; gap: 5px">
+                            <div
+                              style="
+                                display: flex;
+                                align-items: center;
+                                gap: 3px;
+                                background: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                                border-radius: 4px;
+                                padding: 3px 7px;
+                              "
+                            >
+                              <svg
+                                width="7"
+                                height="7"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#fff"
+                                stroke-width="3"
+                              >
+                                <path d="M12 5v14M5 12h14"></path>
+                              </svg>
+                              <div
+                                style="
+                                  height: 4px;
+                                  width: 15px;
+                                  border-radius: 2px;
+                                  background: #fff;
+                                "
+                              ></div>
+                            </div>
+                            <div
+                              style="
+                                display: flex;
+                                align-items: center;
+                                gap: 3px;
+                                background: var(
+                                  --slds-g-color-surface-container-1,
+                                  #fff
+                                );
+                                border: 1px solid
+                                  var(--slds-g-color-border-2, #e5e5e5);
+                                border-radius: 4px;
+                                padding: 3px 7px;
+                              "
+                            >
+                              <svg
+                                width="7"
+                                height="7"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="var(--slds-g-color-brand-base-50, #0176d3)"
+                                stroke-width="2.4"
+                              >
+                                <path d="M4 20h4L18 10l-3-3L5 17z"></path>
+                              </svg>
+                              <div
+                                style="
+                                  height: 4px;
+                                  width: 12px;
+                                  border-radius: 2px;
+                                  background: var(
+                                    --slds-g-color-brand-base-80,
+                                    #cfe0f3
+                                  );
+                                "
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          style="
+                            display: flex;
+                            flex-direction: column;
+                            gap: 8px;
+                            flex: 1;
+                            justify-content: center;
+                          "
+                        >
+                          <div
+                            style="display: flex; align-items: center; gap: 7px"
+                          >
+                            <div
+                              style="
+                                flex: none;
+                                width: 15px;
+                                height: 15px;
+                                border-radius: 4px;
+                                background: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                                color: var(--slds-g-color-on-accent-1, #fff);
+                                font-size: 9px;
+                                font-weight: 700;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                              "
+                            >
+                              1
+                            </div>
+                            <div
+                              class="ta-lens-illustration-placeholder"
+                              style="height: 7px; flex: 1"
+                            ></div>
+                            <span
+                              style="
+                                flex: none;
+                                color: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                                display: flex;
+                              "
+                              ><svg
+                                width="9"
+                                height="12"
+                                viewBox="0 0 12 16"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                              >
+                                <path d="M3 6l3-3 3 3M3 10l3 3 3-3"></path></svg
+                            ></span>
+                          </div>
+                          <div
+                            style="display: flex; align-items: center; gap: 7px"
+                          >
+                            <div
+                              style="
+                                flex: none;
+                                width: 15px;
+                                height: 15px;
+                                border-radius: 4px;
+                                background: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                                color: var(--slds-g-color-on-accent-1, #fff);
+                                font-size: 9px;
+                                font-weight: 700;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                              "
+                            >
+                              2
+                            </div>
+                            <div
+                              class="ta-lens-illustration-placeholder"
+                              style="height: 7px; flex: 1"
+                            ></div>
+                            <span
+                              style="
+                                flex: none;
+                                color: var(
+                                  --slds-g-color-brand-base-50,
+                                  #0176d3
+                                );
+                                display: flex;
+                              "
+                              ><svg
+                                width="9"
+                                height="12"
+                                viewBox="0 0 12 16"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                              >
+                                <path d="M3 6l3-3 3 3M3 10l3 3 3-3"></path></svg
+                            ></span>
+                          </div>
+                          <div
+                            style="display: flex; align-items: center; gap: 7px"
+                          >
+                            <div
+                              style="
+                                flex: none;
+                                width: 15px;
+                                height: 15px;
+                                border-radius: 4px;
+                                background: var(
+                                  --slds-g-color-border-2,
+                                  #d8dde4
+                                );
+                                color: var(
+                                  --slds-g-color-on-surface-2,
+                                  #747474
+                                );
+                                font-size: 9px;
+                                font-weight: 700;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                              "
+                            >
+                              3
+                            </div>
+                            <div
+                              class="ta-lens-illustration-placeholder"
+                              style="height: 7px; flex: 1"
+                            ></div>
+                            <div
+                              style="
+                                flex: none;
+                                width: 18px;
+                                height: 10px;
+                                border-radius: 6px;
+                                background: var(
+                                  --slds-g-color-warning-base-40,
+                                  #a83e00
+                                );
+                                position: relative;
+                              "
+                            >
+                              <div
+                                style="
+                                  position: absolute;
+                                  top: 1px;
+                                  right: 1px;
+                                  width: 8px;
+                                  height: 8px;
+                                  border-radius: 50%;
+                                  background: #fff;
+                                "
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div class="slds-media__body">
-                        <h4 class="slds-text-title_bold">
-                          AST Flowcharts & Diagrams
-                        </h4>
-                        <p class="slds-text-body_small">
-                          Visualize execution paths of your Flows and Apex code
-                          side-by-side using automatically generated flowchart
-                          diagrams and interactive drill-down views.
-                        </p>
+                      <div
+                        style="
+                          font-size: 10px;
+                          color: #747474;
+                          text-align: center;
+                          margin-top: 8px;
+                          letter-spacing: 0.02em;
+                        "
+                      >
+                        Reorder execution, toggle bypasses
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Quick Actions Heading -->
-              <h3
-                class="slds-text-heading_small slds-m-bottom_medium panel-heading slds-m-top_large"
-                style="
-                  font-weight: 700;
-                  color: var(--slds-g-color-on-surface-1, #1a202c);
-                "
-              >
-                Quick Actions
-              </h3>
-
-              <!-- Action Cards (3-Column Grid) -->
-              <div class="actions-grid slds-grid slds-wrap slds-gutters_medium">
-                <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                >
-                  <div
-                    class="dashboard-action-card-compact"
+                <div class="ta-dashboard-footer">
+                  <lightning-button
+                    variant="brand"
+                    label="Run Discovery"
+                    title="Run Discovery"
+                    icon-name="utility:search"
                     onclick={handleOpenDiscovery}
+                  ></lightning-button>
+                  <span class="ta-dashboard-footer-text"
+                    >or pick an SObject from the left to dive straight in.</span
                   >
-                    <lightning-icon
-                      icon-name="utility:search"
-                      size="small"
-                      class="action-icon-compact"
-                    ></lightning-icon>
-                    <div class="action-text-compact">
-                      <h3>Launch Discovery</h3>
-                      <p>Scan org for unmanaged automations</p>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                >
-                  <div
-                    class="dashboard-action-card-compact"
-                    onclick={handleAddSObject}
-                  >
-                    <lightning-icon
-                      icon-name="utility:add"
-                      size="small"
-                      class="action-icon-compact"
-                    ></lightning-icon>
-                    <div class="action-text-compact">
-                      <h3>Configure New Object</h3>
-                      <p>Add custom SObject settings</p>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                >
-                  <a
-                    href="https://www.mitchspano.com/trigger-actions-framework"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="dashboard-action-card-link"
-                  >
-                    <div class="dashboard-action-card-compact">
-                      <lightning-icon
-                        icon-name="utility:knowledge_base"
-                        size="small"
-                        class="action-icon-compact"
-                      ></lightning-icon>
-                      <div class="action-text-compact">
-                        <h3>Framework Docs</h3>
-                        <p>Read official TAF documentation</p>
-                      </div>
-                    </div>
-                  </a>
                 </div>
               </div>
             </div>
