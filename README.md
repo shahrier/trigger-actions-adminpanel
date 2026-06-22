@@ -43,7 +43,17 @@ A centralized UI for managing and visualizing Salesforce trigger actions — bui
 
 Your strategic entry point for automation governance. Get a centralized overview of framework adoption across every SObject, launch discovery scans, and initialize new SObject configurations — all from a single dashboard.
 
-![Admin Panel Dashboard](images/command_center.png)
+![Admin Panel Dashboard](images/hero.png)
+
+### SObjects Navigation & Overview
+
+Quickly filter and select SObjects from the sidebar, where badge counts summarize adoption at a glance:
+
+- **TAF Actions Count:** Displays the number of framework actions configured on the object.
+- **Native Automations Count:** Displays the number of active, non-framework triggers and record-triggered flows on the object.
+- **Add SObject:** Register a custom or standard SObject under the framework with a single click.
+
+![SObjects Sidebar](images/features.png)
 
 ### Intelligent Discovery & Onboarding
 
