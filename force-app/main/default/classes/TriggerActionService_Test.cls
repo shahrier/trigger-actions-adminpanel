@@ -1,5 +1,5 @@
 /**
- * @group Automation Command Center - Tests
+ * @group Trigger Actions Admin Panel - Tests
  * @description Unit tests for TriggerActionService class
  */
 @isTest

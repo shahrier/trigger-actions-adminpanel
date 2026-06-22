@@ -119,7 +119,7 @@ describe("c-trigger-actions-manager", () => {
 
     // Dashboard title
     const title = element.shadowRoot.querySelector(".command-title");
-    expect(title.textContent).toBe("Automation Command Center");
+    expect(title.textContent).toBe("Trigger Actions Admin Panel");
   });
 
   it("selects SObject and displays actions list with reordering capabilities", async () => {

@@ -1,7 +1,7 @@
 /**
  * Portions of this code are derived from the open-source Flow Lens project (https://github.com/google/flow-lens),
  * licensed under the Apache License, Version 2.0. This version has been significantly modified, extended, and optimized
- * for the Automation Command Center.
+ * for the Trigger Actions Admin Panel.
  */
 
 // SkinColor values

@@ -1,6 +1,6 @@
-# Automation Command Center — Examples
+# Trigger Actions Admin Panel — Examples
 
-This folder contains a robust and comprehensive set of examples to help you master the **Trigger Actions Framework** alongside the **Command Center**.
+This folder contains a robust and comprehensive set of examples to help you master the **Trigger Actions Framework** alongside the **Trigger Actions Admin Panel**.
 
 ## ✨ What's Included?
 
@@ -52,7 +52,7 @@ sf project deploy start -d examples/force-app
 
 ## ⚙️ Testing the Demo
 
-1. Open the app where you've added the **Command Center** tab.
+1. Open the app where you've added the **Trigger Actions** tab.
 2. Observe the sidebar: You'll see the objects ready for management.
-3. Use the Command Center to toggle these actions on or off across different trigger contexts (Before Insert, After Update, etc.).
+3. Use the Admin Panel to toggle these actions on or off across different trigger contexts (Before Insert, After Update, etc.).
 4. Perform data operations (e.g., delete an Account with an Opp) to see the framework execute the logic in real-time.

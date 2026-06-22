@@ -1,6 +1,6 @@
-# Automation Command Center
+# Trigger Actions Admin Panel
 
-A centralized UI for managing and visualizing Salesforce automation — built on the [Trigger Actions Framework](https://www.mitchspano.com/trigger-actions-framework). The Command Center gives administrators and developers a single pane of glass to visualize, organize, and configure automation logic directly in Salesforce, automating the underlying Custom Metadata deployments.
+A centralized UI for managing and visualizing Salesforce trigger actions — built on the [Trigger Actions Framework](https://www.mitchspano.com/trigger-actions-framework). The Admin Panel gives administrators and developers a single pane of glass to visualize, organize, and configure automation logic directly in Salesforce, automating the underlying Custom Metadata deployments.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -31,19 +31,19 @@ A centralized UI for managing and visualizing Salesforce automation — built on
    - Select **Trigger Actions Framework Admin**.
    - Click **Manage Assignments** and assign to your user(s).
 
-2. Add the **Command Center** tab to any Lightning app of your choice:
+2. Add the **Trigger Actions** tab to any Lightning app of your choice:
    - Go to **Setup → App Manager**.
-   - Edit your preferred app → **Navigation Items** → add **Command Center**.
+   - Edit your preferred app → **Navigation Items** → add **Trigger Actions**.
 
 ---
 
 ## ✨ Features
 
-### Automation Command Center
+### Trigger Actions Admin Panel
 
 Your strategic entry point for automation governance. Get a centralized overview of framework adoption across every SObject, launch discovery scans, and initialize new SObject configurations — all from a single dashboard.
 
-![Command Center Dashboard](images/command_center.png)
+![Admin Panel Dashboard](images/command_center.png)
 
 ### Intelligent Discovery & Onboarding
 
@@ -64,7 +64,7 @@ Full visibility into every automation on an object. Actions are grouped by execu
 
 ### Flow Visualizer & Multi-Level Drill-Down
 
-Visualize Record-Triggered Flows as interactive flowcharts directly in the Command Center.
+Visualize Record-Triggered Flows as interactive flowcharts directly in the Admin Panel.
 
 - **Multi-Level Drill-Down:** Click on any Subflow node to fetch its metadata and render its nested flowchart, or click on an Apex Action to trace into its logic diagram and code.
 - **Side-by-Side Comparison:** Compare subflows or Apex logic side-by-side with the parent Flow, or expand to a full focused view with breadcrumbs.
@@ -110,7 +110,7 @@ For detailed documentation on the Trigger Actions Framework — writing Action c
 ## 📝 Important Notes
 
 - **Metadata Deployments**: Saving changes triggers a background metadata deployment. Changes typically take 5-10 seconds to reflect in the UI.
-- **Deletion**: For security and stability, the Command Center does not support deleting records. Use Salesforce Setup (Custom Metadata Types) or VS Code to remove configuration records.
+- **Deletion**: For security and stability, the Trigger Actions Admin Panel does not support deleting records. Use Salesforce Setup (Custom Metadata Types) or VS Code to remove configuration records.
 
 ---
 
@@ -126,11 +126,11 @@ The **Flow Visualizer** and **Apex Code Visualizer** read live metadata (Flow de
 
 **What this means for you**
 
-- The session token is present in the browser while the page is open. As with any tool that surfaces a session, **restrict access to trusted administrators** — the Command Center is gated behind the **Trigger Actions Framework Admin** permission set, and you should not broaden that assignment.
+- The session token is present in the browser while the page is open. As with any tool that surfaces a session, **restrict access to trusted administrators** — the Admin Panel is gated behind the **Trigger Actions Framework Admin** permission set, and you should not broaden that assignment.
 - Standard org hardening still applies and is recommended: login IP ranges, session timeout, and **"Lock sessions to the IP address from which they originated."**
 - Diagram text (flow/apex labels) is rendered with HTML labels disabled and Mermaid's `strict` sanitization, so metadata text cannot be interpreted as markup.
 
-> If your security posture does not permit a session token in the browser, the visualizer callouts would need to be re-routed through server-side Apex (e.g., a Named Credential). The rest of the Command Center does not depend on this pattern.
+> If your security posture does not permit a session token in the browser, the visualizer callouts would need to be re-routed through server-side Apex (e.g., a Named Credential). The rest of the Admin Panel does not depend on this pattern.
 
 ### CORS requirement
 
@@ -147,6 +147,7 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 
 ### v4.0.0
 
+- **Renamed** the project back from "Automation Command Center" to **Trigger Actions Admin Panel** (with the tab renamed to **Trigger Actions**)
 - **Added** Flow Details panel — version, status, API version, trigger order, run mode, and description, sourced from the flow's own metadata
 - **Added** a diagram Legend, full-diagram PNG export, and an "unsupported element" placeholder so diagrams never silently drop nodes
 - **Improved** drill-down — opens in a focused full view by default with a "Compare with parent flow" toggle, and a clean aligned side-by-side compare view

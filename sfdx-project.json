@@ -5,8 +5,8 @@
       "versionNumber": "4.0.0.NEXT",
       "path": "force-app",
       "default": true,
-      "package": "Automation Command Center",
-      "description": "Automation Command Center for managing and visualizing Salesforce automation configurations. Maintained by Shahrier Emon.",
+      "package": "Trigger Actions Admin Panel",
+      "description": "Trigger Actions Admin Panel for managing and visualizing Salesforce trigger actions configurations. Maintained by Shahrier Emon.",
       "dependencies": [
         {
           "package": "Trigger Actions Framework"
@@ -21,9 +21,9 @@
   "sourceApiVersion": "66.0",
   "packageAliases": {
     "Trigger Actions Framework": "04tKY000000R0yHYAS",
-    "Automation Command Center": "0HogL0000002AjFSAU",
-    "Automation Command Center@3.0.0": "04tgL000000Gmv7QAC",
-    "Automation Command Center@3.0.1": "04tgL000000GnPlQAK",
-    "Automation Command Center@4.0.0-1": "04tgL000000HLODQA4"
+    "Trigger Actions Admin Panel": "0HogL0000002AjFSAU",
+    "Trigger Actions Admin Panel@3.0.0": "04tgL000000Gmv7QAC",
+    "Trigger Actions Admin Panel@3.0.1": "04tgL000000GnPlQAK",
+    "Trigger Actions Admin Panel@4.0.0-1": "04tgL000000HLODQA4"
   }
 }
