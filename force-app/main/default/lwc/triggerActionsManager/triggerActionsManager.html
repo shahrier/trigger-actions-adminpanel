@@ -558,51 +558,6 @@
                 </p>
               </div>
 
-              <!-- Stats Row -->
-              <div
-                class="stats-row slds-grid slds-wrap slds-gutters_medium slds-m-bottom_large"
-              >
-                <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                >
-                  <div class="stat-card highlight">
-                    <div class="stat-value">{managedObjectCount}</div>
-                    <div class="stat-label">Managed SObjects</div>
-                    <lightning-icon
-                      icon-name="utility:custom_apps"
-                      size="large"
-                      class="stat-icon"
-                    ></lightning-icon>
-                  </div>
-                </div>
-                <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                >
-                  <div class="stat-card highlight">
-                    <div class="stat-value">{activeActionCount}</div>
-                    <div class="stat-label">Active Trigger Actions</div>
-                    <lightning-icon
-                      icon-name="utility:record"
-                      size="large"
-                      class="stat-icon"
-                    ></lightning-icon>
-                  </div>
-                </div>
-                <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
-                >
-                  <div class="stat-card highlight">
-                    <div class="stat-value">{unmanagedObjectCount}</div>
-                    <div class="stat-label">Unmanaged SObjects</div>
-                    <lightning-icon
-                      icon-name="utility:warning"
-                      size="large"
-                      class="stat-icon"
-                    ></lightning-icon>
-                  </div>
-                </div>
-              </div>
-
               <!-- Tool Overview Section -->
               <div
                 class="slds-box slds-theme_default slds-m-bottom_large welcome-panel"
@@ -743,44 +698,43 @@
               <!-- Action Cards (3-Column Grid) -->
               <div class="actions-grid slds-grid slds-wrap slds-gutters_medium">
                 <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_medium"
+                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
                 >
                   <div
-                    class="dashboard-action-card"
+                    class="dashboard-action-card-compact"
                     onclick={handleOpenDiscovery}
                   >
                     <lightning-icon
                       icon-name="utility:search"
-                      size="medium"
-                      class="action-icon"
+                      size="small"
+                      class="action-icon-compact"
                     ></lightning-icon>
-                    <h3>Launch Discovery</h3>
-                    <p>
-                      Scan your org to find and initialize unmanaged triggers
-                      and flows.
-                    </p>
-                    <div class="action-link">Start Scanning →</div>
+                    <div class="action-text-compact">
+                      <h3>Launch Discovery</h3>
+                      <p>Scan org for unmanaged automations</p>
+                    </div>
                   </div>
                 </div>
                 <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_medium"
+                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
                 >
-                  <div class="dashboard-action-card" onclick={handleAddSObject}>
+                  <div
+                    class="dashboard-action-card-compact"
+                    onclick={handleAddSObject}
+                  >
                     <lightning-icon
                       icon-name="utility:add"
-                      size="medium"
-                      class="action-icon"
+                      size="small"
+                      class="action-icon-compact"
                     ></lightning-icon>
-                    <h3>Configure New Object</h3>
-                    <p>
-                      Manually add a new SObject to the Trigger Actions
-                      Framework.
-                    </p>
-                    <div class="action-link">Add Object →</div>
+                    <div class="action-text-compact">
+                      <h3>Configure New Object</h3>
+                      <p>Add custom SObject settings</p>
+                    </div>
                   </div>
                 </div>
                 <div
-                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_medium"
+                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
                 >
                   <a
                     href="https://www.mitchspano.com/trigger-actions-framework"
@@ -788,18 +742,16 @@
                     rel="noopener noreferrer"
                     class="dashboard-action-card-link"
                   >
-                    <div class="dashboard-action-card">
+                    <div class="dashboard-action-card-compact">
                       <lightning-icon
                         icon-name="utility:knowledge_base"
-                        size="medium"
-                        class="action-icon"
+                        size="small"
+                        class="action-icon-compact"
                       ></lightning-icon>
-                      <h3>Framework Docs</h3>
-                      <p>
-                        Read the official documentation for advanced framework
-                        features.
-                      </p>
-                      <div class="action-link">Learn More →</div>
+                      <div class="action-text-compact">
+                        <h3>Framework Docs</h3>
+                        <p>Read official TAF documentation</p>
+                      </div>
                     </div>
                   </a>
                 </div>

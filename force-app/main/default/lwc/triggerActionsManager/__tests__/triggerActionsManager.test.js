@@ -4,7 +4,6 @@ import TriggerActionsManager from "c/triggerActionsManager";
 // .emit()/.error() directly (registerApexTestWireAdapter is deprecated).
 import getAllTriggerActions from "@salesforce/apex/TriggerActionService.getAllTriggerActions";
 import getAvailableSObjects from "@salesforce/apex/TriggerActionService.getAvailableSObjects";
-import getGlobalStats from "@salesforce/apex/TriggerActionService.getGlobalStats";
 import getNativeAutomations from "@salesforce/apex/TriggerActionService.getNativeAutomations";
 import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.updateTriggerActionOrders";
 
@@ -19,14 +18,6 @@ jest.mock(
 );
 jest.mock(
   "@salesforce/apex/TriggerActionService.getAvailableSObjects",
-  () => {
-    const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
-    return { default: createApexTestWireAdapter(jest.fn()) };
-  },
-  { virtual: true }
-);
-jest.mock(
-  "@salesforce/apex/TriggerActionService.getGlobalStats",
   () => {
     const { createApexTestWireAdapter } = require("@salesforce/sfdx-lwc-jest");
     return { default: createApexTestWireAdapter(jest.fn()) };
@@ -80,12 +71,6 @@ describe("c-trigger-actions-manager", () => {
     }
   ];
 
-  const mockStats = {
-    managedObjectCount: 1,
-    activeActionCount: 2,
-    unmanagedObjectCount: 0
-  };
-
   afterEach(() => {
     while (document.body.firstChild) {
       document.body.removeChild(document.body.firstChild);
@@ -108,7 +93,6 @@ describe("c-trigger-actions-manager", () => {
     // Emit mock wire data
     getAvailableSObjects.emit(mockSObjects);
     getAllTriggerActions.emit(mockActions);
-    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -130,7 +114,6 @@ describe("c-trigger-actions-manager", () => {
 
     getAvailableSObjects.emit(mockSObjects);
     getAllTriggerActions.emit(mockActions);
-    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -165,7 +148,6 @@ describe("c-trigger-actions-manager", () => {
 
     getAvailableSObjects.emit(mockSObjects);
     getAllTriggerActions.emit(mockActions);
-    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -206,7 +188,6 @@ describe("c-trigger-actions-manager", () => {
 
     getAvailableSObjects.emit(mockSObjects);
     getAllTriggerActions.emit(mockActions);
-    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -254,7 +235,6 @@ describe("c-trigger-actions-manager", () => {
 
     getAvailableSObjects.emit(mockSObjects);
     getAllTriggerActions.emit(mockActions);
-    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 
@@ -295,7 +275,6 @@ describe("c-trigger-actions-manager", () => {
 
     getAvailableSObjects.emit(mockSObjects);
     getAllTriggerActions.emit(mockActions);
-    getGlobalStats.emit(mockStats);
 
     await flushPromises();
 

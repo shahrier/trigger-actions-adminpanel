@@ -9,7 +9,6 @@ import getFlowIdByName from "@salesforce/apex/TriggerActionService.getFlowIdByNa
 import getNativeAutomations from "@salesforce/apex/TriggerActionService.getNativeAutomations";
 import getDiscoveredObjects from "@salesforce/apex/TriggerActionService.getDiscoveredObjects";
 import createTriggerSetting from "@salesforce/apex/TriggerActionService.createTriggerSetting";
-import getGlobalStats from "@salesforce/apex/TriggerActionService.getGlobalStats";
 import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.updateTriggerActionOrders";
 import getApexClassBody from "@salesforce/apex/TriggerActionService.getApexClassBody";
 
@@ -42,7 +41,6 @@ export default class TriggerActionsManager extends NavigationMixin(
   isCreating = false;
   availableSObjects = [];
   discoveredObjects = [];
-  globalStats = {};
   nativeAutomations = { triggers: [], flows: [] };
   nativeLoading = false;
   discoverySearchTerm = "";
@@ -58,32 +56,11 @@ export default class TriggerActionsManager extends NavigationMixin(
   _wiredActionsResult;
   _wiredSObjectsResult;
   _wiredNativeResult;
-  _wiredStatsResult;
 
   draftOrders = {};
 
   get hasDraftChanges() {
     return Object.keys(this.draftOrders).length > 0;
-  }
-
-  get managedObjectCount() {
-    return this.globalStats?.managedObjectCount || 0;
-  }
-
-  get activeActionCount() {
-    return this.globalStats?.activeActionCount || 0;
-  }
-
-  get unmanagedObjectCount() {
-    return this.globalStats?.unmanagedObjectCount || 0;
-  }
-
-  @wire(getGlobalStats)
-  wiredStats(result) {
-    this._wiredStatsResult = result;
-    if (result.data) {
-      this.globalStats = result.data;
-    }
   }
 
   @wire(getNativeAutomations, { objectName: "$selectedObjectName" })
@@ -744,9 +721,6 @@ export default class TriggerActionsManager extends NavigationMixin(
     }
     if (this._wiredNativeResult && this.selectedObjectName) {
       promises.push(refreshApex(this._wiredNativeResult));
-    }
-    if (this._wiredStatsResult) {
-      promises.push(refreshApex(this._wiredStatsResult));
     }
     if (promises.length === 0) {
       this.isLoading = false;

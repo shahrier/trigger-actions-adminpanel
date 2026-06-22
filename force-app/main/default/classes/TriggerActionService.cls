@@ -1138,39 +1138,6 @@ public with sharing class TriggerActionService {
     return discoveredList;
   }
 
-  public class GlobalStatsWrapper {
-    @AuraEnabled
-    public Integer managedObjectCount;
-    @AuraEnabled
-    public Integer activeActionCount;
-    @AuraEnabled
-    public Integer unmanagedObjectCount;
-  }
-
-  /**
-   * @description Retrieves global statistics for the admin dashboard
-   * @return GlobalStatsWrapper Statistics summary
-   */
-  @AuraEnabled(cacheable=true)
-  public static GlobalStatsWrapper getGlobalStats() {
-    GlobalStatsWrapper stats = new GlobalStatsWrapper();
-    stats.managedObjectCount = [
-      SELECT COUNT()
-      FROM sObject_Trigger_Setting__mdt
-      WITH USER_MODE
-    ];
-    stats.activeActionCount = [
-      SELECT COUNT()
-      FROM Trigger_Action__mdt
-      WITH USER_MODE
-    ];
-
-    // Reuse discovery logic for unmanaged count
-    stats.unmanagedObjectCount = getDiscoveredObjects().size();
-
-    return stats;
-  }
-
   /**
    * @description Validates that the Developer Name is unique
    * @param devName The Developer Name to validate

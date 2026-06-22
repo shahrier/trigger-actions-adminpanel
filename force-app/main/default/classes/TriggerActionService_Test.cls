@@ -753,26 +753,6 @@ private class TriggerActionService_Test {
   }
 
   @isTest
-  static void testGetGlobalStats() {
-    Test.startTest();
-    TriggerActionService.GlobalStatsWrapper stats = TriggerActionService.getGlobalStats();
-    Test.stopTest();
-    System.assert(stats != null, 'Stats should not be null');
-    System.assert(
-      stats.managedObjectCount >= 0,
-      'Managed count should be non-negative'
-    );
-    System.assert(
-      stats.activeActionCount >= 0,
-      'Active count should be non-negative'
-    );
-    System.assert(
-      stats.unmanagedObjectCount >= 0,
-      'Unmanaged count should be non-negative'
-    );
-  }
-
-  @isTest
   static void testCreateTriggerSettingDuplicate() {
     TriggerActionService.mockSettings = new List<sObject_Trigger_Setting__mdt>{
       (sObject_Trigger_Setting__mdt) JSON.deserialize(
