@@ -66,6 +66,18 @@ export default class TriggerActionsManager extends NavigationMixin(
     return Object.keys(this.draftOrders).length > 0;
   }
 
+  get managedObjectCount() {
+    return this.globalStats?.managedObjectCount || 0;
+  }
+
+  get activeActionCount() {
+    return this.globalStats?.activeActionCount || 0;
+  }
+
+  get unmanagedObjectCount() {
+    return this.globalStats?.unmanagedObjectCount || 0;
+  }
+
   @wire(getGlobalStats)
   wiredStats(result) {
     this._wiredStatsResult = result;

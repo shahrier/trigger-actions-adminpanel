@@ -558,6 +558,188 @@
                 </p>
               </div>
 
+              <!-- Stats Row -->
+              <div
+                class="stats-row slds-grid slds-wrap slds-gutters_medium slds-m-bottom_large"
+              >
+                <div
+                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+                >
+                  <div class="stat-card highlight">
+                    <div class="stat-value">{managedObjectCount}</div>
+                    <div class="stat-label">Managed SObjects</div>
+                    <lightning-icon
+                      icon-name="utility:custom_apps"
+                      size="large"
+                      class="stat-icon"
+                    ></lightning-icon>
+                  </div>
+                </div>
+                <div
+                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+                >
+                  <div class="stat-card highlight">
+                    <div class="stat-value">{activeActionCount}</div>
+                    <div class="stat-label">Active Trigger Actions</div>
+                    <lightning-icon
+                      icon-name="utility:record"
+                      size="large"
+                      class="stat-icon"
+                    ></lightning-icon>
+                  </div>
+                </div>
+                <div
+                  class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small"
+                >
+                  <div class="stat-card highlight">
+                    <div class="stat-value">{unmanagedObjectCount}</div>
+                    <div class="stat-label">Unmanaged SObjects</div>
+                    <lightning-icon
+                      icon-name="utility:warning"
+                      size="large"
+                      class="stat-icon"
+                    ></lightning-icon>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tool Overview Section -->
+              <div
+                class="slds-box slds-theme_default slds-m-bottom_large welcome-panel"
+              >
+                <div
+                  class="slds-text-heading_medium slds-m-bottom_small panel-heading"
+                >
+                  About Trigger Actions Admin Panel
+                </div>
+                <p
+                  class="slds-text-body_regular slds-m-bottom_medium welcome-intro"
+                >
+                  The Trigger Actions Admin Panel provides administrators and
+                  developers a unified, single pane of glass to orchestrate,
+                  analyze, and monitor Salesforce automation. Seamlessly
+                  integrated with the
+                  <a
+                    href="https://github.com/mitchspano/trigger-actions-framework"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >Trigger Actions Framework</a
+                  >, it bridges the gap between custom Apex code and declarative
+                  configuration.
+                </p>
+
+                <div
+                  class="slds-grid slds-wrap slds-gutters_medium feature-highlights"
+                >
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                  >
+                    <div class="feature-item slds-media">
+                      <div class="slds-media__figure">
+                        <lightning-icon
+                          icon-name="utility:slider"
+                          size="small"
+                          class="feature-icon-blue"
+                        ></lightning-icon>
+                      </div>
+                      <div class="slds-media__body">
+                        <h4 class="slds-text-title_bold">
+                          Declarative Control
+                        </h4>
+                        <p class="slds-text-body_small">
+                          Toggle bypasses for specific metadata actions or
+                          entire SObjects instantly, enabling seamless
+                          migrations and data loads without writing code.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                  >
+                    <div class="feature-item slds-media">
+                      <div class="slds-media__figure">
+                        <lightning-icon
+                          icon-name="utility:sort"
+                          size="small"
+                          class="feature-icon-blue"
+                        ></lightning-icon>
+                      </div>
+                      <div class="slds-media__body">
+                        <h4 class="slds-text-title_bold">
+                          Execution Reordering
+                        </h4>
+                        <p class="slds-text-body_small">
+                          Adjust execution order sequences on-the-fly using
+                          up/down controls. Saving automatically triggers a
+                          background metadata deployment.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                  >
+                    <div class="feature-item slds-media">
+                      <div class="slds-media__figure">
+                        <lightning-icon
+                          icon-name="utility:search"
+                          size="small"
+                          class="feature-icon-blue"
+                        ></lightning-icon>
+                      </div>
+                      <div class="slds-media__body">
+                        <h4 class="slds-text-title_bold">
+                          Intelligent Discovery
+                        </h4>
+                        <p class="slds-text-body_small">
+                          Scan your Salesforce org in seconds to find unmanaged
+                          native triggers and record-triggered flows, and easily
+                          initialize them into the framework.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small"
+                  >
+                    <div class="feature-item slds-media">
+                      <div class="slds-media__figure">
+                        <lightning-icon
+                          icon-name="utility:flow"
+                          size="small"
+                          class="feature-icon-blue"
+                        ></lightning-icon>
+                      </div>
+                      <div class="slds-media__body">
+                        <h4 class="slds-text-title_bold">
+                          AST Flowcharts & Diagrams
+                        </h4>
+                        <p class="slds-text-body_small">
+                          Visualize execution paths of your Flows and Apex code
+                          side-by-side using automatically generated logic
+                          diagrams and drill-down views.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Actions Heading -->
+              <h3
+                class="slds-text-heading_small slds-m-bottom_medium panel-heading slds-m-top_large"
+                style="
+                  font-weight: 700;
+                  color: var(--slds-g-color-on-surface-1, #1a202c);
+                "
+              >
+                Quick Actions
+              </h3>
+
               <!-- Action Cards (3-Column Grid) -->
               <div class="actions-grid slds-grid slds-wrap slds-gutters_medium">
                 <div

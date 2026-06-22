@@ -475,3 +475,74 @@
   text-align: left;
   border: 1px solid var(--slds-g-color-border-inverse-1, #2d3748);
 }
+
+/* Welcome panel card */
+.welcome-panel {
+  background: var(--slds-g-color-surface-container-1, #ffffff) !important;
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-1, #e2e8f0) !important;
+  border-radius: var(--slds-g-radius-border-3, 16px) !important;
+  padding: var(--slds-g-spacing-6, 2rem) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.welcome-panel .panel-heading {
+  font-weight: 700;
+  color: var(--slds-g-color-on-surface-1, #1a202c);
+  margin-bottom: var(--slds-g-spacing-3, 0.75rem);
+}
+
+.welcome-intro {
+  color: var(--slds-g-color-on-surface-2, #4a5568);
+  line-height: 1.6;
+}
+
+.welcome-intro a {
+  color: var(--slds-g-color-brand-base-50, #3182ce);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.welcome-intro a:hover {
+  text-decoration: underline;
+}
+
+.feature-highlights {
+  margin-top: var(--slds-g-spacing-6, 1.5rem);
+}
+
+.feature-item {
+  padding: var(--slds-g-spacing-4, 1rem);
+  background: var(--slds-g-color-surface-container-2, #f7fafc);
+  border-radius: var(--slds-g-radius-border-2, 10px);
+  border: var(--slds-g-sizing-border-1, 1px) solid
+    var(--slds-g-color-border-2, #edf2f7);
+  transition: all 0.2s ease-in-out;
+  height: 100%;
+}
+
+.feature-item:hover {
+  background: var(--slds-g-color-surface-container-1, #ffffff);
+  border-color: var(--slds-g-color-brand-base-80, #cbd5e0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.feature-item h4 {
+  color: var(--slds-g-color-on-surface-1, #2d3748);
+  margin-bottom: var(--slds-g-spacing-2, 0.25rem);
+}
+
+.feature-item p {
+  color: var(--slds-g-color-on-surface-2, #718096);
+  line-height: 1.5;
+}
+
+.feature-icon-blue {
+  --slds-g-color-on-surface-1: var(--slds-g-color-brand-base-50, #3182ce);
+  background: var(--slds-g-color-brand-base-95, #ebf8ff);
+  padding: var(--slds-g-spacing-2, 0.5rem);
+  border-radius: var(--slds-g-radius-border-2, 8px);
+  display: inline-block;
+}
