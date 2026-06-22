@@ -397,6 +397,52 @@
   height: 100%;
 }
 
+.ta-lens-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* Lens icon chip. Colors are tokenized so the chip adapts in dark mode
+   (the hex values are only light-theme fallbacks). */
+.ta-lens-icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--slds-g-color-brand-base-95, #eef4fb);
+  color: var(--slds-g-color-brand-base-50, #0176d3);
+}
+
+.ta-lens-icon_accent {
+  background: var(--slds-g-color-brand-base-50, #0176d3);
+  color: var(--slds-g-color-on-accent-1, #fff);
+}
+
+.ta-lens-features {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.ta-lens-feature {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.ta-lens-illustration-caption {
+  font-size: 10px;
+  color: var(--slds-g-color-on-surface-2, #747474);
+  text-align: center;
+  margin-top: 8px;
+  letter-spacing: 0.02em;
+}
+
 .ta-lens-title {
   font-size: 16px;
   font-weight: 700;
