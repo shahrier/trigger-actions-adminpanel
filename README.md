@@ -13,8 +13,8 @@ A centralized UI for managing and visualizing Salesforce trigger actions — bui
 
 ### Option 1: Unlocked Package (Recommended)
 
-- [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000HLODQA4)
-- [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000HLODQA4)
+- [Install in Production / Developer Org](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000HTwrQAG)
+- [Install in Sandbox](https://test.salesforce.com/packaging/installPackage.apexp?p0=04tgL000000HTwrQAG)
 
 ### Option 2: Deploy from Source
 
