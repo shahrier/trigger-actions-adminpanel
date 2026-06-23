@@ -155,6 +155,14 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 
 ## 📋 Changelog
 
+### v4.1.0
+
+- **Overhauled** empty-state dashboard layout under three visual pillars (Discover, Understand, Govern) using high-fidelity inline SVG illustrations and updated copy descriptions
+- **Removed** interactive card triggers/buttons from the dashboard cards, standardizing them as informational layouts with a primary "Run Discovery" action in the footer
+- **Refactored** stylesheet to implement SLDS design tokens, enabling native dark mode support in the dashboard layout
+- **Cleaned up** obsolete and orphaned CSS styling classes from deleted global stats and welcome panels
+- **Updated** README documentation to feature the new dashboard and SObjects navigation sidebar annotations
+
 ### v4.0.0
 
 - **Renamed** the project back from "Automation Command Center" to **Trigger Actions Admin Panel** (with the tab renamed to **Trigger Actions**)
