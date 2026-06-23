@@ -157,6 +157,7 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 
 ### v4.1.0
 
+- **Renamed** the project back from "Automation Command Center" to **Trigger Actions Admin Panel** (with the tab renamed to **Trigger Actions**)
 - **Overhauled** empty-state dashboard layout under three visual pillars (Discover, Understand, Govern) using high-fidelity inline SVG illustrations and updated copy descriptions
 - **Removed** interactive card triggers/buttons from the dashboard cards, standardizing them as informational layouts with a primary "Run Discovery" action in the footer
 - **Refactored** stylesheet to implement SLDS design tokens, enabling native dark mode support in the dashboard layout
@@ -165,7 +166,6 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 
 ### v4.0.0
 
-- **Renamed** the project back from "Automation Command Center" to **Trigger Actions Admin Panel** (with the tab renamed to **Trigger Actions**)
 - **Added** Flow Details panel — version, status, API version, trigger order, run mode, and description, sourced from the flow's own metadata
 - **Added** a diagram Legend, full-diagram PNG export, and an "unsupported element" placeholder so diagrams never silently drop nodes
 - **Improved** drill-down — opens in a focused full view by default with a "Compare with parent flow" toggle, and a clean aligned side-by-side compare view
