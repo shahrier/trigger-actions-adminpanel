@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Agentforce Assistant</masterLabel>
+    <description
+  >AI Assistant Drawer powered by Agentforce Coworker for artifact explanations</description>
+</LightningComponentBundle>

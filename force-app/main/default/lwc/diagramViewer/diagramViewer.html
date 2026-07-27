@@ -104,6 +104,14 @@
             onclick={handleExportPng}
           ></lightning-button>
 
+          <lightning-button
+            label="Explain Artifact"
+            icon-name="utility:ai_chat"
+            variant="brand"
+            onclick={toggleAiAssistant}
+            class="ai-explain-button"
+          ></lightning-button>
+
           <!-- Legend (color/icon key) -->
           <div class="legend-wrapper">
             <lightning-button
@@ -301,5 +309,14 @@
         </div>
       </div>
     </template>
+
+    <!-- Agentforce AI Assistant Drawer -->
+    <c-agentforce-assistant
+      is-open={isAiAssistantOpen}
+      artifact-type={type}
+      artifact-name={title}
+      artifact-payload={artifactPayload}
+      onclose={toggleAiAssistant}
+    ></c-agentforce-assistant>
   </div>
 </template>

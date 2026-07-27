@@ -240,4 +240,158 @@ private class TriggerActionValidator_Test {
       'Expected AuraHandledException for invalid context name'
     );
   }
+
+  /**
+   * Test validation of a valid Entry Criteria formula
+   */
+  @isTest
+  static void testValidateFormulaSuccess() {
+    // Mock the Trigger Settings
+    sObject_Trigger_Setting__mdt setting = new sObject_Trigger_Setting__mdt(
+      Object_API_Name__c = 'Account',
+      TriggerRecord_Class_Name__c = 'TriggerRecord'
+    );
+    TriggerActionValidator.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      setting
+    };
+
+    Test.startTest();
+    Boolean didThrow = false;
+    try {
+      // Validate formula with a blank formula (should return immediately)
+      TriggerActionValidator.validateFormula('', 'Account');
+      // Validate formula with a valid expression
+      TriggerActionValidator.validateFormula('1 == 1', 'Account');
+    } catch (Exception e) {
+      didThrow = true;
+      System.debug(
+        'Unexpected exception: ' +
+          e.getMessage() +
+          '\n' +
+          e.getStackTraceString()
+      );
+    }
+    Test.stopTest();
+    System.assert(!didThrow, 'Should not throw exception for valid formula');
+  }
+
+  /**
+   * Test validation when no Trigger Setting is found
+   */
+  @isTest
+  static void testValidateFormulaNoSetting() {
+    TriggerActionValidator.mockSettings = new List<sObject_Trigger_Setting__mdt>();
+
+    Test.startTest();
+    Boolean threwExpectedException = false;
+    try {
+      TriggerActionValidator.validateFormula(
+        'newSobject.Id != null',
+        'Account'
+      );
+      System.assert(false, 'Should throw exception when no setting found');
+    } catch (AuraHandledException e) {
+      threwExpectedException = true;
+      System.assert(
+        e.getMessage().contains('No SObject Trigger Setting found'),
+        'Expected error message, got: ' + e.getMessage()
+      );
+    }
+    Test.stopTest();
+    System.assert(threwExpectedException, 'Expected AuraHandledException');
+  }
+
+  /**
+   * Test validation when Trigger Setting has missing/blank class name
+   */
+  @isTest
+  static void testValidateFormulaMissingClassName() {
+    sObject_Trigger_Setting__mdt setting = new sObject_Trigger_Setting__mdt(
+      Object_API_Name__c = 'Account',
+      TriggerRecord_Class_Name__c = ''
+    );
+    TriggerActionValidator.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      setting
+    };
+
+    Test.startTest();
+    Boolean threwExpectedException = false;
+    try {
+      TriggerActionValidator.validateFormula(
+        'newSobject.Id != null',
+        'Account'
+      );
+      System.assert(false, 'Should throw exception for missing class name');
+    } catch (AuraHandledException e) {
+      threwExpectedException = true;
+      System.assert(
+        e.getMessage().contains('must specify a TriggerRecord Class Name'),
+        'Expected error message, got: ' + e.getMessage()
+      );
+    }
+    Test.stopTest();
+    System.assert(threwExpectedException, 'Expected AuraHandledException');
+  }
+
+  /**
+   * Test validation when Trigger Setting's class name does not exist
+   */
+  @isTest
+  static void testValidateFormulaInvalidClass() {
+    sObject_Trigger_Setting__mdt setting = new sObject_Trigger_Setting__mdt(
+      Object_API_Name__c = 'Account',
+      TriggerRecord_Class_Name__c = 'NonExistentTriggerRecordClass'
+    );
+    TriggerActionValidator.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      setting
+    };
+
+    Test.startTest();
+    Boolean threwExpectedException = false;
+    try {
+      TriggerActionValidator.validateFormula(
+        'newSobject.Id != null',
+        'Account'
+      );
+      System.assert(false, 'Should throw exception for non-existent class');
+    } catch (AuraHandledException e) {
+      threwExpectedException = true;
+      System.assert(
+        e.getMessage().contains('does not exist or is not global/accessible'),
+        'Expected error message, got: ' + e.getMessage()
+      );
+    }
+    Test.stopTest();
+    System.assert(threwExpectedException, 'Expected AuraHandledException');
+  }
+
+  /**
+   * Test validation with invalid formula syntax
+   */
+  @isTest
+  static void testValidateFormulaInvalidSyntax() {
+    sObject_Trigger_Setting__mdt setting = new sObject_Trigger_Setting__mdt(
+      Object_API_Name__c = 'Account',
+      TriggerRecord_Class_Name__c = 'TriggerRecord'
+    );
+    TriggerActionValidator.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      setting
+    };
+
+    Test.startTest();
+    Boolean threwExpectedException = false;
+    try {
+      // Intentionally invalid formula (invalid operator / syntax)
+      TriggerActionValidator.validateFormula('1 ==', 'Account');
+      System.assert(false, 'Should throw exception for invalid formula syntax');
+    } catch (AuraHandledException e) {
+      threwExpectedException = true;
+      System.assert(
+        e.getMessage().contains('Invalid Entry Criteria formula'),
+        'Expected error message, got: ' + e.getMessage()
+      );
+    }
+    Test.stopTest();
+    System.assert(threwExpectedException, 'Expected AuraHandledException');
+  }
 }

@@ -1,4 +1,4 @@
-import { convertFlowToMermaid } from "../flowLensConverter";
+import { convertFlowToMermaid } from "c/flowLensConverter";
 
 describe("flowLensConverter", () => {
   // ─── Minimal Flow ───────────────────────────────────────────────

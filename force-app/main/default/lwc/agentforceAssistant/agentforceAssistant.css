@@ -1,0 +1,206 @@
+.assistant-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 9998;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.assistant-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 520px;
+  max-width: 90vw;
+  background: var(--slds-g-color-neutral-base-100, #ffffff);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-left: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
+}
+
+.drawer-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border-bottom: 1px solid #334155;
+}
+
+.agent-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.assistant-title {
+  font-family: "Outfit", "Inter", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.assistant-subtitle {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.badge-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-inactive {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.env-banner {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+}
+
+.banner-heading {
+  font-size: 0.85rem;
+  color: #b45309;
+}
+
+.banner-message {
+  font-size: 0.8rem;
+  color: #78350f;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.artifact-meta-card {
+  background: var(--slds-g-color-neutral-base-95, #f8fafc);
+  border: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
+  border-radius: 8px;
+}
+
+.artifact-type-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #6366f1;
+  letter-spacing: 0.8px;
+}
+
+.artifact-name-text {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--slds-g-color-neutral-base-10, #1e293b);
+}
+
+.explanation-card {
+  background: var(--slds-g-color-neutral-base-100, #ffffff);
+  border: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.formatted-text h1,
+.formatted-text h2,
+.formatted-text h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #6366f1;
+  margin-top: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.formatted-text h4,
+.formatted-text h5 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.formatted-text code {
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+
+.formatted-text pre.code-block {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.formatted-text pre.code-block code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.drawer-footer {
+  background: var(--slds-g-color-neutral-base-95, #f8fafc);
+  border-top: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.verified-findings-card {
+  background: rgba(45, 189, 110, 0.06);
+  border: 1px solid rgba(45, 189, 110, 0.35);
+  border-left: 4px solid #2dbd6e;
+  border-radius: 8px;
+}
+
+.verified-subtext {
+  font-size: 0.72rem;
+  color: #64748b;
+}

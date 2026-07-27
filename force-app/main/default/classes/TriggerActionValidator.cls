@@ -64,6 +64,9 @@ public with sharing class TriggerActionValidator {
   @TestVisible
   private static List<FlowDefinitionView> mockFlows;
 
+  @TestVisible
+  private static List<sObject_Trigger_Setting__mdt> mockSettings;
+
   /**
    * @description Validates that the Flow exists in the org
    * @param flowName The API name of the Flow
@@ -122,6 +125,79 @@ public with sharing class TriggerActionValidator {
     if (!hasValidContext) {
       String msg = 'At least one trigger context must be enabled.';
       throw createAuraException(msg);
+    }
+  }
+
+  /**
+   * @description Validates dynamic Entry Criteria formulas using Formula.builder()
+   * @param entryCriteria Formula string to compile and validate
+   * @param objectName The SObject API name to resolve the setting context
+   */
+  public static void validateFormula(String entryCriteria, String objectName) {
+    if (String.isBlank(entryCriteria)) {
+      return;
+    }
+
+    List<sObject_Trigger_Setting__mdt> settings;
+    if (mockSettings != null) {
+      settings = new List<sObject_Trigger_Setting__mdt>();
+      for (sObject_Trigger_Setting__mdt setting : mockSettings) {
+        if (setting.Object_API_Name__c == objectName) {
+          settings.add(setting);
+          break;
+        }
+      }
+    } else {
+      settings = [
+        SELECT TriggerRecord_Class_Name__c
+        FROM sObject_Trigger_Setting__mdt
+        WHERE Object_API_Name__c = :objectName
+        WITH USER_MODE
+        LIMIT 1
+      ];
+    }
+
+    if (settings.isEmpty()) {
+      throw createAuraException(
+        'No SObject Trigger Setting found for SObject "' +
+          objectName +
+          '". Please create a Trigger Setting first.'
+      );
+    }
+
+    String className = settings[0].TriggerRecord_Class_Name__c;
+    if (String.isBlank(className)) {
+      throw createAuraException(
+        'The SObject Trigger Setting for "' +
+          objectName +
+          '" must specify a TriggerRecord Class Name to enable Entry Criteria formula validation/evaluation.'
+      );
+    }
+
+    System.Type classType = System.Type.forName(className);
+    if (classType == null) {
+      throw createAuraException(
+        'The TriggerRecord Class Name "' +
+          className +
+          '" specified in the SObject Trigger Setting does not exist or is not global/accessible.'
+      );
+    }
+
+    try {
+      Formula.builder()
+        .withReturnType(FormulaEval.FormulaReturnType.Boolean)
+        .withGlobalVariables(FormulaEval.FormulaGlobal.values())
+        .withType(classType)
+        .withFormula(entryCriteria)
+        .build();
+    } catch (System.FormulaValidationException e) {
+      String errorMsg = e.getMessage();
+      if (errorMsg.contains('<a')) {
+        errorMsg = errorMsg.left(errorMsg.indexOf('<a')).trim();
+      }
+      throw createAuraException('Invalid Entry Criteria formula: ' + errorMsg);
+    } catch (Exception e) {
+      throw createAuraException('Error compiling formula: ' + e.getMessage());
     }
   }
 }

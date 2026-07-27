@@ -69,6 +69,18 @@
   white-space: nowrap;
 }
 
+.ai-explain-button button {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s ease;
+}
+
+.ai-explain-button button:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
+}
+
 .visualizer-title {
   font-weight: var(--slds-g-font-weight-7, 700);
   font-size: 1.125rem;

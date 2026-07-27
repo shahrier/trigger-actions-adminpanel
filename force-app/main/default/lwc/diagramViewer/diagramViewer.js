@@ -243,9 +243,11 @@ export default class DiagramViewer extends LightningElement {
   @api resources;
   // Administrative metadata rows ([{ label, value }]) shown atop the Details panel.
   @api details;
+  @api apexCode = "";
 
   isDrawerOpen = false;
   isLegendOpen = false;
+  isAiAssistantOpen = false;
 
   _mermaidCode = "";
   _copiedMermaidCode = "";
@@ -384,6 +386,40 @@ export default class DiagramViewer extends LightningElement {
 
   toggleLegend() {
     this.isLegendOpen = !this.isLegendOpen;
+  }
+
+  toggleAiAssistant() {
+    this.isAiAssistantOpen = !this.isAiAssistantOpen;
+  }
+
+  get artifactPayload() {
+    if (this.type === "apex") {
+      return this.apexCode || this.mermaidCode || "";
+    }
+    let payload = this.mermaidCode || "";
+    if (this.hasDetails) {
+      const detailsText = this.details
+        .map((d) => `${d.label}: ${d.value}`)
+        .join("\n");
+      payload += "\n\nFlow Details:\n" + detailsText;
+    }
+    if (this.resources) {
+      if (this.hasVariables) {
+        payload +=
+          "\n\nVariables: " +
+          this.resources.variables
+            .map((v) => `${v.name} (${v.dataType})`)
+            .join(", ");
+      }
+      if (this.hasFormulas) {
+        payload +=
+          "\n\nFormulas: " +
+          this.resources.formulas
+            .map((f) => `${f.name}: ${f.expression}`)
+            .join("\n");
+      }
+    }
+    return payload;
   }
 
   // Color/icon key for the diagram, matching the converters' classDef colors.

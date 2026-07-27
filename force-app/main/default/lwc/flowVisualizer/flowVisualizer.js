@@ -3,7 +3,7 @@ import getSessionId from "@salesforce/apex/OrgSessionController.getSessionId";
 import getOrgDomainUrl from "@salesforce/apex/OrgSessionController.getOrgDomainUrl";
 import getFlowIdByName from "@salesforce/apex/TriggerActionService.getFlowIdByName";
 import getApexClassBody from "@salesforce/apex/TriggerActionService.getApexClassBody";
-import { convertFlowToMermaid } from "./flowLensConverter";
+import { convertFlowToMermaid } from "c/flowLensConverter";
 import { resolveFlowRecordReferences } from "./relationshipResolver";
 export { convertFlowToMermaid };
 

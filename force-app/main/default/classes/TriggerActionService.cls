@@ -142,6 +142,7 @@ public with sharing class TriggerActionService {
     }
     validateUniqueDevName(devName);
     TriggerActionValidator.validateTriggerContexts(contexts);
+    TriggerActionValidator.validateFormula(entryCriteria, objectName);
 
     // Look up the sObject Trigger Setting DeveloperName for this object
     List<sObject_Trigger_Setting__mdt> settings;
@@ -276,6 +277,10 @@ public with sharing class TriggerActionService {
         WITH USER_MODE
       ];
     }
+    TriggerActionValidator.validateFormula(
+      entryCriteria,
+      existing.Object_API_Name__c
+    );
 
     // Look up the sObject Trigger Setting DeveloperName for this object
     // Use Object_API_Name__c if available, otherwise find via context relationships
@@ -903,6 +908,45 @@ public with sharing class TriggerActionService {
       }
     }
 
+    String devName = objectName != null && objectName.endsWith('__c')
+      ? objectName.substring(0, objectName.length() - 3)
+      : objectName;
+
+    List<EntityDefinition> eds = [
+      SELECT DurableId, QualifiedApiName
+      FROM EntityDefinition
+      WHERE QualifiedApiName = :resolvedObjectName
+      WITH USER_MODE
+      LIMIT 1
+    ];
+    if (eds.isEmpty() && String.isNotBlank(devName)) {
+      eds = [
+        SELECT DurableId, QualifiedApiName
+        FROM EntityDefinition
+        WHERE DeveloperName = :devName
+        WITH USER_MODE
+        LIMIT 1
+      ];
+    }
+
+    String targetId = resolvedObjectName;
+    String targetId18 = resolvedObjectName;
+    if (!eds.isEmpty()) {
+      resolvedObjectName = eds[0].QualifiedApiName;
+      targetId = eds[0].DurableId;
+      if (targetId.startsWith('01I')) {
+        if (targetId.length() == 15) {
+          try {
+            targetId18 = Id.valueOf(targetId);
+          } catch (Exception e) {
+          }
+        } else if (targetId.length() == 18) {
+          targetId18 = targetId;
+          targetId = targetId.substring(0, 15);
+        }
+      }
+    }
+
     wrapper.triggers = mockTriggers != null
       ? mockTriggers
       : [
@@ -922,33 +966,15 @@ public with sharing class TriggerActionService {
             UsageAfterDelete,
             UsageAfterUndelete
           FROM ApexTrigger
-          WHERE TableEnumOrId = :resolvedObjectName
+          WHERE
+            TableEnumOrId = :resolvedObjectName
+            OR TableEnumOrId = :targetId
+            OR TableEnumOrId = :targetId18
+            OR TableEnumOrId = :objectName
           WITH USER_MODE
           ORDER BY Name
         ];
-    String targetId = resolvedObjectName;
-    String targetId18 = resolvedObjectName;
-    List<EntityDefinition> eds = [
-      SELECT DurableId
-      FROM EntityDefinition
-      WHERE QualifiedApiName = :resolvedObjectName
-      WITH USER_MODE
-      LIMIT 1
-    ];
-    if (!eds.isEmpty()) {
-      targetId = eds[0].DurableId;
-      if (targetId.startsWith('01I')) {
-        if (targetId.length() == 15) {
-          try {
-            targetId18 = Id.valueOf(targetId);
-          } catch (Exception e) {
-          }
-        } else if (targetId.length() == 18) {
-          targetId18 = targetId;
-          targetId = targetId.substring(0, 15);
-        }
-      }
-    }
+
     wrapper.flows = mockFlows != null
       ? mockFlows
       : [
@@ -961,12 +987,14 @@ public with sharing class TriggerActionService {
             TriggerType,
             RecordTriggerType,
             IsActive,
+            NamespacePrefix,
             LastModifiedDate
           FROM FlowDefinitionView
           WHERE
             TriggerObjectOrEventId = :targetId
             OR TriggerObjectOrEventId = :targetId18
             OR TriggerObjectOrEventId = :resolvedObjectName
+            OR TriggerObjectOrEventId = :objectName
           WITH USER_MODE
           ORDER BY Label
         ];
@@ -1237,6 +1265,35 @@ public with sharing class TriggerActionService {
       );
     }
     return classes[0].Body;
+  }
+
+  /**
+   * @description Retrieves the source of several Apex classes in one call, for
+   * the deep object audit. Managed classes return '(hidden)' from the platform
+   * and are omitted rather than sent to the model as noise. Missing classes are
+   * skipped instead of throwing, so one bad reference cannot fail the audit.
+   * @param classNames The Apex class names to load.
+   * @return Map<String, String> Class name to body, for the classes readable here.
+   */
+  @AuraEnabled(cacheable=true)
+  public static Map<String, String> getApexClassBodies(
+    List<String> classNames
+  ) {
+    Map<String, String> bodies = new Map<String, String>();
+    if (classNames == null || classNames.isEmpty()) {
+      return bodies;
+    }
+    for (ApexClass c : [
+      SELECT Name, Body
+      FROM ApexClass
+      WHERE Name IN :classNames
+      WITH USER_MODE
+    ]) {
+      if (String.isNotBlank(c.Body) && c.Body != '(hidden)') {
+        bodies.put(c.Name, c.Body);
+      }
+    }
+    return bodies;
   }
 
   /**

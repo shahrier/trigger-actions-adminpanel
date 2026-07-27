@@ -286,7 +286,7 @@ private class TriggerActionService_Test {
         'Before_Insert__c' => true,
         'Before_Update' => true
       },
-      'Criteria',
+      null,
       'Desc',
       false
     );
@@ -307,7 +307,7 @@ private class TriggerActionService_Test {
         null,
         1,
         new Map<String, Boolean>{ 'Before_Insert__c' => true },
-        'Criteria',
+        null,
         'Desc',
         false
       );
@@ -389,7 +389,7 @@ private class TriggerActionService_Test {
       null,
       2,
       new Map<String, Boolean>{ 'Before_Insert__c' => true },
-      'New Criteria',
+      null,
       'New Description',
       true,
       false
@@ -631,7 +631,7 @@ private class TriggerActionService_Test {
         null,
         2,
         new Map<String, Boolean>{ 'Before_Insert__c' => true },
-        'New Criteria',
+        null,
         'New Description',
         true,
         false
@@ -663,7 +663,7 @@ private class TriggerActionService_Test {
         null,
         2,
         new Map<String, Boolean>{ 'Before_Insert__c' => true },
-        'New Criteria',
+        null,
         'New Description',
         true,
         false

@@ -7,6 +7,9 @@
           size="medium"
           class="slds-spinner_container"
         ></lightning-spinner>
+        <template if:true={auditProgress}>
+          <div class="audit-progress">{auditProgress}</div>
+        </template>
       </template>
       <div class="slds-grid slds-gutters_medium">
         <!-- Column 1: SObject Sidebar (2-of-12) -->
@@ -91,11 +94,21 @@
                       {obj.actionCount}
                     </div>
                     <div
-                      class="native-count"
+                      class="native-count slds-var-m-right_xx-small"
                       title="Native Automations (Triggers & Flows)"
                     >
                       {obj.nativeCount}
                     </div>
+                    <lightning-button-icon
+                      icon-name="utility:sparkles"
+                      variant="border-filled"
+                      size="small"
+                      title="AI Object Architecture Audit"
+                      alternative-text="AI Object Audit"
+                      data-object-name={obj.name}
+                      onclick={handleAuditObjectRow}
+                      class="object-audit-btn"
+                    ></lightning-button-icon>
                   </div>
                 </div>
               </template>
@@ -129,6 +142,15 @@
                   variant="neutral"
                   onclick={handleEdit}
                   disabled={noActionSelected}
+                >
+                </lightning-button>
+                <lightning-button
+                  label="AI Audit"
+                  icon-name="utility:sparkles"
+                  variant="neutral"
+                  title="Reads every flow and Apex definition on this object, then audits the whole automation footprint."
+                  onclick={handleAuditCurrentObject}
+                  class="ai-audit-toolbar-btn"
                 >
                 </lightning-button>
               </lightning-button-group>
@@ -1649,4 +1671,14 @@
     </section>
     <div class="slds-backdrop slds-backdrop_open"></div>
   </template>
+
+  <!-- Agentforce Coworker Object Audit Drawer -->
+  <c-agentforce-assistant
+    is-open={isAiObjectAssistantOpen}
+    artifact-type={objectAuditType}
+    artifact-name={objectAuditName}
+    artifact-payload={objectAuditPayload}
+    verified-findings={objectAuditVerifiedFindings}
+    onclose={handleCloseAiObjectAssistant}
+  ></c-agentforce-assistant>
 </template>

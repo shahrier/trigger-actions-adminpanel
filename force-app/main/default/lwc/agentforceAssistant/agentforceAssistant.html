@@ -1,0 +1,144 @@
+<template>
+  <template if:true={isOpen}>
+    <!-- Backdrop Overlay -->
+    <div class="assistant-backdrop" onclick={handleClose}></div>
+
+    <!-- Sliding Sidebar Drawer -->
+    <div class="assistant-drawer slds-is-relative">
+      <!-- Drawer Header -->
+      <div
+        class="drawer-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-var-p-around_medium"
+      >
+        <div class="header-left slds-grid slds-grid_vertical-align-center">
+          <div class="agent-avatar slds-var-m-right_small">
+            <lightning-icon
+              icon-name="utility:ai_chat"
+              size="small"
+              variant="inverse"
+            ></lightning-icon>
+          </div>
+          <div>
+            <h2 class="assistant-title">Agentforce Coworker Assistant</h2>
+            <p class="assistant-subtitle">
+              AI-Powered Artifact Analysis & Insights
+            </p>
+          </div>
+        </div>
+
+        <div class="header-right slds-grid slds-grid_vertical-align-center">
+          <template if:true={status}>
+            <span class={statusBadgeClass}>{statusBadgeLabel}</span>
+          </template>
+          <lightning-button-icon
+            icon-name="utility:close"
+            variant="bare-inverse"
+            alternative-text="Close"
+            onclick={handleClose}
+            class="close-button slds-var-m-left_small"
+          ></lightning-button-icon>
+        </div>
+      </div>
+
+      <!-- Drawer Content Body -->
+      <div class="drawer-body slds-var-p-around_medium slds-scrollable_y">
+        <!-- Environment / Capability Notice Banner -->
+        <template if:true={status}>
+          <template if:false={status.isAvailable}>
+            <div
+              class="env-banner slds-var-m-bottom_medium slds-var-p-around_small slds-grid slds-grid_vertical-align-start"
+            >
+              <lightning-icon
+                icon-name="utility:info"
+                size="x-small"
+                variant="warning"
+                class="slds-var-m-right_small slds-var-m-top_xxx-small"
+              ></lightning-icon>
+              <div>
+                <strong class="banner-heading">Agentforce Status Notice</strong>
+                <p class="banner-message">{status.statusMessage}</p>
+              </div>
+            </div>
+          </template>
+        </template>
+
+        <!-- Loading State -->
+        <template if:true={isLoading}>
+          <div
+            class="loading-state slds-align_absolute-center slds-var-p-vertical_large"
+          >
+            <lightning-spinner
+              alternative-text="Analyzing artifact with Agentforce"
+              size="medium"
+            ></lightning-spinner>
+            <p class="loading-text slds-var-m-top_small">
+              Analyzing {artifactName} with Agentforce Coworker...
+            </p>
+          </div>
+        </template>
+
+        <!-- Analysis Results -->
+        <template if:false={isLoading}>
+          <template if:true={hasVerifiedFindings}>
+            <div
+              class="verified-findings-card slds-var-p-around_medium slds-var-m-bottom_medium"
+            >
+              <div
+                class="verified-header slds-grid slds-grid_vertical-align-center slds-var-m-bottom_x-small"
+              >
+                <lightning-icon
+                  icon-name="utility:check"
+                  size="x-small"
+                  variant="success"
+                  class="slds-var-m-right_xx-small"
+                ></lightning-icon>
+                <strong>Verified findings</strong>
+                <span class="verified-subtext slds-var-m-left_x-small"
+                  >computed from metadata, not AI-generated</span
+                >
+              </div>
+              <div class="formatted-text">
+                <lightning-formatted-rich-text
+                  value={formattedVerifiedFindings}
+                ></lightning-formatted-rich-text>
+              </div>
+            </div>
+          </template>
+          <template if:true={explanationText}>
+            <div class="analysis-workspace slds-var-m-bottom_large">
+              <div
+                class="artifact-meta-card slds-var-p-around_small slds-var-m-bottom_medium"
+              >
+                <div
+                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
+                >
+                  <span class="artifact-type-badge">{artifactTypeLabel}</span>
+                  <span class="artifact-name-text">{artifactName}</span>
+                </div>
+              </div>
+
+              <!-- Formatted Explanation Content -->
+              <div class="explanation-card slds-var-p-around_medium">
+                <div class="formatted-text">
+                  <lightning-formatted-rich-text
+                    value={formattedExplanation}
+                  ></lightning-formatted-rich-text>
+                </div>
+              </div>
+            </div>
+          </template>
+        </template>
+      </div>
+
+      <!-- Drawer Footer -->
+      <div
+        class="drawer-footer slds-var-p-around_small slds-grid slds-grid_align-end"
+      >
+        <lightning-button
+          label="Close"
+          variant="neutral"
+          onclick={handleClose}
+        ></lightning-button>
+      </div>
+    </div>
+  </template>
+</template>
