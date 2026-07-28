@@ -10,23 +10,59 @@
   animation: fadeIn 0.25s ease-out;
 }
 
-.assistant-drawer {
+.assistant-shell {
   position: fixed;
+  background: var(--slds-g-color-neutral-base-100, #ffffff);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Beside the diagram it annotates. */
+.assistant-shell_drawer {
   top: 0;
   right: 0;
   bottom: 0;
   width: 520px;
   max-width: 90vw;
-  background: var(--slds-g-color-neutral-base-100, #ffffff);
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.25);
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
   animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   border-left: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
 }
 
-.drawer-header {
+/* A long report is the task itself, so give it width and a comfortable
+   reading measure rather than a 520px column. */
+.assistant-shell_modal {
+  top: 2.5rem;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(960px, 92vw);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  animation: modalRise 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
+}
+
+.assistant-shell_modal .assistant-body {
+  max-width: 80ch;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@keyframes modalRise {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.assistant-header {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: #ffffff;
   border-bottom: 1px solid #334155;
@@ -56,30 +92,6 @@
   font-size: 0.75rem;
   color: #94a3b8;
   margin: 0;
-}
-
-.badge-active {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.badge-inactive {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .env-banner {
@@ -170,7 +182,7 @@
   padding: 0;
 }
 
-.drawer-footer {
+.assistant-footer {
   background: var(--slds-g-color-neutral-base-95, #f8fafc);
   border-top: 1px solid var(--slds-g-color-border-base-1, #e2e8f0);
 }
@@ -200,7 +212,55 @@
   border-radius: 8px;
 }
 
-.verified-subtext {
+.provenance-note {
   font-size: 0.72rem;
   color: #64748b;
+}
+
+.footer-context {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.analysis-header {
+  font-size: 0.9rem;
+  color: var(--slds-g-color-neutral-base-10, #1e293b);
+}
+
+.severity-chip {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-radius: 12px;
+  padding: 0.1rem 0.55rem;
+  margin-right: 0.35rem;
+}
+
+.severity-chip_high {
+  background: rgba(234, 0, 30, 0.1);
+  color: #ba0517;
+  border: 1px solid rgba(234, 0, 30, 0.3);
+}
+
+.severity-chip_medium {
+  background: rgba(254, 147, 57, 0.12);
+  color: #a86403;
+  border: 1px solid rgba(254, 147, 57, 0.35);
+}
+
+.severity-chip_low {
+  background: rgba(105, 113, 122, 0.1);
+  color: #444;
+  border: 1px solid rgba(105, 113, 122, 0.3);
+}
+
+.cache-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #444;
+  background: var(--slds-g-color-surface-container-2, #f3f3f3);
+  border: 1px solid var(--slds-g-color-border-1, #e0e0e0);
+  border-radius: 10px;
+  padding: 0.05rem 0.45rem;
 }

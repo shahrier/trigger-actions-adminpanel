@@ -1,83 +1,68 @@
 <template>
   <template if:true={isOpen}>
-    <!-- Backdrop Overlay -->
     <div class="assistant-backdrop" onclick={handleClose}></div>
 
-    <!-- Sliding Sidebar Drawer -->
-    <div class="assistant-drawer slds-is-relative">
-      <!-- Drawer Header -->
+    <!-- Drawer beside a diagram, or a modal for a full report. Same content;
+         only the shell's positioning differs. -->
+    <div class={shellClass}>
       <div
-        class="drawer-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-var-p-around_medium"
+        class="assistant-header slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-var-p-around_medium"
       >
         <div class="header-left slds-grid slds-grid_vertical-align-center">
           <div class="agent-avatar slds-var-m-right_small">
             <lightning-icon
-              icon-name="utility:ai_chat"
+              icon-name={headerIcon}
               size="small"
               variant="inverse"
             ></lightning-icon>
           </div>
           <div>
-            <h2 class="assistant-title">Agentforce Coworker Assistant</h2>
-            <p class="assistant-subtitle">
-              AI-Powered Artifact Analysis & Insights
-            </p>
+            <h2 class="assistant-title">{headerTitle}</h2>
+            <template if:true={scopeSummary}>
+              <p class="assistant-subtitle">{scopeSummary}</p>
+            </template>
           </div>
         </div>
 
-        <div class="header-right slds-grid slds-grid_vertical-align-center">
-          <template if:true={status}>
-            <span class={statusBadgeClass}>{statusBadgeLabel}</span>
-          </template>
-          <lightning-button-icon
-            icon-name="utility:close"
-            variant="bare-inverse"
-            alternative-text="Close"
-            onclick={handleClose}
-            class="close-button slds-var-m-left_small"
-          ></lightning-button-icon>
-        </div>
+        <lightning-button-icon
+          icon-name="utility:close"
+          variant="bare-inverse"
+          alternative-text="Close"
+          onclick={handleClose}
+          class="close-button slds-var-m-left_small"
+        ></lightning-button-icon>
       </div>
 
-      <!-- Drawer Content Body -->
-      <div class="drawer-body slds-var-p-around_medium slds-scrollable_y">
-        <!-- Environment / Capability Notice Banner -->
-        <template if:true={status}>
-          <template if:false={status.isAvailable}>
-            <div
-              class="env-banner slds-var-m-bottom_medium slds-var-p-around_small slds-grid slds-grid_vertical-align-start"
-            >
-              <lightning-icon
-                icon-name="utility:info"
-                size="x-small"
-                variant="warning"
-                class="slds-var-m-right_small slds-var-m-top_xxx-small"
-              ></lightning-icon>
-              <div>
-                <strong class="banner-heading">Agentforce Status Notice</strong>
-                <p class="banner-message">{status.statusMessage}</p>
-              </div>
-            </div>
-          </template>
-        </template>
-
-        <!-- Loading State -->
+      <div class="assistant-body slds-var-p-around_medium slds-scrollable_y">
         <template if:true={isLoading}>
           <div
             class="loading-state slds-align_absolute-center slds-var-p-vertical_large"
           >
             <lightning-spinner
-              alternative-text="Analyzing artifact with Agentforce"
+              alternative-text="Analyzing"
               size="medium"
             ></lightning-spinner>
             <p class="loading-text slds-var-m-top_small">
-              Analyzing {artifactName} with Agentforce Coworker...
+              Analyzing {artifactName}...
             </p>
           </div>
         </template>
 
-        <!-- Analysis Results -->
         <template if:false={isLoading}>
+          <!-- Severity roll-up across both verified and generated findings. -->
+          <template if:true={hasSeveritySummary}>
+            <div
+              class="severity-row slds-grid slds-grid_vertical-align-center slds-var-m-bottom_medium"
+            >
+              <template for:each={severitySummary} for:item="sev">
+                <span key={sev.label} class={sev.cssClass}
+                  >{sev.count} {sev.label}</span
+                >
+              </template>
+            </div>
+          </template>
+
+          <!-- Computed from metadata. Independent of any AI availability. -->
           <template if:true={hasVerifiedFindings}>
             <div
               class="verified-findings-card slds-var-p-around_medium slds-var-m-bottom_medium"
@@ -92,7 +77,7 @@
                   class="slds-var-m-right_xx-small"
                 ></lightning-icon>
                 <strong>Verified findings</strong>
-                <span class="verified-subtext slds-var-m-left_x-small"
+                <span class="provenance-note slds-var-m-left_x-small"
                   >computed from metadata, not AI-generated</span
                 >
               </div>
@@ -103,20 +88,41 @@
               </div>
             </div>
           </template>
-          <template if:true={explanationText}>
-            <div class="analysis-workspace slds-var-m-bottom_large">
-              <div
-                class="artifact-meta-card slds-var-p-around_small slds-var-m-bottom_medium"
+
+          <!-- Generated section. Provenance belongs here, not in the header,
+               because the block above is not AI output. -->
+          <div class="analysis-workspace">
+            <div
+              class="analysis-header slds-grid slds-grid_vertical-align-center slds-var-m-bottom_x-small"
+            >
+              <lightning-icon
+                icon-name="utility:einstein"
+                size="x-small"
+                class="slds-var-m-right_xx-small"
+              ></lightning-icon>
+              <strong>{analysisHeading}</strong>
+              <span class="provenance-note slds-var-m-left_x-small"
+                >{analysisProvenance}</span
               >
-                <div
-                  class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
-                >
-                  <span class="artifact-type-badge">{artifactTypeLabel}</span>
-                  <span class="artifact-name-text">{artifactName}</span>
+            </div>
+
+            <template if:true={showUnavailableNotice}>
+              <div
+                class="env-banner slds-var-m-bottom_medium slds-var-p-around_small slds-grid slds-grid_vertical-align-start"
+              >
+                <lightning-icon
+                  icon-name="utility:info"
+                  size="x-small"
+                  variant="warning"
+                  class="slds-var-m-right_small slds-var-m-top_xxx-small"
+                ></lightning-icon>
+                <div>
+                  <p class="banner-message">{status.statusMessage}</p>
                 </div>
               </div>
+            </template>
 
-              <!-- Formatted Explanation Content -->
+            <template if:true={explanationText}>
               <div class="explanation-card slds-var-p-around_medium">
                 <div class="formatted-text">
                   <lightning-formatted-rich-text
@@ -124,20 +130,45 @@
                   ></lightning-formatted-rich-text>
                 </div>
               </div>
-            </div>
-          </template>
+            </template>
+          </div>
         </template>
       </div>
 
-      <!-- Drawer Footer -->
       <div
-        class="drawer-footer slds-var-p-around_small slds-grid slds-grid_align-end"
+        class="assistant-footer slds-var-p-around_small slds-grid slds-grid_align-spread slds-grid_vertical-align-center"
       >
-        <lightning-button
-          label="Close"
-          variant="neutral"
-          onclick={handleClose}
-        ></lightning-button>
+        <span class="footer-context">
+          {artifactTypeLabel}
+          <template if:true={isCached}>
+            <span class="cache-chip slds-var-m-left_x-small">{cacheNote}</span>
+          </template>
+        </span>
+        <div>
+          <template if:true={isCached}>
+            <lightning-button
+              label="Re-run"
+              icon-name="utility:refresh"
+              variant="neutral"
+              title="Discards the cached result and audits this object again."
+              onclick={handleRerun}
+              class="slds-var-m-right_x-small"
+            ></lightning-button>
+          </template>
+          <lightning-button
+            label="Copy report"
+            icon-name="utility:copy"
+            variant="neutral"
+            onclick={handleCopyReport}
+            disabled={isLoading}
+            class="slds-var-m-right_x-small"
+          ></lightning-button>
+          <lightning-button
+            label="Close"
+            variant="neutral"
+            onclick={handleClose}
+          ></lightning-button>
+        </div>
       </div>
     </div>
   </template>

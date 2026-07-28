@@ -50,6 +50,11 @@ jest.mock(
   { virtual: true }
 );
 jest.mock(
+  "@salesforce/apex/AgentforceController.getCoworkerStatus",
+  () => ({ default: jest.fn().mockResolvedValue({ isAvailable: true }) }),
+  { virtual: true }
+);
+jest.mock(
   "@salesforce/apex/OrgSessionController.getSessionId",
   () => ({ default: jest.fn().mockResolvedValue("SESSION") }),
   { virtual: true }
@@ -72,7 +77,37 @@ jest.mock(
   { virtual: true }
 );
 
+// Real-shaped cache with a per-test store, so one test cannot serve another's
+// result and each starts from a cold cache.
+jest.mock(
+  "c/auditCache",
+  () => {
+    const store = new Map();
+    const hashString = (text) => {
+      let h = 0;
+      for (let i = 0; i < String(text || "").length; i++) {
+        h = (h * 31 + String(text).charCodeAt(i)) | 0;
+      }
+      return String(h >>> 0);
+    };
+    return {
+      PROMPT_VERSION: 1,
+      hashString,
+      cacheKey: (parts) => "k:" + hashString(parts.join("|")),
+      readCache: (k) => (store.has(k) ? store.get(k) : null),
+      writeCache: (k, v) => store.set(k, v),
+      clearCache: (k) => store.delete(k),
+      __store: store
+    };
+  },
+  { virtual: true }
+);
+
 describe("c-trigger-actions-manager", () => {
+  beforeEach(() => {
+    require("c/auditCache").__store.clear();
+  });
+
   const mockActions = [
     {
       Id: "a1",
@@ -432,7 +467,7 @@ describe("c-trigger-actions-manager", () => {
 
       const auditBtn = Array.from(
         element.shadowRoot.querySelectorAll("lightning-button")
-      ).find((b) => b.label === "AI Audit");
+      ).find((b) => b.label === "Audit Automation");
       expect(auditBtn).toBeDefined();
       auditBtn.click();
       await flushPromises();
@@ -491,7 +526,7 @@ describe("c-trigger-actions-manager", () => {
       await flushPromises();
 
       Array.from(element.shadowRoot.querySelectorAll("lightning-button"))
-        .find((b) => b.label === "AI Audit")
+        .find((b) => b.label === "Audit Automation")
         .click();
       await flushPromises();
 
@@ -557,7 +592,7 @@ describe("c-trigger-actions-manager", () => {
       await flushPromises();
 
       Array.from(element.shadowRoot.querySelectorAll("lightning-button"))
-        .find((b) => b.label === "AI Audit")
+        .find((b) => b.label === "Audit Automation")
         .click();
       await flushPromises();
 
@@ -603,7 +638,7 @@ describe("c-trigger-actions-manager", () => {
       await flushPromises();
 
       Array.from(element.shadowRoot.querySelectorAll("lightning-button"))
-        .find((b) => b.label === "AI Audit")
+        .find((b) => b.label === "Audit Automation")
         .click();
       await flushPromises();
 
@@ -690,6 +725,15 @@ describe("c-trigger-actions-manager", () => {
           ClassOne: "public class ClassOne { /* body */ }"
         });
 
+        // clearAllMocks resets calls but not implementations, so restore the
+        // happy-path defaults that individual tests override.
+        require("@salesforce/apex/OrgSessionController.getSessionId").default.mockResolvedValue(
+          "SESSION"
+        );
+        require("@salesforce/apex/AgentforceController.getCoworkerStatus").default.mockResolvedValue(
+          { isAvailable: true }
+        );
+
         global.fetch = jest.fn((url) => {
           // One Tooling API callout per flow; echo back an identifiable body.
           const id = decodeURIComponent(url).match(/DefinitionId = '(\w+)'/)[1];
@@ -723,7 +767,7 @@ describe("c-trigger-actions-manager", () => {
         await flushPromises();
 
         Array.from(element.shadowRoot.querySelectorAll("lightning-button"))
-          .find((b) => b.label === "AI Audit")
+          .find((b) => b.label === "Audit Automation")
           .click();
         await flushPromises();
         await flushPromises();
@@ -944,6 +988,60 @@ describe("c-trigger-actions-manager", () => {
         // No flows were read, so no contention could be computed.
         expect(assistant.verifiedFindings).toBe("");
         expect(global.fetch).not.toHaveBeenCalled();
+      });
+
+      // Most installs will not have Agentforce. The audit must still run and
+      // still produce the deterministic findings, which need no AI at all.
+      it("still audits and computes findings without Agentforce", async () => {
+        const getCoworkerStatus =
+          require("@salesforce/apex/AgentforceController.getCoworkerStatus").default;
+        getCoworkerStatus.mockResolvedValue({
+          isAvailable: false,
+          statusMessage: "Agentforce Coworker is not enabled."
+        });
+
+        const metaByFlow = {
+          "3000000000000a1AAA": {
+            assignments: [
+              {
+                name: "Set_Rating",
+                assignmentItems: [
+                  { assignToReference: "$Record.Rating", value: {} }
+                ]
+              }
+            ]
+          },
+          "3000000000000b2AAA": {
+            assignments: [
+              {
+                name: "Also_Set_Rating",
+                assignmentItems: [
+                  { assignToReference: "$Record.Rating", value: {} }
+                ]
+              }
+            ]
+          }
+        };
+        global.fetch = jest.fn((url) => {
+          const id = decodeURIComponent(url).match(/DefinitionId = '(\w+)'/)[1];
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                records: [{ Id: "301", Metadata: metaByFlow[id] || {} }]
+              })
+          });
+        });
+
+        const assistant = await runDeepAudit(auditNative);
+
+        // The audit still opens and definitions were still read.
+        expect(assistant.isOpen).toBe(true);
+        expect(global.fetch).toHaveBeenCalled();
+        // The deterministic findings do not depend on Agentforce at all.
+        expect(assistant.verifiedFindings).toContain(
+          "#### [HIGH] Field contention on `Rating`"
+        );
       });
 
       it("flags managed Apex whose source the platform hides", async () => {

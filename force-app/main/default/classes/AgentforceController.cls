@@ -1,4 +1,10 @@
 public with sharing class AgentforceController {
+  // Lets tests exercise the no-Agentforce path deterministically. Without it
+  // the offline branches are unreachable in an org that has Agentforce, which
+  // is exactly the path most installs will take.
+  @TestVisible
+  private static CoworkerStatus mockStatus;
+
   public class CoworkerStatus {
     @AuraEnabled
     public Boolean isAvailable { get; set; }
@@ -44,6 +50,9 @@ public with sharing class AgentforceController {
    */
   @AuraEnabled(cacheable=true)
   public static CoworkerStatus getCoworkerStatus() {
+    if (mockStatus != null) {
+      return mockStatus;
+    }
     CoworkerStatus status = new CoworkerStatus();
 
     try {
@@ -252,24 +261,32 @@ public with sharing class AgentforceController {
     String artifactName,
     String artifactPayload
   ) {
-    // The object payload is already a human-readable inventory plus computed
-    // signals, so surface it in full rather than truncating it to a sample.
     if (
       'OBJECT'.equalsIgnoreCase(artifactType) ||
       'OBJECT_DEEP'.equalsIgnoreCase(artifactType)
     ) {
+      // Show the inventory and computed signals, which are readable and useful
+      // on their own. Everything from the source sections onward is raw flow
+      // diagrams and Apex — tens of thousands of characters written for a model
+      // to read, not a person.
+      String summary = String.isNotBlank(artifactPayload)
+        ? artifactPayload
+        : 'No automation metadata available for this object.';
+      Integer sourceStart = summary.indexOf('=== APEX SOURCE ===');
+      if (sourceStart > 0) {
+        summary = summary.substring(0, sourceStart).trim();
+      }
+
       return '### Object Automation Audit: `' +
         artifactName +
         '`\n\n' +
         '> [!NOTE]\n' +
-        '> Agentforce Coworker is not active in this org environment. The automation inventory and the structural signals detected on this object are listed below; enable Agentforce for the ranked findings and recommendations.\n\n' +
+        '> Agentforce Coworker is not active in this org, so no AI-generated findings are available. The structural analysis below is computed directly from your metadata and is unaffected — including any verified findings shown above.\n\n' +
         '```\n' +
-        (String.isNotBlank(artifactPayload)
-          ? artifactPayload
-          : 'No automation metadata available for this object.') +
+        summary +
         '\n' +
         '```\n\n' +
-        'To enable the full generative audit, activate **Agentforce Coworker** in Salesforce Setup under **Setup → Agentforce Coworker**.';
+        'To add AI-generated findings and recommendations on top of this, activate **Agentforce Coworker** in Salesforce Setup.';
     }
 
     String title = 'APEX'.equalsIgnoreCase(artifactType)

@@ -10,11 +10,14 @@ import getNativeAutomations from "@salesforce/apex/TriggerActionService.getNativ
 import getDiscoveredObjects from "@salesforce/apex/TriggerActionService.getDiscoveredObjects";
 import createTriggerSetting from "@salesforce/apex/TriggerActionService.createTriggerSetting";
 import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.updateTriggerActionOrders";
+import getObjectHealth from "@salesforce/apex/TriggerActionService.getObjectHealth";
 import getApexClassBody from "@salesforce/apex/TriggerActionService.getApexClassBody";
 import getApexClassBodies from "@salesforce/apex/TriggerActionService.getApexClassBodies";
+import getCoworkerStatus from "@salesforce/apex/AgentforceController.getCoworkerStatus";
 import getSessionId from "@salesforce/apex/OrgSessionController.getSessionId";
 import getOrgDomainUrl from "@salesforce/apex/OrgSessionController.getOrgDomainUrl";
 import { convertFlowToMermaid } from "c/flowLensConverter";
+import { cacheKey, hashString, readCache, writeCache } from "c/auditCache";
 
 const CONTEXT_LABELS = [
   { field: "Before_Insert__c", label: "Before Insert" },
@@ -53,6 +56,31 @@ const COMPOUND_FIELD_COMPONENT =
   /^(.*)__(City|Street|PostalCode|StateCode|CountryCode|State|Country|Latitude|Longitude|GeocodeAccuracy)__s$/;
 // Beyond this the list stops being readable; the rest are summarised.
 const MAX_CONTENTION_FINDINGS = 8;
+
+/**
+ * Identifies this object's automation footprint from data already fetched, so
+ * a cache hit can skip both the per-flow Tooling API reads and the model call.
+ *
+ * Trigger bodies are compared directly; flows use LastModifiedDate, which
+ * changes whenever the definition does.
+ */
+function auditFingerprint(nativeData, objectActions) {
+  const triggers = (nativeData?.triggers || [])
+    .map((t) => `${t.Id}|${t.Status}|${hashString(t.Body || "")}`)
+    .sort();
+  const flows = (nativeData?.flows || [])
+    .map((f) => `${f.DurableId}|${f.IsActive}|${f.LastModifiedDate}`)
+    .sort();
+  const actions = objectActions
+    .map(
+      (a) =>
+        `${a.DeveloperName}|${a.Order__c}|${a.Bypass_Execution__c}|${a.Entry_Criteria__c || ""}|` +
+        `${a.Apex_Class_Name__c || ""}|${a.Flow_Name__c || ""}|` +
+        CONTEXT_LABELS.map((c) => (a[c.field] ? 1 : 0)).join("")
+    )
+    .sort();
+  return hashString(JSON.stringify({ triggers, flows, actions }));
+}
 
 const FLOW_PHASE = {
   BEFORE_SAVE: "beforeSave",
@@ -225,6 +253,7 @@ export default class TriggerActionsManager extends NavigationMixin(
   isApexTrigger = false;
   isCreating = false;
   availableSObjects = [];
+  objectHealth = [];
   discoveredObjects = [];
   nativeAutomations = { triggers: [], flows: [] };
   nativeLoading = false;
@@ -243,6 +272,8 @@ export default class TriggerActionsManager extends NavigationMixin(
   objectAuditPayload = "";
   objectAuditType = "OBJECT";
   objectAuditVerifiedFindings = "";
+  objectAuditScope = "";
+  _auditCacheKey = "";
   auditProgress = "";
   _wiredActionsResult;
   _wiredSObjectsResult;
@@ -289,6 +320,93 @@ export default class TriggerActionsManager extends NavigationMixin(
     if (result.data) {
       this.availableSObjects = result.data;
     }
+  }
+
+  @wire(getObjectHealth)
+  wiredObjectHealth({ data }) {
+    if (data) {
+      this.objectHealth = data;
+    }
+  }
+
+  // --- Landing page: what is actually in this org, not what the tool does ---
+
+  get orgStats() {
+    const objects = this.objectList;
+    const native = objects.reduce((n, o) => n + (o.nativeCount || 0), 0);
+    const actions = objects.reduce((n, o) => n + (o.actionCount || 0), 0);
+    return [
+      { key: "objects", value: objects.length, label: "Objects configured" },
+      { key: "actions", value: actions, label: "Trigger actions" },
+      { key: "native", value: native, label: "Active native automations" }
+    ];
+  }
+
+  get hasOrgStats() {
+    return this.objectList.length > 0;
+  }
+
+  // Objects carrying the most automation — where an audit pays off first.
+  get busiestObjects() {
+    return [...this.objectList]
+      .filter((o) => o.nativeCount > 0 || o.actionCount > 0)
+      .sort(
+        (a, b) =>
+          b.nativeCount + b.actionCount - (a.nativeCount + a.actionCount)
+      )
+      .slice(0, 5)
+      .map((o) => ({
+        name: o.name,
+        label: o.label,
+        detail: `${o.nativeCount} native · ${o.actionCount} framework`
+      }));
+  }
+
+  get hasBusiestObjects() {
+    return this.busiestObjects.length > 0;
+  }
+
+  /**
+   * Trigger actions that cannot run: either no dispatcher trigger exists on the
+   * object, or the one that does is inactive. Silent in the UI otherwise.
+   */
+  get wiringAlerts() {
+    const healthByName = {};
+    (this.objectHealth || []).forEach((h) => {
+      healthByName[(h.objectName || "").toLowerCase()] = h;
+    });
+    return this.objectList
+      .filter((o) => o.actionCount > 0)
+      .map((o) => ({ obj: o, health: healthByName[o.name.toLowerCase()] }))
+      .filter(({ health }) => health && !health.dispatcherActive)
+      .map(({ obj, health }) => ({
+        name: obj.name,
+        label: obj.label,
+        detail: health.hasDispatcher
+          ? `${obj.actionCount} action(s) will not run — dispatcher trigger is inactive`
+          : `${obj.actionCount} action(s) will not run — no dispatcher trigger deployed`
+      }));
+  }
+
+  get hasWiringAlerts() {
+    return this.wiringAlerts.length > 0;
+  }
+
+  // Automation running outside the framework entirely.
+  get uncoveredObjects() {
+    return this.objectList
+      .filter((o) => o.nativeCount > 0 && o.actionCount === 0)
+      .sort((a, b) => b.nativeCount - a.nativeCount)
+      .slice(0, 5)
+      .map((o) => ({
+        name: o.name,
+        label: o.label,
+        detail: `${o.nativeCount} native automation(s), no framework actions`
+      }));
+  }
+
+  get hasUncoveredObjects() {
+    return this.uncoveredObjects.length > 0;
   }
 
   // --- Computed properties ---
@@ -498,7 +616,7 @@ export default class TriggerActionsManager extends NavigationMixin(
               id: f.DurableId,
               name: f.Label,
               type: isPb ? "Process Builder" : "Flow",
-              icon: isPb ? "utility:retire" : "utility:flow",
+              icon: isPb ? "utility:process" : "utility:flow",
               status: f.IsActive ? "Active" : "Inactive",
               variant: f.IsActive ? "success" : "lightest",
               isTrigger: false,
@@ -1301,6 +1419,12 @@ export default class TriggerActionsManager extends NavigationMixin(
     this.isAiObjectAssistantOpen = false;
   }
 
+  // The assistant regenerates its own analysis; this rebuilds the payload too,
+  // in case the object's automation changed since it was cached.
+  handleRerunAudit() {
+    this.runObjectAudit(this.objectAuditName, true);
+  }
+
   /**
    * The object audit. Builds the inventory and computed signals, then reads the
    * definition of every artifact it can — each flow rendered to Mermaid, plus
@@ -1311,17 +1435,51 @@ export default class TriggerActionsManager extends NavigationMixin(
    * entirely managed automation) this degrades to a signature-level audit and
    * says so, rather than failing.
    */
-  async runObjectAudit(objectName) {
+  async runObjectAudit(objectName, forceRefresh = false) {
     if (!objectName) return;
 
     this.isLoading = true;
     this.auditProgress = "Collecting automation inventory...";
 
     try {
+      // Check for AI up front purely to set expectations. The definition read
+      // still happens either way: field contention is computed from metadata,
+      // so an org without Agentforce still gets real findings from it.
+      const aiAvailable = await getCoworkerStatus()
+        .then((s) => s.isAvailable)
+        .catch(() => false);
+
       const nativeData =
         objectName === this.selectedObjectName && this.nativeAutomations
           ? this.nativeAutomations
           : await getNativeAutomations({ objectName });
+
+      const objectActions = (this.actions || []).filter(
+        (a) =>
+          a.Object_API_Name__c &&
+          a.Object_API_Name__c.toLowerCase() === objectName.toLowerCase()
+      );
+      // The fingerprint is computable from this one Apex call, so a hit skips
+      // both the per-flow Tooling API reads and the model call entirely.
+      this._auditCacheKey = cacheKey([
+        "object-payload",
+        objectName,
+        auditFingerprint(nativeData, objectActions)
+      ]);
+
+      // A hit skips the per-flow Tooling API reads. The assistant separately
+      // caches the model response keyed on this same payload, so an unchanged
+      // object costs neither callouts nor tokens.
+      const cached = forceRefresh ? null : readCache(this._auditCacheKey);
+      if (cached) {
+        this.objectAuditName = objectName;
+        this.objectAuditScope = cached.scope;
+        this.objectAuditVerifiedFindings = cached.verifiedFindings;
+        this.objectAuditPayload = cached.payload;
+        this.objectAuditType = cached.artifactType;
+        this.isAiObjectAssistantOpen = true;
+        return;
+      }
 
       const base = this.buildObjectAuditPayload(objectName, nativeData);
       const [flowSource, apexSource] = await Promise.all([
@@ -1329,14 +1487,31 @@ export default class TriggerActionsManager extends NavigationMixin(
         this.loadApexSource(objectName, nativeData?.triggers || [])
       ]);
 
-      this.auditProgress = "Sending to Agentforce Coworker...";
+      this.auditProgress = aiAvailable
+        ? "Sending to Agentforce Coworker..."
+        : "Agentforce unavailable — completing structural analysis...";
+      const totalArtifacts =
+        (nativeData?.triggers || []).length + (nativeData?.flows || []).length;
+      const scope = [`${totalArtifacts} automations`];
+      if (flowSource.readCount) {
+        scope.push(`${flowSource.readCount} flow definitions read`);
+      }
+      if (!aiAvailable) scope.push("AI unavailable");
+
       this.objectAuditName = objectName;
+      this.objectAuditScope = scope.join(" · ");
       this.objectAuditVerifiedFindings = flowSource.verifiedFindings;
       this.objectAuditPayload = `${base}\n${apexSource.text}\n${flowSource.text}`;
       // Only claim the model can see definitions when it actually can — the
       // deep prompt's instructions are wrong otherwise.
       this.objectAuditType =
         flowSource.readAny || apexSource.readAny ? "OBJECT_DEEP" : "OBJECT";
+      writeCache(this._auditCacheKey, {
+        payload: this.objectAuditPayload,
+        verifiedFindings: this.objectAuditVerifiedFindings,
+        scope: this.objectAuditScope,
+        artifactType: this.objectAuditType
+      });
       this.isAiObjectAssistantOpen = true;
     } catch (err) {
       this.showError(
@@ -1360,7 +1535,8 @@ export default class TriggerActionsManager extends NavigationMixin(
       return {
         text: "=== FLOW DEFINITIONS ===\nNo flows on this object.\n",
         verifiedFindings: "",
-        readAny: false
+        readAny: false,
+        readCount: 0
       };
     }
 
@@ -1381,7 +1557,8 @@ export default class TriggerActionsManager extends NavigationMixin(
           "This audit is based on automation signatures only: you can see what runs and when, " +
           "but not what any flow does internally. Do not speculate about flow contents.\n",
         verifiedFindings: "",
-        readAny: false
+        readAny: false,
+        readCount: 0
       };
     }
 
@@ -1448,7 +1625,8 @@ export default class TriggerActionsManager extends NavigationMixin(
     return {
       text: out,
       verifiedFindings: contention.findings,
-      readAny: rendered.length > 0
+      readAny: rendered.length > 0,
+      readCount: rendered.length
     };
   }
 

@@ -432,6 +432,80 @@ private class TriggerActionService_Test {
   }
 
   @isTest
+  static void testGetObjectHealthFindsActiveDispatcher() {
+    TriggerActionService.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      new sObject_Trigger_Setting__mdt(Object_API_Name__c = 'Account')
+    };
+    TriggerActionService.mockTriggers = new List<ApexTrigger>{
+      (ApexTrigger) JSON.deserialize(
+        '{"Name":"TA_Account","TableEnumOrId":"Account","Status":"Active","Body":"trigger TA_Account on Account (before insert) { new MetadataTriggerHandler().run(); }"}',
+        ApexTrigger.class
+      )
+    };
+
+    Test.startTest();
+    List<TriggerActionService.ObjectHealthWrapper> health = TriggerActionService.getObjectHealth();
+    Test.stopTest();
+
+    System.assertEquals(1, health.size(), 'One configured object expected');
+    System.assertEquals('Account', health[0].objectName, 'Object should match');
+    System.assert(health[0].hasDispatcher, 'Dispatcher should be detected');
+    System.assert(health[0].dispatcherActive, 'Dispatcher should be active');
+  }
+
+  @isTest
+  static void testGetObjectHealthFlagsInactiveDispatcher() {
+    TriggerActionService.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      new sObject_Trigger_Setting__mdt(Object_API_Name__c = 'Account')
+    };
+    TriggerActionService.mockTriggers = new List<ApexTrigger>{
+      (ApexTrigger) JSON.deserialize(
+        '{"Name":"TA_Account","TableEnumOrId":"Account","Status":"Inactive","Body":"trigger TA_Account on Account (before insert) { new MetadataTriggerHandler().run(); }"}',
+        ApexTrigger.class
+      )
+    };
+
+    Test.startTest();
+    List<TriggerActionService.ObjectHealthWrapper> health = TriggerActionService.getObjectHealth();
+    Test.stopTest();
+
+    System.assert(health[0].hasDispatcher, 'Dispatcher exists but is inactive');
+    System.assertEquals(
+      false,
+      health[0].dispatcherActive,
+      'Inactive dispatcher must not count as active'
+    );
+  }
+
+  @isTest
+  static void testGetObjectHealthIgnoresNonDispatcherTriggers() {
+    TriggerActionService.mockSettings = new List<sObject_Trigger_Setting__mdt>{
+      new sObject_Trigger_Setting__mdt(Object_API_Name__c = 'Account')
+    };
+    // A plain trigger, plus a managed one whose body the platform hides.
+    TriggerActionService.mockTriggers = new List<ApexTrigger>{
+      (ApexTrigger) JSON.deserialize(
+        '{"Name":"AccountLegacy","TableEnumOrId":"Account","Status":"Active","Body":"trigger AccountLegacy on Account (before insert) { doWork(); }"}',
+        ApexTrigger.class
+      ),
+      (ApexTrigger) JSON.deserialize(
+        '{"Name":"Account","TableEnumOrId":"Account","Status":"Active","Body":"(hidden)","NamespacePrefix":"rstk"}',
+        ApexTrigger.class
+      )
+    };
+
+    Test.startTest();
+    List<TriggerActionService.ObjectHealthWrapper> health = TriggerActionService.getObjectHealth();
+    Test.stopTest();
+
+    System.assertEquals(
+      false,
+      health[0].hasDispatcher,
+      'Neither a plain trigger nor a hidden managed body is a TAF dispatcher'
+    );
+  }
+
+  @isTest
   static void testGetNativeAutomationsWithMocks() {
     TriggerActionService.mockTriggers = new List<ApexTrigger>{
       (ApexTrigger) JSON.deserialize(

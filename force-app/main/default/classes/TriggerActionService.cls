@@ -1001,6 +1001,96 @@ public with sharing class TriggerActionService {
     return wrapper;
   }
 
+  /**
+   * @description Whether each configured object has a working Trigger Action
+   * Framework dispatcher. Trigger Actions with no dispatcher — or an inactive
+   * one — never execute, which is silent and easy to miss.
+   */
+  public class ObjectHealthWrapper {
+    @AuraEnabled
+    public String objectName;
+    @AuraEnabled
+    public Boolean hasDispatcher;
+    @AuraEnabled
+    public Boolean dispatcherActive;
+
+    public ObjectHealthWrapper(String name) {
+      this.objectName = name;
+      this.hasDispatcher = false;
+      this.dispatcherActive = false;
+    }
+  }
+
+  /**
+   * @description Dispatcher status for every object with a Trigger Setting, in
+   * a single query, so the landing page can flag broken wiring without walking
+   * objects one at a time.
+   * @return List<ObjectHealthWrapper> One entry per configured object.
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<ObjectHealthWrapper> getObjectHealth() {
+    Map<String, ObjectHealthWrapper> health = new Map<String, ObjectHealthWrapper>();
+    List<sObject_Trigger_Setting__mdt> settings = mockSettings != null
+      ? mockSettings
+      : [
+          SELECT Object_API_Name__c, Object_Namespace__c
+          FROM sObject_Trigger_Setting__mdt
+          WITH USER_MODE
+        ];
+
+    Set<String> objectNames = new Set<String>();
+    for (sObject_Trigger_Setting__mdt setting : settings) {
+      String objName = setting.Object_API_Name__c;
+      if (String.isBlank(objName)) {
+        continue;
+      }
+      if (
+        String.isNotBlank(setting.Object_Namespace__c) &&
+        !objName.startsWithIgnoreCase(setting.Object_Namespace__c + '__')
+      ) {
+        objName = setting.Object_Namespace__c + '__' + objName;
+      }
+      objectNames.add(objName);
+      health.put(objName.toLowerCase(), new ObjectHealthWrapper(objName));
+    }
+
+    if (objectNames.isEmpty()) {
+      return health.values();
+    }
+
+    List<ApexTrigger> triggers = mockTriggers != null
+      ? mockTriggers
+      : [
+          SELECT Name, Status, TableEnumOrId, Body, NamespacePrefix
+          FROM ApexTrigger
+          WHERE TableEnumOrId IN :objectNames
+          WITH USER_MODE
+        ];
+
+    for (ApexTrigger trg : triggers) {
+      String key = trg.TableEnumOrId == null
+        ? ''
+        : trg.TableEnumOrId.toLowerCase();
+      if (!health.containsKey(key)) {
+        continue;
+      }
+      // Managed trigger bodies come back as '(hidden)', and the framework's
+      // dispatcher is never managed, so this only matches the real thing.
+      if (
+        String.isNotBlank(trg.Body) &&
+        trg.Body.contains('MetadataTriggerHandler')
+      ) {
+        ObjectHealthWrapper h = health.get(key);
+        h.hasDispatcher = true;
+        if (trg.Status == 'Active') {
+          h.dispatcherActive = true;
+        }
+      }
+    }
+
+    return health.values();
+  }
+
   public class DiscoveredObjectWrapper implements Comparable {
     @AuraEnabled
     public String objectName;
