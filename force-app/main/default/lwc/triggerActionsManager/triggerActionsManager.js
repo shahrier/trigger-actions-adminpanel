@@ -13,7 +13,7 @@ import updateTriggerActionOrders from "@salesforce/apex/TriggerActionService.upd
 import getObjectHealth from "@salesforce/apex/TriggerActionService.getObjectHealth";
 import getApexClassBody from "@salesforce/apex/TriggerActionService.getApexClassBody";
 import getApexClassBodies from "@salesforce/apex/TriggerActionService.getApexClassBodies";
-import getCoworkerStatus from "@salesforce/apex/AgentforceController.getCoworkerStatus";
+import getAiStatus from "@salesforce/apex/AgentforceController.getAiStatus";
 import getSessionId from "@salesforce/apex/OrgSessionController.getSessionId";
 import getOrgDomainUrl from "@salesforce/apex/OrgSessionController.getOrgDomainUrl";
 import { convertFlowToMermaid } from "c/flowLensConverter";
@@ -1445,7 +1445,7 @@ export default class TriggerActionsManager extends NavigationMixin(
       // Check for AI up front purely to set expectations. The definition read
       // still happens either way: field contention is computed from metadata,
       // so an org without Agentforce still gets real findings from it.
-      const aiAvailable = await getCoworkerStatus()
+      const aiAvailable = await getAiStatus()
         .then((s) => s.isAvailable)
         .catch(() => false);
 
@@ -1488,7 +1488,7 @@ export default class TriggerActionsManager extends NavigationMixin(
       ]);
 
       this.auditProgress = aiAvailable
-        ? "Sending to Agentforce Coworker..."
+        ? "Sending to Agentforce..."
         : "Agentforce unavailable — completing structural analysis...";
       const totalArtifacts =
         (nativeData?.triggers || []).length + (nativeData?.flows || []).length;

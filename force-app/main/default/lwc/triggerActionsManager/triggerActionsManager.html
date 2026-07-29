@@ -103,7 +103,7 @@
                       icon-name="utility:search"
                       variant="border-filled"
                       size="small"
-                      title="Audit this object's automation. Structural findings are computed from your metadata; where Agentforce Coworker is enabled, definitions are also sent to it for further analysis."
+                      title="Audit this object's automation. Structural findings are computed from your metadata; where Agentforce is enabled, definitions are also sent to it for further analysis."
                       alternative-text="Audit automation"
                       data-object-name={obj.name}
                       onclick={handleAuditObjectRow}
@@ -147,7 +147,7 @@
                 <lightning-button
                   label="Audit Automation"
                   variant="neutral"
-                  title="Audits every trigger, flow and trigger action on this object. Structural findings are computed from your metadata; where Agentforce Coworker is enabled, definitions are also sent to it for further analysis."
+                  title="Audits every trigger, flow and trigger action on this object. Structural findings are computed from your metadata; where Agentforce is enabled, definitions are also sent to it for further analysis."
                   onclick={handleAuditCurrentObject}
                   class="ai-audit-toolbar-btn"
                 >
@@ -941,7 +941,7 @@
     <div class="slds-backdrop slds-backdrop_open"></div>
   </template>
 
-  <!-- Agentforce Coworker Object Audit Drawer -->
+  <!-- Object audit panel -->
   <c-agentforce-assistant
     is-open={isAiObjectAssistantOpen}
     artifact-type={objectAuditType}

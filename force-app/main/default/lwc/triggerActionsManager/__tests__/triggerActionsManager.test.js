@@ -50,7 +50,7 @@ jest.mock(
   { virtual: true }
 );
 jest.mock(
-  "@salesforce/apex/AgentforceController.getCoworkerStatus",
+  "@salesforce/apex/AgentforceController.getAiStatus",
   () => ({ default: jest.fn().mockResolvedValue({ isAvailable: true }) }),
   { virtual: true }
 );
@@ -730,7 +730,7 @@ describe("c-trigger-actions-manager", () => {
         require("@salesforce/apex/OrgSessionController.getSessionId").default.mockResolvedValue(
           "SESSION"
         );
-        require("@salesforce/apex/AgentforceController.getCoworkerStatus").default.mockResolvedValue(
+        require("@salesforce/apex/AgentforceController.getAiStatus").default.mockResolvedValue(
           { isAvailable: true }
         );
 
@@ -993,11 +993,11 @@ describe("c-trigger-actions-manager", () => {
       // Most installs will not have Agentforce. The audit must still run and
       // still produce the deterministic findings, which need no AI at all.
       it("still audits and computes findings without Agentforce", async () => {
-        const getCoworkerStatus =
-          require("@salesforce/apex/AgentforceController.getCoworkerStatus").default;
-        getCoworkerStatus.mockResolvedValue({
+        const getAiStatus =
+          require("@salesforce/apex/AgentforceController.getAiStatus").default;
+        getAiStatus.mockResolvedValue({
           isAvailable: false,
-          statusMessage: "Agentforce Coworker is not enabled."
+          statusMessage: "Agentforce is not enabled in this org."
         });
 
         const metaByFlow = {

@@ -4,5 +4,5 @@
     <isExposed>false</isExposed>
     <masterLabel>Agentforce Assistant</masterLabel>
     <description
-  >AI Assistant Drawer powered by Agentforce Coworker for artifact explanations</description>
+  >AI analysis panel for objects, Apex and Flows, powered by Agentforce</description>
 </LightningComponentBundle>

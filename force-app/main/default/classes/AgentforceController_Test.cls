@@ -1,9 +1,9 @@
 @IsTest
 private class AgentforceController_Test {
   @IsTest
-  static void testGetCoworkerStatus() {
+  static void testGetAiStatus() {
     Test.startTest();
-    AgentforceController.CoworkerStatus status = AgentforceController.getCoworkerStatus();
+    AgentforceController.AiStatus status = AgentforceController.getAiStatus();
     Test.stopTest();
 
     System.assertNotEquals(null, status, 'Status should not be null');
@@ -69,13 +69,13 @@ private class AgentforceController_Test {
   }
 
   /**
-   * Most installs will not have Agentforce Coworker, so the offline path is the
+   * Most installs will not have Agentforce, so the offline path is the
    * common path. Force it rather than relying on the org under test lacking it.
    */
   private static void forceOffline() {
-    AgentforceController.CoworkerStatus offline = new AgentforceController.CoworkerStatus();
+    AgentforceController.AiStatus offline = new AgentforceController.AiStatus();
     offline.isAvailable = false;
-    offline.statusMessage = 'Agentforce Coworker is not enabled in this environment.';
+    offline.statusMessage = 'Agentforce is not enabled in this org environment.';
     AgentforceController.mockStatus = offline;
   }
 
@@ -137,7 +137,7 @@ private class AgentforceController_Test {
 
     System.assertEquals(false, result.isAvailable, 'Should be unavailable');
     System.assert(
-      result.explanation.contains('Agentforce Coworker'),
+      result.explanation.contains('Agentforce'),
       'Offline Apex analysis should explain why AI output is missing'
     );
   }

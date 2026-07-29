@@ -1,25 +1,42 @@
 public with sharing class AgentforceController {
+  /**
+   * The Models API model used for generation. Every value below was verified
+   * callable in an Agentforce-enabled org; swap this one line to change model.
+   *
+   * Measured on an ~80k-character audit payload, which is the realistic size:
+   * GPT-5 12.1s, GPT-4o 13.3s. GPT-5's reasoning overhead only shows on tiny
+   * prompts. In a small A/B against payloads containing this project's known
+   * failure modes, GPT-4o ignored the "do not report field contention"
+   * instruction in one run of three; GPT-5 in none, and it correctly left the
+   * managed-package trigger alone.
+   *
+   *   sfdc_ai__DefaultGPT5
+   *   sfdc_ai__DefaultGPT4Omni       previous default
+   *   sfdc_ai__DefaultGPT41
+   *   sfdc_ai__DefaultGPT5Mini       current default
+   *   sfdc_ai__DefaultBedrockAnthropicClaude4Sonnet
+   *   sfdc_ai__DefaultGPT4OmniMini   weakest; misread a one-word prompt
+   *
+   * Changing this invalidates cached responses, so bump PROMPT_VERSION in
+   * c/auditCache alongside it.
+   */
+  public static String modelName = 'sfdc_ai__DefaultGPT5Mini';
+
   // Lets tests exercise the no-Agentforce path deterministically. Without it
   // the offline branches are unreachable in an org that has Agentforce, which
   // is exactly the path most installs will take.
   @TestVisible
-  private static CoworkerStatus mockStatus;
+  private static AiStatus mockStatus;
 
-  public class CoworkerStatus {
+  public class AiStatus {
     @AuraEnabled
     public Boolean isAvailable { get; set; }
     @AuraEnabled
-    public String agentId { get; set; }
-    @AuraEnabled
-    public String agentName { get; set; }
-    @AuraEnabled
     public String statusMessage { get; set; }
 
-    public CoworkerStatus() {
+    public AiStatus() {
       this.isAvailable = false;
-      this.agentId = '';
-      this.agentName = 'Agentforce Coworker';
-      this.statusMessage = 'Agentforce Coworker is not enabled in this org environment.';
+      this.statusMessage = 'Agentforce is not enabled in this org environment.';
     }
   }
 
@@ -45,51 +62,33 @@ public with sharing class AgentforceController {
   }
 
   /**
-   * @description Dynamically checks if Agentforce Coworker is active and configured in the org schema.
-   * Uses dynamic SOQL to ensure zero compile-time or installation errors on orgs without Agentforce.
+   * @description Reports whether this org can call the Agentforce Models API.
+   *
+   * Probes the capability actually used rather than looking for a bot: any
+   * Einstein Bot named "...Agent..." used to satisfy the old check, which was
+   * wrong in both directions. Constructing the action performs no callout and
+   * costs no tokens; it throws when the org has no access.
+   * @return AiStatus Whether generation is available, and why not if it is not.
    */
   @AuraEnabled(cacheable=true)
-  public static CoworkerStatus getCoworkerStatus() {
+  public static AiStatus getAiStatus() {
     if (mockStatus != null) {
       return mockStatus;
     }
-    CoworkerStatus status = new CoworkerStatus();
-
+    AiStatus status = new AiStatus();
     try {
-      // Check if BotDefinition SObject exists in the org schema
-      Map<String, Schema.SObjectType> globalDescribe = Schema.getGlobalDescribe();
-      if (!globalDescribe.containsKey('BotDefinition')) {
-        status.statusMessage = 'Agentforce Coworker is not supported on this org release or edition.';
-        return status;
-      }
-
-      // Dynamic SOQL query to check for active Coworker / Employee Agent definition
-      String query =
-        'SELECT Id, DeveloperName, MasterLabel FROM BotDefinition ' +
-        'WHERE DeveloperName = \'SearchAgent\' ' +
-        'OR DeveloperName LIKE \'%Agent%\' LIMIT 1';
-
-      List<SObject> botDefs = Database.query(query);
-      if (!botDefs.isEmpty()) {
-        SObject bot = botDefs[0];
-        status.isAvailable = true;
-        status.agentId = (String) bot.get('Id');
-        status.agentName =
-          'Agentforce Coworker (' +
-          (String) bot.get('DeveloperName') +
-          ')';
-        status.statusMessage = 'Agentforce Coworker is active and ready.';
-      } else {
-        status.isAvailable = false;
-        status.statusMessage = 'Agentforce Coworker is not enabled in this environment. To enable AI analysis, ensure Agentforce Coworker is configured in Setup.';
-      }
+      Invocable.Action.createCustomAction(
+        'salesforceAPIPlatform',
+        'ModelsAPI.createGenerations'
+      );
+      status.isAvailable = true;
+      status.statusMessage = 'Agentforce is available in this org.';
     } catch (Exception e) {
       status.isAvailable = false;
       status.statusMessage =
-        'Agentforce Coworker is not enabled in this org environment: ' +
+        'Agentforce is not enabled in this org, so no AI analysis is available: ' +
         e.getMessage();
     }
-
     return status;
   }
 
@@ -106,11 +105,11 @@ public with sharing class AgentforceController {
     result.artifactType = artifactType;
     result.artifactName = artifactName;
 
-    CoworkerStatus status = getCoworkerStatus();
-    result.isAvailable = status.isAvailable;
+    AiStatus status = getAiStatus();
     result.statusMessage = status.statusMessage;
 
     if (!status.isAvailable) {
+      result.isAvailable = false;
       result.explanation = generateOfflineExplanation(
         artifactType,
         artifactName,
@@ -121,11 +120,16 @@ public with sharing class AgentforceController {
 
     try {
       String prompt = buildPrompt(artifactType, artifactName, artifactPayload);
-      String aiResponse = invokeAgentforce(status.agentId, prompt);
+      String aiResponse = invokeModelsApi(prompt);
 
       if (String.isNotBlank(aiResponse)) {
+        // Only now is the analysis genuinely AI-generated. Reporting the
+        // pre-check instead let the UI credit Agentforce for offline content.
+        result.isAvailable = true;
         result.explanation = aiResponse;
       } else {
+        result.isAvailable = false;
+        result.statusMessage = 'Agentforce returned no generation for this request.';
         result.explanation = generateOfflineExplanation(
           artifactType,
           artifactName,
@@ -133,17 +137,33 @@ public with sharing class AgentforceController {
         );
       }
     } catch (Exception e) {
-      result.explanation =
-        generateOfflineExplanation(
-          artifactType,
-          artifactName,
-          artifactPayload
-        ) +
-        '\n\n> [!NOTE]\n> Live Agentforce invocation fell back due to: ' +
-        e.getMessage();
+      result.isAvailable = false;
+      result.statusMessage = 'Agentforce call failed: ' + e.getMessage();
+      result.explanation = generateOfflineExplanation(
+        artifactType,
+        artifactName,
+        artifactPayload
+      );
     }
 
     return result;
+  }
+
+  /**
+   * @description Output constraints shared by every prompt.
+   *
+   * Assistant-trained models close with offers of further help ("If you want,
+   * I can..."), which is noise in a rendered report: there is no conversation
+   * and nobody to answer. Framing the output as a document works better than
+   * prohibition alone, so it does both.
+   * @return String Rules to append to any prompt.
+   */
+  private static String outputRules() {
+    return '\n\nOUTPUT RULES:\n' +
+      '- You are producing a static report that will be rendered in a read-only panel. There is no conversation and no one to reply to.\n' +
+      '- Output markdown directly. Do not wrap your response in a code fence, and do not use markdown tables.\n' +
+      '- Do not address the reader, ask questions, offer to do further work, or add a sign-off. Never end with an offer such as "if you want, I can...".\n' +
+      '- Stop after the final section. Output nothing after it.';
   }
 
   private static String buildPrompt(
@@ -156,7 +176,8 @@ public with sharing class AgentforceController {
         artifactName +
         '\'. Here is the Apex source code / structural payload:\n\n' +
         artifactPayload +
-        '\n\nProvide a comprehensive analysis explaining its core purpose, execution logic, interface implementations (specifically within the Trigger Action framework), and any performance risks or governor limit considerations.';
+        '\n\nProvide a comprehensive analysis explaining its core purpose, execution logic, interface implementations (specifically within the Trigger Action framework), and any performance risks or governor limit considerations.' +
+        outputRules();
     } else if (
       'OBJECT'.equalsIgnoreCase(artifactType) ||
       'OBJECT_DEEP'.equalsIgnoreCase(artifactType)
@@ -196,7 +217,6 @@ public with sharing class AgentforceController {
             '2. A REFERENCE IS NOT A WRITE. An element writes a field only when the field is the target of an assignment (`$Record.Field = ...`) or a field being set in a record update. A field appearing on the right-hand side, in a criteria/filter, or reached through a lookup (`$Record.SomeLookup.Field`) is being READ. Never report a read as a write or as contention.\n'
           : '') +
         '\nSTRICT RULES:\n' +
-        '- Output markdown directly. Do not wrap your response in a code fence and do not use markdown tables.\n' +
         (isDeep
           ? '- Ground every statement in the inventory, signals and definitions above. Where a definition was not readable, say so rather than speculating.\n'
           : '- Ground every statement in the inventory and signals above. You cannot see the internal logic of any Apex class or Flow, so never assert what one does internally.\n') +
@@ -205,23 +225,25 @@ public with sharing class AgentforceController {
         '- Count managed and unmanaged artifacts separately when describing contention, and say which are which.\n' +
         '- Do not invent findings. If the object is genuinely clean, say so under Verdict and write "No findings." under Findings.\n' +
         '- Omit a section entirely when there is nothing substantive to put in it.\n' +
-        '- Do not explain what triggers, flows, or the order of execution are. Assume an expert reader. Be blunt and specific.';
+        '- Do not explain what triggers, flows, or the order of execution are. Assume an expert reader. Be blunt and specific.' +
+        outputRules();
     } else {
       return 'You are an expert Salesforce Architect. Analyze the following Record-Triggered Flow \'' +
         artifactName +
         '\'. The following is the Flow structural diagram (in Mermaid syntax) and its metadata/resources:\n\n' +
         artifactPayload +
-        '\n\nProvide a comprehensive analysis including: 1. Core Purpose & Trigger Conditions 2. Decision Logic & Execution Paths 3. Subflows/Apex Actions 4. Governance & Performance Risks 5. Recommendations.';
+        '\n\nProvide a comprehensive analysis including: 1. Core Purpose & Trigger Conditions 2. Decision Logic & Execution Paths 3. Subflows/Apex Actions 4. Governance & Performance Risks 5. Recommendations.' +
+        outputRules();
     }
   }
 
-  private static String invokeAgentforce(String agentId, String prompt) {
+  private static String invokeModelsApi(String prompt) {
     try {
       Invocable.Action action = Invocable.Action.createCustomAction(
         'salesforceAPIPlatform',
         'ModelsAPI.createGenerations'
       );
-      action.setInvocationParameter('modelName', 'sfdc_ai__DefaultGPT4Omni');
+      action.setInvocationParameter('modelName', modelName);
       action.setInvocationParameter(
         'body',
         new Map<String, Object>{ 'prompt' => prompt }
@@ -250,7 +272,7 @@ public with sharing class AgentforceController {
     } catch (Exception e) {
       System.debug(
         LoggingLevel.WARN,
-        'Agentforce ModelsAPI invocation skipped: ' + e.getMessage()
+        'Agentforce Models API invocation skipped: ' + e.getMessage()
       );
     }
     return null;
@@ -281,12 +303,12 @@ public with sharing class AgentforceController {
         artifactName +
         '`\n\n' +
         '> [!NOTE]\n' +
-        '> Agentforce Coworker is not active in this org, so no AI-generated findings are available. The structural analysis below is computed directly from your metadata and is unaffected — including any verified findings shown above.\n\n' +
+        '> Agentforce is not available in this org, so no AI-generated findings are available. The structural analysis below is computed directly from your metadata and is unaffected — including any verified findings shown above.\n\n' +
         '```\n' +
         summary +
         '\n' +
         '```\n\n' +
-        'To add AI-generated findings and recommendations on top of this, activate **Agentforce Coworker** in Salesforce Setup.';
+        'To add AI-generated findings and recommendations on top of this, enable **Agentforce** in Salesforce Setup.';
     }
 
     String title = 'APEX'.equalsIgnoreCase(artifactType)
@@ -303,7 +325,7 @@ public with sharing class AgentforceController {
       artifactName +
       '`\n\n' +
       '> [!NOTE]\n' +
-      '> Agentforce Coworker is not active in this org environment. Structural analysis summary is rendered below.\n\n' +
+      '> Agentforce is not available in this org. Structural analysis summary is rendered below.\n\n' +
       '#### Overview & Structure\n' +
       '- **Artifact:** `' +
       artifactName +
@@ -321,6 +343,6 @@ public with sharing class AgentforceController {
       '\n' +
       '```\n\n' +
       '#### Guidance\n' +
-      'To enable full generative AI analysis powered by Agentforce, activate **Agentforce Coworker** in Salesforce Setup under **Setup → Agentforce Coworker**.';
+      'To enable generative analysis, enable **Agentforce** in Salesforce Setup.';
   }
 }

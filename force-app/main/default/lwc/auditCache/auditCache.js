@@ -10,9 +10,10 @@
  * namespace (or blocks it entirely), so it is treated as best-effort.
  */
 
-// Bump when a prompt in AgentforceController changes, so responses shaped by
-// the old instructions are not served against the new ones.
-export const PROMPT_VERSION = 1;
+// Bump when a prompt OR the model in AgentforceController changes, so responses
+// shaped by the old instructions — or produced by a different model — are not
+// served against the new ones.
+export const PROMPT_VERSION = 4;
 
 const CACHE_PREFIX = "taf-ai";
 const memoryCache = new Map();
