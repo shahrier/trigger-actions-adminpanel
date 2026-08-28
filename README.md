@@ -39,11 +39,11 @@ A centralized UI for managing and visualizing Salesforce trigger actions — bui
 
 ## ✨ Features
 
-![Admin Panel Dashboard](images/hero.png)
-
 ### Org Automation Status Board
 
 A centralized governance board that tracks framework adoption, active TAF dispatcher trigger coverage, unmanaged trigger counts, and active flow distribution across all configured SObjects in your org.
+
+![Admin Panel Dashboard](images/hero.png)
 
 ### SObjects Navigation & Overview
 
