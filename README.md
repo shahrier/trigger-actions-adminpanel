@@ -88,7 +88,7 @@ Visualize Record-Triggered Flows as interactive flowcharts directly in the Admin
 
 ### Agentforce Object Automation Audit & AI Assistant
 
-Unlock deep, AI-powered architectural auditing of your automation footprint directly inside Salesforce using native **Agentforce Models API** integration (`GPT-5-mini`):
+Unlock deep, AI-powered architectural auditing of your automation footprint directly inside Salesforce using native **Agentforce Models API** integration:
 
 - **Comprehensive Object Audits:** Evaluates all active flows, triggers, and Trigger Action Framework configurations on an SObject. The engine parses live Flow metadata into compact structural diagrams and reads unmanaged Apex triggers and TAF action class bodies, giving the model complete runtime visibility.
 - **Risk-Ranked Actionable Findings:** Delivers structured reports with severity tags (`[HIGH]`, `[MEDIUM]`, `[LOW]`), evidence traces, operational impact assessments, and concrete remediation steps (such as eliminating DML in loops, fixing recursive updates, or merging redundant logic).
@@ -176,7 +176,7 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 
 ### v5.0.0
 
-- **Added** Agentforce Object Automation Audit — AI-powered architectural audits of object automation footprints powered directly by Salesforce's Models API (`sfdc_ai__DefaultGPT5Mini`) with deterministic offline fallback
+- **Added** Agentforce Object Automation Audit — AI-powered architectural audits of object automation footprints powered directly by Salesforce's Models API with deterministic offline fallback
 - **Added** Deterministic Field Contention Engine — statically extracts field writes from Flow metadata to detect multi-flow write collisions and potential race conditions
 - **Added** Org Automation Status Board — org-wide overview summarizing TAF adoption, dispatcher trigger status, native trigger/flow distribution, and deep audit entry points per SObject
 - **Added** Multi-Tier Audit Caching (`auditCache`) — prompt-versioned caching in page memory to eliminate redundant AI calls
