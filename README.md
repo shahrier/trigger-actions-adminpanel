@@ -39,10 +39,6 @@ A centralized UI for managing and visualizing Salesforce trigger actions — bui
 
 ## ✨ Features
 
-### Trigger Actions Admin Panel
-
-Your strategic entry point for automation governance. Get a centralized overview of framework adoption across every SObject, launch discovery scans, and initialize new SObject configurations — all from a single dashboard.
-
 ![Admin Panel Dashboard](images/hero.png)
 
 ### Org Automation Status Board
@@ -92,13 +88,18 @@ Visualize Record-Triggered Flows as interactive flowcharts directly in the Admin
 
 ### Agentforce Object Automation Audit & AI Assistant
 
-Leverage Salesforce's native Models API (GPT-5-mini) for deep architectural auditing of object-level automations:
+Unlock deep, AI-powered architectural auditing of your automation footprint directly inside Salesforce using native **Agentforce Models API** integration (`GPT-5-mini`):
 
-- **Deep AST & Flow Inspection:** Converts live Flow metadata into compact Mermaid diagrams and reads unmanaged Apex triggers and TAF action class bodies, presenting the full runtime picture to the AI model.
-- **Risk-Ranked Architectural Verdicts:** Delivers clear, categorized findings (`[HIGH]`, `[MEDIUM]`, `[LOW]`) highlighting DML/SOQL within loops, recursive updates, and consolidation opportunities.
-- **Framework & Managed-Code Aware:** Built-in domain guardrails ensure the TAF dispatcher is recognized as the framework entry point rather than duplicate code, while managed package automations are treated as immutable constraints.
-- **Multi-Tier Audit Caching:** Session- and prompt-versioned caching (`auditCache`) avoids redundant AI token consumption when navigating between objects.
-- **Graceful Offline Degradation:** In orgs without Agentforce enabled, the panel seamlessly falls back to a clean deterministic inventory summary.
+- **Comprehensive Object Audits:** Evaluates all active flows, triggers, and Trigger Action Framework configurations on an SObject. The engine parses live Flow metadata into compact structural diagrams and reads unmanaged Apex triggers and TAF action class bodies, giving the model complete runtime visibility.
+- **Risk-Ranked Actionable Findings:** Delivers structured reports with severity tags (`[HIGH]`, `[MEDIUM]`, `[LOW]`), evidence traces, operational impact assessments, and concrete remediation steps (such as eliminating DML in loops, fixing recursive updates, or merging redundant logic).
+- **In-Visualizer Flow & Apex Analysis:** Open the AI Assistant directly within the **Flow Visualizer** or **Apex Visualizer** to generate instant architectural explanations of trigger criteria, decision branches, invocable actions, and governor limit risks.
+- **Framework & Package Intelligence:** Pre-conditioned with strict architectural rules — recognizes TAF dispatcher triggers as the required framework entry point (not competing automations) and treats managed package triggers as immutable constraints.
+- **Multi-Tier Audit Caching:** Session- and prompt-versioned memory caching (`auditCache`) eliminates redundant API round trips and prevents token waste when navigating between objects.
+- **Graceful Offline Fallback:** In orgs where Agentforce is not enabled, the system seamlessly falls back to a clean deterministic inventory summary.
+
+![Object Automation Audit](images/agentforce2.png)
+
+![Flow Analysis in Flow Visualizer](images/agentforce1.png)
 
 ### Deterministic Field Contention Engine
 
