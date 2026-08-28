@@ -45,6 +45,10 @@ Your strategic entry point for automation governance. Get a centralized overview
 
 ![Admin Panel Dashboard](images/hero.png)
 
+### Org Automation Status Board
+
+A centralized governance board that tracks framework adoption, active TAF dispatcher trigger coverage, unmanaged trigger counts, and active flow distribution across all configured SObjects in your org.
+
 ### SObjects Navigation & Overview
 
 Quickly filter and select SObjects from the sidebar, where badge counts summarize adoption at a glance:
@@ -99,10 +103,6 @@ Leverage Salesforce's native Models API (GPT-5-mini) for deep architectural audi
 ### Deterministic Field Contention Engine
 
 Identify race conditions before they hit production. The engine statically parses Flow assignment and update nodes across all active Record-Triggered Flows on an object, detecting field-level write collisions and presenting verified findings directly in the audit panel.
-
-### Org Automation Status Board
-
-A centralized governance board that tracks framework adoption, active TAF dispatcher trigger coverage, unmanaged trigger counts, and active flow distribution across all configured SObjects in your org.
 
 ### Developer Source View & Apex Visualizer
 
