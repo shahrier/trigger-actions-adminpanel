@@ -86,6 +86,24 @@ Visualize Record-Triggered Flows as interactive flowcharts directly in the Admin
 
 ![Apex Logic Visualizer Drill-down](images/flow_viz2.png)
 
+### Agentforce Object Automation Audit & AI Assistant
+
+Leverage Salesforce's native Models API (GPT-5-mini) for deep architectural auditing of object-level automations:
+
+- **Deep AST & Flow Inspection:** Converts live Flow metadata into compact Mermaid diagrams and reads unmanaged Apex triggers and TAF action class bodies, presenting the full runtime picture to the AI model.
+- **Risk-Ranked Architectural Verdicts:** Delivers clear, categorized findings (`[HIGH]`, `[MEDIUM]`, `[LOW]`) highlighting DML/SOQL within loops, recursive updates, and consolidation opportunities.
+- **Framework & Managed-Code Aware:** Built-in domain guardrails ensure the TAF dispatcher is recognized as the framework entry point rather than duplicate code, while managed package automations are treated as immutable constraints.
+- **Multi-Tier Audit Caching:** Session- and prompt-versioned caching (`auditCache`) avoids redundant AI token consumption when navigating between objects.
+- **Graceful Offline Degradation:** In orgs without Agentforce enabled, the panel seamlessly falls back to a clean deterministic inventory summary.
+
+### Deterministic Field Contention Engine
+
+Identify race conditions before they hit production. The engine statically parses Flow assignment and update nodes across all active Record-Triggered Flows on an object, detecting field-level write collisions and presenting verified findings directly in the audit panel.
+
+### Org Automation Status Board
+
+A centralized governance board that tracks framework adoption, active TAF dispatcher trigger coverage, unmanaged trigger counts, and active flow distribution across all configured SObjects in your org.
+
 ### Developer Source View & Apex Visualizer
 
 Inspect implementation logic without leaving the UI.
@@ -154,6 +172,16 @@ If diagrams fail to load with a CORS / callout error, this step is usually the c
 ---
 
 ## 📋 Changelog
+
+### v5.0.0
+
+- **Added** Agentforce Object Automation Audit — AI-powered architectural audits of object automation footprints powered directly by Salesforce's Models API (`sfdc_ai__DefaultGPT5Mini`) with deterministic offline fallback
+- **Added** Deterministic Field Contention Engine — statically extracts field writes from Flow metadata to detect multi-flow write collisions and potential race conditions
+- **Added** Org Automation Status Board — org-wide overview summarizing TAF adoption, dispatcher trigger status, native trigger/flow distribution, and deep audit entry points per SObject
+- **Added** Multi-Tier Audit Caching (`auditCache`) — prompt-versioned caching in page memory to eliminate redundant AI calls
+- **Added** Automated Model Conformance check script (`modelConformance.apex`) to guard against hallucination and rule drift
+- **Optimized** `getAllOrgSObjects()` sorting in `TriggerActionService` using native platform sort, eliminating CPU timeout exceptions in large org schemas
+- **Expanded** test suites across Apex and LWC Jest with 100% test pass rate and high code coverage
 
 ### v4.1.0
 

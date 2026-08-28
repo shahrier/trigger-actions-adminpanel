@@ -1,7 +1,7 @@
 {
   "name": "trigger-actions-adminpanel",
   "private": true,
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "Trigger Actions Admin Panel for managing and visualizing Salesforce trigger actions configurations",
   "scripts": {
     "lint": "eslint force-app/main/default/lwc/**/*.js",

@@ -540,6 +540,7 @@ public with sharing class TriggerActionService {
   @AuraEnabled(cacheable=true)
   public static List<Map<String, String>> getAllOrgSObjects() {
     List<Map<String, String>> result = new List<Map<String, String>>();
+    Map<String, Map<String, String>> labelToObj = new Map<String, Map<String, String>>();
     for (Schema.SObjectType sot : Schema.getGlobalDescribe().values()) {
       Schema.DescribeSObjectResult d = sot.getDescribe();
       String name = d.getName();
@@ -552,22 +553,18 @@ public with sharing class TriggerActionService {
         !name.endsWith('ChangeEvent') &&
         d.isCreateable()
       ) {
-        Map<String, String> obj = new Map<String, String>();
-        obj.put('label', d.getLabel() + ' (' + name + ')');
-        obj.put('value', name);
-        result.add(obj);
+        String label = d.getLabel() + ' (' + name + ')';
+        labelToObj.put(
+          label,
+          new Map<String, String>{ 'label' => label, 'value' => name }
+        );
       }
     }
 
-    // Sort by label
-    for (Integer i = 0; i < result.size(); i++) {
-      for (Integer j = i + 1; j < result.size(); j++) {
-        if (result[i].get('label').compareTo(result[j].get('label')) > 0) {
-          Map<String, String> temp = result[i];
-          result[i] = result[j];
-          result[j] = temp;
-        }
-      }
+    List<String> sortedLabels = new List<String>(labelToObj.keySet());
+    sortedLabels.sort();
+    for (String label : sortedLabels) {
+      result.add(labelToObj.get(label));
     }
     return result;
   }

@@ -16,6 +16,10 @@
         <apexClass>OrgSessionController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>AgentforceController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
 
     <label>Trigger Actions Framework Admin</label>
     <fieldPermissions>
