@@ -93,7 +93,7 @@ Unlock deep, AI-powered architectural auditing of your automation footprint dire
 - **Comprehensive Object Audits:** Evaluates all active flows, triggers, and Trigger Action Framework configurations on an SObject. The engine parses live Flow metadata into compact structural diagrams and reads unmanaged Apex triggers and TAF action class bodies, giving the model complete runtime visibility.
 - **Risk-Ranked Actionable Findings:** Delivers structured reports with severity tags (`[HIGH]`, `[MEDIUM]`, `[LOW]`), evidence traces, operational impact assessments, and concrete remediation steps (such as eliminating DML in loops, fixing recursive updates, or merging redundant logic).
 - **In-Visualizer Flow & Apex Analysis:** Open the AI Assistant directly within the **Flow Visualizer** or **Apex Visualizer** to generate instant architectural explanations of trigger criteria, decision branches, invocable actions, and governor limit risks.
-- **Framework & Package Intelligence:** Pre-conditioned with strict architectural rules — recognizes TAF dispatcher triggers as the required framework entry point (not competing automations) and treats managed package triggers as immutable constraints.
+- **Domain-Aware Guardrails:** Eliminates false positives by recognizing TAF dispatcher triggers as framework entry points and respecting managed package constraints.
 - **Multi-Tier Audit Caching:** Session- and prompt-versioned memory caching (`auditCache`) eliminates redundant API round trips and prevents token waste when navigating between objects.
 - **Graceful Offline Fallback:** In orgs where Agentforce is not enabled, the system seamlessly falls back to a clean deterministic inventory summary.
 
